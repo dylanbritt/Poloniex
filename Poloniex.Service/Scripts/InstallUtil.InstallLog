@@ -1,0 +1,14 @@
+﻿
+Running a transacted installation.
+
+Beginning the Install phase of the installation.
+See the contents of the log file for the C:\Users\dylan\Desktop\working folder\Poloniex\src\DEV\Poloniex\Poloniex.Service\bin\Debug\PoloniexService.exe assembly's progress.
+The file is located at C:\Users\dylan\Desktop\working folder\Poloniex\src\DEV\Poloniex\Poloniex.Service\bin\Debug\PoloniexService.InstallLog.
+
+The Install phase completed successfully, and the Commit phase is beginning.
+See the contents of the log file for the C:\Users\dylan\Desktop\working folder\Poloniex\src\DEV\Poloniex\Poloniex.Service\bin\Debug\PoloniexService.exe assembly's progress.
+The file is located at C:\Users\dylan\Desktop\working folder\Poloniex\src\DEV\Poloniex\Poloniex.Service\bin\Debug\PoloniexService.InstallLog.
+
+The Commit phase completed successfully.
+
+The transacted install has completed.
