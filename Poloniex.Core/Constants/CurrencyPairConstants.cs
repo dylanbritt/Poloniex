@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Poloniex.Data
+namespace Poloniex.Core.Constants
 {
-    public class Class1
+    public static class CurrencyPairConstants
     {
+        public const string BTC_ETH = "BTC_ETH";
     }
 }

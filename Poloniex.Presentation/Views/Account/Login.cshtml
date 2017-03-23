@@ -1,0 +1,51 @@
+﻿@model Poloniex.Core.Domain.User
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Login</h2>
+
+<strong class="error">@ViewBag.LoginError</strong>
+
+@using (Html.BeginForm("Login", "Account", null, FormMethod.Post, new { id = "loginForm" }))
+{
+
+    var userNameAttributes = new Dictionary<string, object>()
+    {
+        {"class","form-control" }
+    };
+    <label>User Name: </label>
+    @Html.TextBoxFor(x => x.UserName, userNameAttributes)
+
+    <br />
+
+    var passwordAttributes = new Dictionary<string, object>()
+    {
+        {"class","form-control" }
+    };
+    <label>Password: </label>
+    @Html.PasswordFor(x => x.Password, passwordAttributes)
+
+    <br />
+
+    <input type="submit" value="Login" class="form-control" />
+
+}
+@section scripts {
+
+    <script>
+        $("#loginForm").validate({
+            rules: {
+                UserName: {
+                    required: true,
+                    email: true
+                },
+                Password: {
+                    required: true
+                }
+            }
+        });
+    </script>
+
+}
