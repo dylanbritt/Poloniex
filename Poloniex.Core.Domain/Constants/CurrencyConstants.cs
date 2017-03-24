@@ -1,4 +1,4 @@
-﻿namespace Poloniex.Core.Constants
+﻿namespace Poloniex.Core.Domain.Constants
 {
     public class CurrencyConstants
     {

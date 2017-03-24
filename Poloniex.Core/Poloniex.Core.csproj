@@ -30,6 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -45,20 +53,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constants\CurrencyConstants.cs" />
-    <Compile Include="Constants\CurrencyPairConstants.cs" />
-    <Compile Include="Domain\CryptoCurrencyDataPoint.cs" />
-    <Compile Include="Domain\ExponentialMovingAverage.cs" />
-    <Compile Include="Domain\ReturnTradeHistoryResult.cs" />
-    <Compile Include="Domain\SimpleMovingAverage.cs" />
-    <Compile Include="Domain\User.cs" />
+    <Compile Include="Implementation\GatherTaskManager.cs" />
+    <Compile Include="Implementation\GlobalStateManager.cs" />
+    <Compile Include="Implementation\TaskLoopScheduler.cs" />
+    <Compile Include="Interfaces\IGlobalStateManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Implementation\" />
-    <Folder Include="Interfaces\" />
+    <ProjectReference Include="..\Poloniex.Api\Poloniex.Api.csproj">
+      <Project>{0332F4CC-973C-4C16-A9F2-67AFDCFE85AE}</Project>
+      <Name>Poloniex.Api</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Poloniex.Core.Domain\Poloniex.Core.Domain.csproj">
+      <Project>{4FC70634-3140-40D1-8981-46A4C6109EF0}</Project>
+      <Name>Poloniex.Core.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Poloniex.Data\Poloniex.Data.csproj">
+      <Project>{7C6EBDE0-193C-46C1-B45C-9E6218A9D7D9}</Project>
+      <Name>Poloniex.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

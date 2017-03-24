@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using static Poloniex.Core.Domain.ReturnTradeHistoryResult;
+using static Poloniex.Core.Domain.Models.ReturnTradeHistoryResult;
 
 namespace Poloniex.Api.Implementation
 {
@@ -47,7 +47,7 @@ namespace Poloniex.Api.Implementation
                 {
                     var request = new RestRequest(string.Format(ReturnTradeHistoryTemplate, currencyPair, startUtcTime.ToUnixDateTime(), endUtcTime.ToUnixDateTime()), Method.GET);
 
-                    Thread.Sleep(5000); // throttle api calls to avoid ban
+                    Thread.Sleep(175); // throttle api calls to avoid ban
                     IRestResponse<List<TradeOrder>> response = client.Execute<List<TradeOrder>>(request);
 
                     if (response.StatusCode == System.Net.HttpStatusCode.OK)

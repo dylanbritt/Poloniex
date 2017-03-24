@@ -1,8 +1,8 @@
-﻿using Poloniex.Api.Implementation;
-using Poloniex.Core.Constants;
+﻿using Poloniex.Core.Domain.Constants;
+using Poloniex.Core.Domain.Models;
+using Poloniex.Core.Implementation;
+using Poloniex.Log;
 using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace ConsoleApplication
 {
@@ -10,17 +10,13 @@ namespace ConsoleApplication
     {
         public static string LogName = AppDomain.CurrentDomain.BaseDirectory + $"\\{DateTime.UtcNow.ToString("yyyyMMddhhmmssfff")}-ConsoleApplicationFile.txt";
 
-        public static void WriteLog(string message)
-        {
-            using (var sw = new StreamWriter(LogName, true))
-            {
-                sw.WriteLine($"{DateTime.UtcNow.ToString("yyyy-MM-dd hh:mm:ss:fff")}: {message}");
-            }
-        }
-
         static void Main(string[] args)
         {
-            WriteLog("Console application started");
+            //Logger.Write("Console application started");
+
+            //// ################################################################
+            //// Testing database
+            //// ################################################################
 
             //using (var db = new PoloniexContext())
             //{
@@ -37,6 +33,10 @@ namespace ConsoleApplication
 
             //    db.SaveChanges();
             //}
+
+            //// ################################################################
+            //// Testing Poloniex API
+            //// ################################################################
 
             //var interval = 20;
 
@@ -120,24 +120,87 @@ namespace ConsoleApplication
             //    ClosingValue = ema
             //};
 
+            //// ################################################################
+            //// Testing thread lock
+            //// ################################################################
+
+            //System.Threading.Tasks.Task.Run(() =>
+            //{
+            //    var tmp1 = PoloniexExchangeService.Instance.ReturnTradeHistory(CurrencyPairConstants.BTC_ETH, DateTime.UtcNow.AddMinutes(-60), DateTime.UtcNow);
+            //    Logger.Write("First thread completed");
+            //});
+
+            //System.Threading.Tasks.Task.Run(() =>
+            //{
+            //    var tmp = PoloniexExchangeService.Instance.ReturnTradeHistory(CurrencyPairConstants.BTC_ETH, DateTime.UtcNow.AddMinutes(-60), DateTime.UtcNow);
+            //    Logger.Write("Second thread completed");
+            //});
+
+
+            //int stop = 0;
+            //Console.ReadLine();
+
             // ################################################################
-            // Testing thread lock
+            // Testing Task data access
             // ################################################################
 
-            Task.Run(() =>
+            //using (var db = new PoloniexContext())
+            //{
+            //    db.Tasks.Add(new Task()
+            //    {
+            //        TaskType = "GatherTask",
+            //        TaskLoop = new TaskLoop()
+            //        {
+            //            LoopStatus = "RequestToStart",
+            //            Interval = 3000,
+            //        },
+            //        GatherTask = new GatherTask()
+            //        {
+            //            CurrencyPair = CurrencyPairConstants.BTC_ETH,
+            //            Interval = 30000
+            //        }
+            //    });
+
+            //    db.SaveChanges();
+            //}
+
+            //TaskLoopScheduler tls = new TaskLoopScheduler();
+            //tls.PollForTasksToStartOrStop();
+
+            // ################################################################
+            // Testing GatherTaskManager
+            // ################################################################
+
+            //GatherTaskManager.GatherTaskElapsed(null, CurrencyPairConstants.BTC_ETH, 60);
+
+            Logger.Write("test started.");
+            Logger.Write("syncing test tick.");
+            while (DateTime.UtcNow.Second != 0) ;
+            Logger.Write("test tick synced.");
+
+
+            var taskLoop1 = new TaskLoop()
             {
-                var tmp1 = PoloniexExchangeService.Instance.ReturnTradeHistory(CurrencyPairConstants.BTC_ETH, DateTime.UtcNow.AddMinutes(-60), DateTime.UtcNow);
-                WriteLog("First thread completed");
-            });
+                Interval = 60
+            };
 
-            Task.Run(() =>
-            {
-                var tmp = PoloniexExchangeService.Instance.ReturnTradeHistory(CurrencyPairConstants.BTC_ETH, DateTime.UtcNow.AddMinutes(-60), DateTime.UtcNow);
-                WriteLog("Second thread completed");
-            });
+            var interval = 60;
 
+            var timer1 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_BTC, interval, true);
+            var timer2 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ETH, interval, true);
+            var timer3 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_DASH, interval, true);
+            var timer4 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_XRP, interval, true);
+            var timer5 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_XMR, interval, true);
+            var timer6 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ETC, interval, true);
+            var timer7 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_LTC, interval, true);
+            var timer8 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ZEC, interval, true);
+            var timer9 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_REP, interval, true);
+            var timer10 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_STR, interval, true);
+            var timer11 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_NXT, interval, true);
 
-            int stop = 0;
+            GlobalStateManager gsm = new GlobalStateManager();
+            gsm.AddTaskLoop(taskLoop1, timer1);
+
             Console.ReadLine();
         }
     }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Poloniex.Core.Domain
+namespace Poloniex.Core.Domain.Models
 {
-    public class CryptoCurrencyDataPoint
+    public class SimpleMovingAverage
     {
-        public Guid CryptoCurrencyDataPointId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid SimpleMovingAverageId { get; set; }
 
         [Required, MaxLength(16)]
         public string Currency { get; set; }

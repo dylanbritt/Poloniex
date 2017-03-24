@@ -5,19 +5,6 @@ namespace Poloniex.Service.Framework
 {
     public static class ConfigurationHelper
     {
-        public static bool EnableLog
-        {
-            get
-            {
-                var str = ConfigurationManager.AppSettings[nameof(EnableLog)];
-                if (string.IsNullOrWhiteSpace(str))
-                {
-                    throw new InvalidOperationException($"{nameof(EnableLog)} does not have a valid configuration setting");
-                }
-                return bool.Parse(str);
-            }
-        }
-
         public static int TimerTickInterval
         {
             get

@@ -194,6 +194,10 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Poloniex.Core.Domain\Poloniex.Core.Domain.csproj">
+      <Project>{4FC70634-3140-40D1-8981-46A4C6109EF0}</Project>
+      <Name>Poloniex.Core.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Poloniex.Core\Poloniex.Core.csproj">
       <Project>{E2A3643E-A2F5-4B9F-AB53-5ABF9150B7B0}</Project>
       <Name>Poloniex.Core</Name>

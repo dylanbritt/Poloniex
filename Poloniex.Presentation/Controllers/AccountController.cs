@@ -1,4 +1,4 @@
-﻿using Poloniex.Core.Domain;
+﻿using Poloniex.Core.Domain.Models;
 using Poloniex.Presentation.Framework.Session;
 using System.Web.Mvc;
 using System.Web.Security;

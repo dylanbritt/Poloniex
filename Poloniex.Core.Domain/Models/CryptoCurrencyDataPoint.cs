@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Poloniex.Core.Domain
+namespace Poloniex.Core.Domain.Models
 {
-    public class ExponentialMovingAverage
+    public class CryptoCurrencyDataPoint
     {
-        public Guid ExponentialMovingAverageId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid CryptoCurrencyDataPointId { get; set; }
 
         [Required, MaxLength(16)]
         public string Currency { get; set; }
@@ -18,5 +20,8 @@ namespace Poloniex.Core.Domain
 
         [Required]
         public decimal ClosingValue { get; set; }
+
+        [Required]
+        public DateTime CreatedDateTime { get; set; }
     }
 }

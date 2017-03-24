@@ -68,6 +68,10 @@
       <Project>{0332F4CC-973C-4C16-A9F2-67AFDCFE85AE}</Project>
       <Name>Poloniex.Api</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Poloniex.Core.Domain\Poloniex.Core.Domain.csproj">
+      <Project>{4FC70634-3140-40D1-8981-46A4C6109EF0}</Project>
+      <Name>Poloniex.Core.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Poloniex.Core\Poloniex.Core.csproj">
       <Project>{E2A3643E-A2F5-4B9F-AB53-5ABF9150B7B0}</Project>
       <Name>Poloniex.Core</Name>
@@ -75,6 +79,10 @@
     <ProjectReference Include="..\Poloniex.Data\Poloniex.Data.csproj">
       <Project>{7C6EBDE0-193C-46C1-B45C-9E6218A9D7D9}</Project>
       <Name>Poloniex.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Poloniex.Log\Poloniex.Log.csproj">
+      <Project>{814D2E46-9D50-460D-9D76-541F5A30A83A}</Project>
+      <Name>Poloniex.Log</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

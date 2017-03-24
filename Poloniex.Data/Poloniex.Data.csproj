@@ -50,13 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contexts\PoloniexContext.cs" />
-    <Compile Include="Migrations\201703230303426_Init.cs" />
-    <Compile Include="Migrations\201703230303426_Init.Designer.cs">
-      <DependentUpon>201703230303426_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201703230313217_Update.cs" />
-    <Compile Include="Migrations\201703230313217_Update.Designer.cs">
-      <DependentUpon>201703230313217_Update.cs</DependentUpon>
+    <Compile Include="Migrations\201703240623505_Update.cs" />
+    <Compile Include="Migrations\201703240623505_Update.Designer.cs">
+      <DependentUpon>201703240623505_Update.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,20 +64,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Poloniex.Core\Poloniex.Core.csproj">
-      <Project>{e2a3643e-a2f5-4b9f-ab53-5abf9150b7b0}</Project>
-      <Name>Poloniex.Core</Name>
+    <ProjectReference Include="..\Poloniex.Core.Domain\Poloniex.Core.Domain.csproj">
+      <Project>{4FC70634-3140-40D1-8981-46A4C6109EF0}</Project>
+      <Name>Poloniex.Core.Domain</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201703230303426_Init.resx">
-      <DependentUpon>201703230303426_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201703230313217_Update.resx">
-      <DependentUpon>201703230313217_Update.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201703240623505_Update.resx">
+      <DependentUpon>201703240623505_Update.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

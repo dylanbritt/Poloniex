@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Poloniex.Log;
+using System;
 using System.Timers;
 
 namespace Poloniex.Service.Framework
@@ -27,38 +28,41 @@ namespace Poloniex.Service.Framework
 
         public static void TimerTick(object sender, ElapsedEventArgs e)
         {
-            ServiceLog.Write("Entering TimerTick.");
+            Logger.Write("Entering TimerTick.");
 
             try
             {
                 TimerHelper.Timer.Stop();
 
                 // TODO:
-                ServiceLog.Write("Do work.");
+                Logger.Write("Do work.");
 
             }
             catch (Exception exception)
             {
-                ServiceLog.WriteException(exception);
+                Logger.WriteException(exception);
             }
             finally
             {
                 TimerHelper.Timer.Start();
             }
 
-            ServiceLog.Write("Exiting TimerTick.");
+            Logger.Write("Exiting TimerTick.");
         }
 
         public static void Start()
         {
-            ServiceLog.Write("Service started.");
+            Logger.Write("Service started.");
+            Logger.Write("Syncing TimerTick.");
+            while (DateTime.UtcNow.Second != 0) ;
+            Logger.Write("TimerTick synced.");
             TimerHelper.Timer.Start();
         }
 
         public static void Stop()
         {
             TimerHelper.Timer.Stop();
-            ServiceLog.Write("Service stopped.");
+            Logger.Write("Service stopped.");
         }
     }
 }

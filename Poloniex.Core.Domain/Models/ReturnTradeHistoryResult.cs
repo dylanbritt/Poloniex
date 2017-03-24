@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Poloniex.Core.Domain
+namespace Poloniex.Core.Domain.Models
 {
     public static class TradeOrderType
     {

@@ -17,6 +17,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poloniex.Core", "Poloniex.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poloniex.Api", "Poloniex.Api\Poloniex.Api.csproj", "{0332F4CC-973C-4C16-A9F2-67AFDCFE85AE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6A9C5320-7C35-4C2C-9464-45FAF8F5FC89}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poloniex.Core.Domain", "Poloniex.Core.Domain\Poloniex.Core.Domain.csproj", "{4FC70634-3140-40D1-8981-46A4C6109EF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poloniex.Log", "Poloniex.Log\Poloniex.Log.csproj", "{814D2E46-9D50-460D-9D76-541F5A30A83A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +60,14 @@ Global
 		{0332F4CC-973C-4C16-A9F2-67AFDCFE85AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0332F4CC-973C-4C16-A9F2-67AFDCFE85AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0332F4CC-973C-4C16-A9F2-67AFDCFE85AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FC70634-3140-40D1-8981-46A4C6109EF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FC70634-3140-40D1-8981-46A4C6109EF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FC70634-3140-40D1-8981-46A4C6109EF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FC70634-3140-40D1-8981-46A4C6109EF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{814D2E46-9D50-460D-9D76-541F5A30A83A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{814D2E46-9D50-460D-9D76-541F5A30A83A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{814D2E46-9D50-460D-9D76-541F5A30A83A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{814D2E46-9D50-460D-9D76-541F5A30A83A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
