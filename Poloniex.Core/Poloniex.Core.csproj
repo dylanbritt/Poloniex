@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Implementation\GatherTaskManager.cs" />
     <Compile Include="Implementation\GlobalStateManager.cs" />
+    <Compile Include="Implementation\MovingAverageManager.cs" />
     <Compile Include="Implementation\TaskLoopScheduler.cs" />
     <Compile Include="Interfaces\IGlobalStateManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

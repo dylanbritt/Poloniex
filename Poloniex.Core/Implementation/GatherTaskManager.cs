@@ -10,6 +10,68 @@ namespace Poloniex.Core.Implementation
 {
     public static class GatherTaskManager
     {
+        public static void BackFillGatherTaskDataForOneMonthAtMinuteIntervals(string currencyPair, DateTime? inputDateTime = null)
+        {
+            var curDateTime = inputDateTime ?? DateTime.UtcNow;
+
+            // 2678400 seconds = 1 month
+            // 21600 seconds = 6 hours
+            for (int i = 2678400; i > 0; i = i - 21600)
+            {
+                var intervalBeginningDateTime = curDateTime.AddSeconds(-i);
+                var intervalEndDateTime = curDateTime.AddSeconds(-(i - 21600));
+
+                var poloniexData = PoloniexExchangeService.Instance.ReturnTradeHistory(currencyPair, intervalBeginningDateTime, intervalEndDateTime);
+
+                poloniexData = poloniexData.OrderBy(x => x.date).ToList();
+
+                var dataPoints = new List<CryptoCurrencyDataPoint>();
+                decimal rate = poloniexData.First().rate;
+
+                // how many minute intervals in 21600 seconds ... 360
+                for (int j = 0; j < 360; j++)
+                {
+                    int pos = 0;
+
+                    var dataPoint = new CryptoCurrencyDataPoint
+                    {
+                        Currency = currencyPair,
+                        Interval = 60,
+                        ClosingDateTime = intervalBeginningDateTime.AddSeconds((j + 1) * 60),
+                        CreatedDateTime = DateTime.UtcNow
+                    };
+
+                    bool isAnyData = false;
+                    while (pos < poloniexData.Count && poloniexData[pos].date < dataPoint.ClosingDateTime)
+                    {
+                        isAnyData = true;
+                        pos++;
+                    }
+                    if (pos == poloniexData.Count)
+                    {
+                        pos--;
+                    }
+
+                    if (isAnyData)
+                    {
+                        rate = poloniexData[pos].rate;
+                    }
+
+                    dataPoint.ClosingValue = rate;
+
+                    dataPoints.Add(dataPoint);
+                }
+
+                using (var db = new PoloniexContext())
+                {
+                    db.CryptoCurrencyDataPoints.AddRange(dataPoints);
+                    db.SaveChanges();
+                }
+            }
+
+            return;
+        }
+
         public static void BackFillGatherTaskData(string currencyPair, int interval, int numberOfIntervals, DateTime? dateTimeNowOptional = null)
         {
             using (var db = new PoloniexContext())
@@ -31,42 +93,6 @@ namespace Poloniex.Core.Implementation
 
             List<CryptoCurrencyDataPoint> cryptoCurrencyDataPoints = new List<CryptoCurrencyDataPoint>();
             var curRate = result.First().rate;
-
-            if (result.Count >= 49000)
-            {
-                for (int i = numberOfIntervals; i > 0; i--)
-                {
-                    var intervalBeginningDateTime = dateTimeNow.AddSeconds(-((interval * (i - 1)) + 3600));
-                    var intervalEndDateTime = dateTimeNow.AddSeconds(-(interval * (i - 1)));
-
-                    var poloniexData = PoloniexExchangeService.Instance.ReturnTradeHistory(currencyPair, intervalBeginningDateTime, intervalEndDateTime);
-
-                    var dataPoint = new CryptoCurrencyDataPoint
-                    {
-                        Currency = currencyPair,
-                        Interval = interval,
-                        ClosingDateTime = intervalEndDateTime,
-                    };
-
-                    if (poloniexData.Any())
-                    {
-                        curRate = poloniexData.OrderBy(x => x.date).Last().rate;
-                    }
-
-                    dataPoint.ClosingValue = curRate;
-
-                    cryptoCurrencyDataPoints.Add(dataPoint);
-
-                }
-
-                using (var db = new PoloniexContext())
-                {
-                    db.CryptoCurrencyDataPoints.AddRange(cryptoCurrencyDataPoints);
-                    db.SaveChanges();
-                }
-
-                return;
-            }
 
             int curPos = 0;
 

@@ -1,8 +1,9 @@
-﻿using Poloniex.Core.Domain.Constants;
-using Poloniex.Core.Domain.Models;
+﻿using Poloniex.Core.Domain.Models;
 using Poloniex.Core.Implementation;
-using Poloniex.Log;
+using Poloniex.Data.Contexts;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleApplication
 {
@@ -173,33 +174,126 @@ namespace ConsoleApplication
 
             //GatherTaskManager.GatherTaskElapsed(null, CurrencyPairConstants.BTC_ETH, 60);
 
-            Logger.Write("test started.");
-            Logger.Write("syncing test tick.");
-            while (DateTime.UtcNow.Second != 0) ;
-            Logger.Write("test tick synced.");
+            //Logger.Write("test started.");
+            //Logger.Write("syncing test tick.");
+            //while (DateTime.UtcNow.Second != 0) ;
+            //Logger.Write("test tick synced.");
 
+            //var taskLoop1 = new TaskLoop()
+            //{
+            //    Interval = 60
+            //};
 
-            var taskLoop1 = new TaskLoop()
+            //var interval = 60;
+
+            //var timer1 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_BTC, interval, true);
+            //var timer2 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ETH, interval, true);
+            //var timer3 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_DASH, interval, true);
+            //var timer4 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_XRP, interval, true);
+            //var timer5 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_XMR, interval, true);
+            //var timer6 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ETC, interval, true);
+            //var timer7 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_LTC, interval, true);
+            //var timer8 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ZEC, interval, true);
+            //var timer9 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_REP, interval, true);
+            //var timer10 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_STR, interval, true);
+            //var timer11 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_NXT, interval, true);
+
+            //GlobalStateManager gsm = new GlobalStateManager();
+            //gsm.AddTaskLoop(taskLoop1, timer1);
+
+            //var poloniexData = PoloniexExchangeService.Instance.ReturnTradeHistory(CurrencyPairConstants.USDT_BTC, DateTime.UtcNow.AddHours(-(6)), DateTime.UtcNow);
+            //GatherTaskManager.BackFillGatherTaskData(CurrencyPairConstants.USDT_BTC, 60, 44640);  //.GetGatherTaskTimer(CurrencyPairConstants.USDT_BTC, interval, true);
+
+            //var dt = DateTime.UtcNow;
+
+            //Console.WriteLine("Started: " + dt.ToString("yyyy-MM-dd hh:mm:ss:fff"));
+
+            //GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals(CurrencyPairConstants.USDT_BTC, dt);
+
+            //Console.WriteLine("Finished: " + DateTime.UtcNow.ToString("yyyy-MM-dd hh:mm:ss:fff"));
+
+            //GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals(CurrencyPairConstants.USDT_BTC, DateTime.Parse("2017-01-15 00:00:00.000"));
+
+            // ################################################################
+            // Testing MovingAverage
+            // ################################################################
+
+            var dateFilter = DateTime.Parse("2017-02-22 03:10:36");
+            //var dateFilter = DateTime.Parse("2017-01-01 00:00:00");
+
+            //var bitCoinModifier = 0.0625M;
+            var bitCoinModifier = 0.59166M;
+
+            List<CryptoCurrencyDataPoint> data;
+            using (var db = new PoloniexContext())
             {
-                Interval = 60
-            };
+                //data = db.CryptoCurrencyDataPoints.Where(x => x.ClosingDateTime > dateFilter).OrderBy(x => x.ClosingDateTime).Take(1440 * 15).ToList();
+                data = db.CryptoCurrencyDataPoints.Where(x => x.ClosingDateTime > dateFilter).OrderBy(x => x.ClosingDateTime).ToList();
+            }
 
-            var interval = 60;
+            var startTime = data.First().ClosingDateTime;
+            var endTime = data.Last().ClosingDateTime;
 
-            var timer1 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_BTC, interval, true);
-            var timer2 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ETH, interval, true);
-            var timer3 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_DASH, interval, true);
-            var timer4 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_XRP, interval, true);
-            var timer5 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_XMR, interval, true);
-            var timer6 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ETC, interval, true);
-            var timer7 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_LTC, interval, true);
-            var timer8 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_ZEC, interval, true);
-            var timer9 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_REP, interval, true);
-            var timer10 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_STR, interval, true);
-            var timer11 = GatherTaskManager.GetGatherTaskTimer(CurrencyPairConstants.USDT_NXT, interval, true);
+            var smallInterval = 10;
+            var largeInterval = 20;
+            var initData = data.GetRange(0, largeInterval).Select(x => x.ClosingValue).ToList();
 
-            GlobalStateManager gsm = new GlobalStateManager();
-            gsm.AddTaskLoop(taskLoop1, timer1);
+            var smallIntervalList = initData.GetRange(largeInterval - smallInterval, smallInterval);
+            var largeIntervalList = initData;
+
+            data.RemoveRange(0, largeInterval);
+
+            var smallEma = MovingAverageManager.CalculateSma(smallIntervalList);
+            var largeEma = MovingAverageManager.CalculateSma(largeIntervalList);
+
+            bool isBullish = smallEma > largeEma;
+            bool wasPreviousBullish = !isBullish;
+
+            bool inTrade = false;
+            decimal buyPrice = 0;
+            decimal totalProfit = 0;
+
+            while (data.Count > 0)
+            {
+                var closeValue = data[0].ClosingValue;
+                data.RemoveAt(0);
+                smallEma = MovingAverageManager.CalculateEma(closeValue, smallEma, 5);
+                largeEma = MovingAverageManager.CalculateEma(closeValue, largeEma, 13);
+                wasPreviousBullish = isBullish;
+                isBullish = smallEma > largeEma;
+                //Console.WriteLine($"closeValue: {closeValue}");
+                //Console.WriteLine($"smallEma: {smallEma}");
+                //Console.WriteLine($"largeEma: {largeEma}");
+                //Console.WriteLine($"isBullish: {isBullish}");
+                if (isBullish)
+                {
+                    //Console.WriteLine($"################################################################");
+                    if (!wasPreviousBullish)
+                    {
+                        inTrade = true;
+                        buyPrice = closeValue * bitCoinModifier - (closeValue * bitCoinModifier * 0.00025M + 0.00098307M * closeValue);
+                    }
+                }
+                else
+                {
+                    if (wasPreviousBullish)
+                    {
+                        if (inTrade)
+                        {
+                            inTrade = false;
+                            totalProfit += buyPrice - (closeValue * bitCoinModifier - (closeValue * bitCoinModifier * 0.00025M + 0.00098307M * closeValue));
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine($"################################################################");
+            Console.WriteLine($"################################################################");
+            Console.WriteLine($"Start Time: {startTime}");
+            Console.WriteLine($"Estimated 30day Profit: {totalProfit}");
+            Console.WriteLine($"End Time: {endTime}");
+            Console.WriteLine($"################################################################");
+            Console.WriteLine($"################################################################");
 
             Console.ReadLine();
         }
