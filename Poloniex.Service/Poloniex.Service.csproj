@@ -77,6 +77,8 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="Config\appSettings.config" />
+    <Content Include="Config\connectionStrings.config" />
     <None Include="packages.config" />
     <None Include="Scripts\Debug-InstallService.bat" />
     <None Include="Scripts\Debug-UninstallService.bat" />

@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="Config\connectionStrings.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
