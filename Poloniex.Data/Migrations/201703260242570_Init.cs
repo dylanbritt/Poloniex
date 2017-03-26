@@ -3,7 +3,7 @@ namespace Poloniex.Data.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class Update : DbMigration
+    public partial class Init : DbMigration
     {
         public override void Up()
         {
@@ -13,7 +13,6 @@ namespace Poloniex.Data.Migrations
                     {
                         CryptoCurrencyDataPointId = c.Guid(nullable: false, identity: true),
                         Currency = c.String(nullable: false, maxLength: 16),
-                        Interval = c.Int(nullable: false),
                         ClosingDateTime = c.DateTime(nullable: false),
                         ClosingValue = c.Decimal(nullable: false, precision: 22, scale: 12),
                         CreatedDateTime = c.DateTime(nullable: false),
@@ -27,7 +26,6 @@ namespace Poloniex.Data.Migrations
                         TaskId = c.Guid(nullable: false),
                         GatherTaskId = c.Guid(nullable: false, identity: true),
                         CurrencyPair = c.String(nullable: false, maxLength: 32),
-                        Interval = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.TaskId)
                 .ForeignKey("dbo.Tasks", t => t.TaskId)
@@ -63,7 +61,6 @@ namespace Poloniex.Data.Migrations
                         TaskId = c.Guid(nullable: false),
                         TradeTaskId = c.Guid(nullable: false, identity: true),
                         CurrencyPair = c.String(nullable: false, maxLength: 32),
-                        Interval = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.TaskId)
                 .ForeignKey("dbo.Tasks", t => t.TaskId)

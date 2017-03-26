@@ -53,7 +53,7 @@ namespace Poloniex.Core.Implementation
                         {
                             try
                             {
-                                GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals(taskLoop.Task.GatherTask.CurrencyPair);
+                                GatherTaskManager.BackFillGatherTaskDataForOneMonth(taskLoop.Task.GatherTask.CurrencyPair);
                             }
                             catch (Exception exception)
                             {
@@ -68,7 +68,7 @@ namespace Poloniex.Core.Implementation
                             db.Entry(taskLoop).State = EntityState.Modified;
                             db.SaveChanges();
                         }
-                        System.Threading.Tasks.Task.Run(() => { Logger.Write($"Started {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}"); });
+                        Logger.Write($"Started {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}");
                         break;
                 }
             }

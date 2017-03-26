@@ -5,6 +5,7 @@
 appSettings.config
 connectionStrings.config
 *.pubxml
+*.InstallLog
 
 # User-specific files
 *.suo

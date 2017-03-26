@@ -12,9 +12,6 @@ namespace Poloniex.Core.Domain.Models
         [Required, MaxLength(32)]
         public string CurrencyPair { get; set; }
 
-        [Required]
-        public int Interval { get; set; }
-
         // Foreign key
         [Key, ForeignKey("Task")]
         public Guid TaskId { get; set; }

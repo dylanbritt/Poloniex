@@ -13,9 +13,6 @@ namespace Poloniex.Core.Domain.Models
         public string Currency { get; set; }
 
         [Required]
-        public int Interval { get; set; }
-
-        [Required]
         public DateTime ClosingDateTime { get; set; }
 
         [Required]

@@ -1,14 +1,9 @@
-﻿using Poloniex.Api.Implementation;
-using Poloniex.Core.Implementation;
-using System;
-using System.Configuration;
+﻿using System;
 
 namespace ConsoleApplication
 {
     class Program
     {
-        public static string LogName = AppDomain.CurrentDomain.BaseDirectory + $"\\{DateTime.UtcNow.ToString("yyyyMMddhhmmssfff")}-ConsoleApplicationFile.txt";
-
         static void Main(string[] args)
         {
             //Logger.Write("Console application started");
@@ -297,7 +292,7 @@ namespace ConsoleApplication
             // Testing Trade
             // ################################################################
 
-            var res = PoloniexExchangeService.Instance.ReturnBalances();
+            //var res = PoloniexExchangeService.Instance.ReturnBalances();
 
             // ################################################################
             // ################################################################
