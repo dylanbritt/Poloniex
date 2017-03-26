@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Poloniex.Core.Domain.Models;
+using Poloniex.Log;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -35,8 +37,9 @@ namespace Poloniex.Api.Implementation
         private static readonly PoloniexExchangeService _instance = new PoloniexExchangeService();
 
         private const string BaseUrl = "https://poloniex.com";
-        private const string ReturnTradeHistoryTemplate = "public?command=returnTradeHistory&currencyPair={0}&start={1}&end={2}";
-        private const string TradingApi = "tradingApi";
+        private const string ReturnTickerUrl = "public?command=returnTicker";
+        private const string ReturnTradeHistoryTemplateUrl = "public?command=returnTradeHistory&currencyPair={0}&start={1}&end={2}";
+        private const string TradingApiUrl = "tradingApi";
 
         private PoloniexExchangeService() { }
 
@@ -45,6 +48,10 @@ namespace Poloniex.Api.Implementation
         private class Commands
         {
             public const string ReturnBalances = "returnBalances";
+            public const string ReturnOpenOrders = "returnOpenOrders";
+            public const string Buy = "buy";
+            public const string Sell = "sell";
+            public const string MoveOrder = "moveOrder";
         }
 
         private string PostCommand(string command, Dictionary<string, object> dictionary = null)
@@ -52,7 +59,7 @@ namespace Poloniex.Api.Implementation
             if (dictionary == null)
                 dictionary = new Dictionary<string, object>();
 
-            var uri = $"{BaseUrl}/{TradingApi}";
+            var uri = $"{BaseUrl}/{TradingApiUrl}";
 
             /*
              * Headers:
@@ -93,6 +100,32 @@ namespace Poloniex.Api.Implementation
             return result;
         }
 
+        public Dictionary<string, Dictionary<string, decimal>> ReturnTicker()
+        {
+            lock (_syncRoot)
+            {
+                var client = new RestClient(BaseUrl);
+
+                short count = 0;
+                while (true)
+                {
+                    var request = new RestRequest(ReturnTickerUrl, Method.GET);
+
+                    Thread.Sleep(175); // throttle api calls to avoid ban
+                    IRestResponse<Dictionary<string, Dictionary<string, decimal>>> response = client.Execute<Dictionary<string, Dictionary<string, decimal>>>(request);
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        return response.Data;
+
+                    if (count == 2)
+                        throw new InvalidOperationException($"RestRequest exceeded three attempts.");
+
+                    count++;
+                }
+            }
+        }
+
+        // public api
         public List<TradeOrder> ReturnTradeHistory(string currencyPair, DateTime startUtcTime, DateTime endUtcTime)
         {
             lock (_syncRoot)
@@ -102,7 +135,7 @@ namespace Poloniex.Api.Implementation
                 short count = 0;
                 while (true)
                 {
-                    var request = new RestRequest(string.Format(ReturnTradeHistoryTemplate, currencyPair, startUtcTime.ToUnixDateTime(), endUtcTime.ToUnixDateTime()), Method.GET);
+                    var request = new RestRequest(string.Format(ReturnTradeHistoryTemplateUrl, currencyPair, startUtcTime.ToUnixDateTime(), endUtcTime.ToUnixDateTime()), Method.GET);
 
                     Thread.Sleep(175); // throttle api calls to avoid ban
                     IRestResponse<List<TradeOrder>> response = client.Execute<List<TradeOrder>>(request);
@@ -118,6 +151,7 @@ namespace Poloniex.Api.Implementation
             }
         }
 
+        // user api
         public Dictionary<string, decimal> ReturnBalances()
         {
             lock (_syncRoot)
@@ -134,8 +168,173 @@ namespace Poloniex.Api.Implementation
 
                         return JsonConvert.DeserializeObject<Dictionary<string, decimal>>(res);
                     }
-                    catch
+                    catch (Exception exception)
                     {
+                        Logger.WriteException(exception);
+                        if (count == 2)
+                            throw new InvalidOperationException($"PostCommand exceeded three attempts.");
+
+                        count++;
+                    }
+
+                    // ################################################################
+                }
+            }
+        }
+
+        public List<Dictionary<string, string>> ReturnOpenOrders(string currencyPair)
+        {
+            lock (_syncRoot)
+            {
+                short count = 0;
+                while (true)
+                {
+                    // ################################################################
+
+                    try
+                    {
+                        Dictionary<string, object> parameters = new Dictionary<string, object>();
+                        parameters.Add("currencyPair", currencyPair);
+
+                        Thread.Sleep(175); // throttle api calls to avoid ban
+                        var res = PostCommand(Commands.ReturnOpenOrders, parameters);
+
+                        return JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(res);
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.WriteException(exception);
+                        if (count == 2)
+                            throw new InvalidOperationException($"PostCommand exceeded three attempts.");
+
+                        count++;
+                    }
+
+                    // ################################################################
+                }
+            }
+        }
+
+        public TradeResult Buy(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        {
+            lock (_syncRoot)
+            {
+                short count = 0;
+                while (true)
+                {
+                    // ################################################################
+
+                    try
+                    {
+                        Dictionary<string, object> parameters = new Dictionary<string, object>();
+                        parameters.Add("currencyPair", currencyPair);
+                        parameters.Add("rate", rate);
+                        parameters.Add("amount", amount);
+                        if (fillOrKill)
+                        {
+                            parameters.Add("fillOrKill", 1);
+                        }
+                        if (immediateOrCancel)
+                        {
+                            parameters.Add("immediateOrCancel", 1);
+                        }
+                        if (postOnly)
+                        {
+                            parameters.Add("postOnly", 1);
+                        }
+
+                        Thread.Sleep(175); // throttle api calls to avoid ban
+                        var res = PostCommand(Commands.Buy, parameters);
+
+                        return JsonConvert.DeserializeObject<TradeResult>(res);
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.WriteException(exception);
+                        if (count == 2)
+                            throw new InvalidOperationException($"PostCommand exceeded three attempts.");
+
+                        count++;
+                    }
+
+                    // ################################################################
+                }
+            }
+        }
+
+        public string Sell(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        {
+            lock (_syncRoot)
+            {
+                short count = 0;
+                while (true)
+                {
+                    // ################################################################
+
+                    try
+                    {
+                        Dictionary<string, object> parameters = new Dictionary<string, object>();
+                        parameters.Add("currencyPair", currencyPair);
+                        parameters.Add("rate", rate);
+                        parameters.Add("amount", amount);
+                        if (fillOrKill)
+                        {
+                            parameters.Add("fillOrKill", 1);
+                        }
+                        if (immediateOrCancel)
+                        {
+                            parameters.Add("immediateOrCancel", 1);
+                        }
+                        if (postOnly)
+                        {
+                            parameters.Add("postOnly", 1);
+                        }
+
+                        Thread.Sleep(175); // throttle api calls to avoid ban
+                        var res = PostCommand(Commands.Sell, parameters);
+
+                        return res;
+                        //return JsonConvert.DeserializeObject<Dictionary<string, decimal>>(res);
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.WriteException(exception);
+                        if (count == 2)
+                            throw new InvalidOperationException($"PostCommand exceeded three attempts.");
+
+                        count++;
+                    }
+
+                    // ################################################################
+                }
+            }
+        }
+
+        public string MoveOrder(long orderNumber, decimal rate, decimal amount)
+        {
+            lock (_syncRoot)
+            {
+                short count = 0;
+                while (true)
+                {
+                    // ################################################################
+
+                    try
+                    {
+                        Dictionary<string, object> parameters = new Dictionary<string, object>();
+                        parameters.Add("orderNumber", orderNumber);
+                        parameters.Add("rate", rate);
+                        parameters.Add("amount", amount);
+
+                        Thread.Sleep(175); // throttle api calls to avoid ban
+                        var res = PostCommand(Commands.MoveOrder, parameters);
+
+                        return res;
+                        //return JsonConvert.DeserializeObject<TradeResult>(res);
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.WriteException(exception);
                         if (count == 2)
                             throw new InvalidOperationException($"PostCommand exceeded three attempts.");
 

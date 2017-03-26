@@ -74,7 +74,7 @@ namespace Poloniex.Service.Framework
                             break;
                     }
 
-                    Logger.Write($"{new GlobalStateManager().GetCount()} TaskLoops running: {new GlobalStateManager().ToString()}");
+                    Logger.Write($"{new GlobalStateManager().GetCount()} TaskLoop(s) running: {new GlobalStateManager().ToString()}");
                 }
                 catch (Exception exception)
                 {

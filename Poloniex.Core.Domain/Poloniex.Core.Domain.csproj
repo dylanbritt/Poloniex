@@ -43,6 +43,13 @@
   <ItemGroup>
     <Compile Include="Constants\CurrencyConstants.cs" />
     <Compile Include="Constants\CurrencyPairConstants.cs" />
+    <Compile Include="Constants\OpenOrderKeys.cs" />
+    <Compile Include="Constants\TickerResultKeys.cs" />
+    <Compile Include="Constants\TradeOrderType.cs" />
+    <Compile Include="Models\MoveOrderResult.cs" />
+    <Compile Include="Models\ResultingTrade.cs" />
+    <Compile Include="Models\ReturnOpenOrdersResult.cs" />
+    <Compile Include="Models\TradeResult.cs" />
     <Compile Include="Models\CryptoCurrencyDataPoint.cs" />
     <Compile Include="Models\ExponentialMovingAverage.cs" />
     <Compile Include="Models\GatherTask.cs" />

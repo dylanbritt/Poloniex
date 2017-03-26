@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Poloniex.Api.Implementation;
+using Poloniex.Core.Domain.Constants;
+using Poloniex.Core.Implementation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleApplication
 {
@@ -11,7 +16,7 @@ namespace ConsoleApplication
             //// ################################################################
             //// Testing database
             //// ################################################################
-
+            #region 
             //using (var db = new PoloniexContext())
             //{
             //    var cp = new CryptoCurrencyDataPoint
@@ -27,11 +32,11 @@ namespace ConsoleApplication
 
             //    db.SaveChanges();
             //}
-
+            #endregion
             //// ################################################################
             //// Testing Poloniex API
             //// ################################################################
-
+            #region
             //var interval = 20;
 
             //DateTime dateTimeNow = DateTime.UtcNow;
@@ -75,11 +80,11 @@ namespace ConsoleApplication
 
             //    cryptoCurrencyDataPoints.Add(dataPoint);
             //}
-
+            #endregion
             //// ################################################################
             //// Calculate simple moving average
             //// ################################################################
-
+            #region
             //var simpleMovingAverage = new SimpleMovingAverage
             //{
             //    SimpleMovingAverageId = Guid.NewGuid(),
@@ -88,11 +93,11 @@ namespace ConsoleApplication
             //    ClosingDateTime = dateTimeNow
             //};
             //simpleMovingAverage.ClosingValue = cryptoCurrencyDataPoints.Sum(x => x.ClosingValue) / interval;
-
+            #endregion
             //// ################################################################
             //// Calculate exponential moving average
             //// ################################################################
-
+            #region
             //var timePeriods = interval;
             //var multiplier = 2M / (timePeriods + 1M);
             //decimal ema = 0;
@@ -113,11 +118,11 @@ namespace ConsoleApplication
             //    ClosingDateTime = dateTimeNow,
             //    ClosingValue = ema
             //};
-
+            #endregion
             //// ################################################################
             //// Testing thread lock
             //// ################################################################
-
+            #region
             //System.Threading.Tasks.Task.Run(() =>
             //{
             //    var tmp1 = PoloniexExchangeService.Instance.ReturnTradeHistory(CurrencyPairConstants.BTC_ETH, DateTime.UtcNow.AddMinutes(-60), DateTime.UtcNow);
@@ -130,14 +135,12 @@ namespace ConsoleApplication
             //    Logger.Write("Second thread completed");
             //});
 
-
             //int stop = 0;
-            //Console.ReadLine();
-
+            #endregion
             // ################################################################
             // Testing Task data access
             // ################################################################
-
+            #region
             //using (var db = new PoloniexContext())
             //{
             //    db.Tasks.Add(new Task()
@@ -160,11 +163,11 @@ namespace ConsoleApplication
 
             //TaskLoopScheduler tls = new TaskLoopScheduler();
             //tls.PollForTasksToStartOrStop();
-
+            #endregion
             // ################################################################
             // Testing GatherTaskManager
             // ################################################################
-
+            #region
             //GatherTaskManager.GatherTaskElapsed(null, CurrencyPairConstants.USDT_BTC, 60);
 
             //Logger.Write("test started.");
@@ -206,11 +209,11 @@ namespace ConsoleApplication
             ////Console.WriteLine("Finished: " + DateTime.UtcNow.ToString("yyyy-MM-dd hh:mm:ss:fff"));
 
             ////GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals(CurrencyPairConstants.USDT_BTC, DateTime.Parse("2017-01-15 00:00:00.000"));
-
+            #endregion
             // ################################################################
             // Testing MovingAverage
             // ################################################################
-
+            #region
             //var dateFilterStart = DateTime.Parse("2017-02-22 00:00:00");
             //var dateFilterEnd = DateTime.Parse("2017-03-02 00:00:00");
             ////var dateFilter = DateTime.Parse("2017-01-01 00:00:00");
@@ -287,30 +290,44 @@ namespace ConsoleApplication
             //Console.WriteLine($"End Time: {endTime}");
             //Console.WriteLine($"################################################################");
             //Console.WriteLine($"################################################################");
-
+            #endregion
             // ################################################################
             // Testing Trade
             // ################################################################
+            #region
+            //Dictionary<string, decimal> balances = PoloniexExchangeService.Instance.ReturnBalances();
+            //var usdtBalance = balances[CurrencyConstants.USDT];
+            //var btcBalance = balances[CurrencyConstants.BTC];
 
-            //var res = PoloniexExchangeService.Instance.ReturnBalances();
+            //Dictionary<string, Dictionary<string, decimal>> res = PoloniexExchangeService.Instance.ReturnTicker();
+            //var latestUsdtBtcTicker = res[CurrencyPairConstants.USDT_BTC];
+            //var usdtBtcLowestAsk = latestUsdtBtcTicker[TickerResultKeys.LowestAsk];
+            //var usdtBtcHighestBid = latestUsdtBtcTicker[TickerResultKeys.HighestBid];
 
+            //// BUY
+            //decimal buyRequestPrice = (0.00M * usdtBtcLowestAsk) + (0.75M * usdtBtcHighestBid);
+            //var buyRate = buyRequestPrice;
+            //decimal buyAmount = usdtBalance / buyRate;
+            //var buyResult = PoloniexExchangeService.Instance.Buy(CurrencyPairConstants.USDT_BTC, buyRate, buyAmount, false, false, false);
+
+            // SELL
+            //decimal sellRequestPrice = (1.25M * usdtBtcLowestAsk) + (0.00M * usdtBtcHighestBid);
+            //var sellRate = sellRequestPrice;
+            //decimal sellAmount = btcBalance / sellRate;
+            //var sellResult = PoloniexExchangeService.Instance.Sell(CurrencyPairConstants.USDT_BTC, sellRate, sellAmount, false, true, false);
+
+            //int stop = 0;
+            #endregion
             // ################################################################
             // ################################################################
             // ################################################################
 
-            //// debugging
+            //List<Dictionary<string, string>> openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders("USDT_BTC");
+            //var findPreviousOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.OrderNumber] == (buyResult.orderNumber).ToString());
 
-            ////var tls = new TaskLoopScheduler();
-            ////tls.PollForTasksToStart();
-            ////tls.StartTasks();
+            //int stop = 0;
 
-            ////var tls = new TaskLoopScheduler();
-            ////tls.PollForTasksToStart();
-            ////tls.StartTasks();
-
-            //var dt = DateTime.Parse("2017-03-25 00:03:00");
-
-            //GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals("USDT_BTC", dt);
+            TradeManager.BuyBtcFromUsdt();
 
             Console.ReadLine();
         }

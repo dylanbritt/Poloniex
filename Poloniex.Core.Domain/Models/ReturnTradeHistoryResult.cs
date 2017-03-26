@@ -3,12 +3,6 @@ using System.Collections.Generic;
 
 namespace Poloniex.Core.Domain.Models
 {
-    public static class TradeOrderType
-    {
-        public const string buy = "buy";
-        public const string sell = "sell";
-    }
-
     public class ReturnTradeHistoryResult
     {
         public List<TradeOrder> TradeOrders { get; set; }
