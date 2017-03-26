@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Poloniex.Core.Domain.Models
+namespace Poloniex.Core.Domain.Models.Poloniex
 {
     public class BuySellTradeResult
     {

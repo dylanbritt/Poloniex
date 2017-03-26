@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Poloniex.Core.Domain.Models;
+using Poloniex.Core.Domain.Models.Poloniex;
 using Poloniex.Log;
 using RestSharp;
 using System;
@@ -10,7 +11,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using static Poloniex.Core.Domain.Models.ReturnTradeHistoryResult;
+using static Poloniex.Core.Domain.Models.Poloniex.ReturnTradeHistoryResult;
 
 namespace Poloniex.Api.Implementation
 {

@@ -46,13 +46,13 @@
     <Compile Include="Constants\OpenOrderKeys.cs" />
     <Compile Include="Constants\TickerResultKeys.cs" />
     <Compile Include="Constants\TradeOrderType.cs" />
-    <Compile Include="Models\BuySellResultingTrade.cs" />
-    <Compile Include="Models\MoveOrderTradeResult.cs" />
-    <Compile Include="Models\BuySellTradeResult.cs" />
+    <Compile Include="Models\Poloniex\BuySellResultingTrade.cs" />
+    <Compile Include="Models\Poloniex\MoveOrderTradeResult.cs" />
+    <Compile Include="Models\Poloniex\BuySellTradeResult.cs" />
     <Compile Include="Models\CryptoCurrencyDataPoint.cs" />
     <Compile Include="Models\ExponentialMovingAverage.cs" />
     <Compile Include="Models\GatherTask.cs" />
-    <Compile Include="Models\ReturnTradeHistoryResult.cs" />
+    <Compile Include="Models\Poloniex\ReturnTradeHistoryResult.cs" />
     <Compile Include="Models\SimpleMovingAverage.cs" />
     <Compile Include="Models\Task.cs" />
     <Compile Include="Models\TaskLoop.cs" />

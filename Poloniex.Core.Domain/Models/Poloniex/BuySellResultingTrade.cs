@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Poloniex.Core.Domain.Models
+namespace Poloniex.Core.Domain.Models.Poloniex
 {
     public class BuySellResultingTrade
     {
