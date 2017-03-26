@@ -16,7 +16,7 @@ namespace Poloniex.Core.Implementation
         {
             var curDateTime = inputDateTime ?? DateTime.UtcNow;
 
-            var tmpDelDateTime = curDateTime.AddSeconds(-2678400);
+            var tmpDelDateTime = curDateTime.AddSeconds(-2678400).AddMilliseconds(500);
             using (var db = new PoloniexContext())
             {
                 var del =
