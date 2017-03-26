@@ -6,5 +6,4 @@ set DIR="C:\Windows\Microsoft.NET\Framework\v4.0.30319"
 echo %DIR%
 
 %DIR%\InstallUtil.exe "..\bin\Release\PoloniexService.exe"
-
 pause

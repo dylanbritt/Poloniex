@@ -1,6 +1,8 @@
 ﻿using Poloniex.Core.Domain.Models;
 using Poloniex.Core.Interfaces;
 using Poloniex.Data.Contexts;
+using Poloniex.Log;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -24,22 +26,49 @@ namespace Poloniex.Core.Implementation
             _globalStateManager = globalStateManager;
         }
 
-        public void PollForTasksToStartOrStop()
+        public void PollForTasksToStart()
         {
             using (var db = new PoloniexContext())
             {
-                _tasksToStart = db.TaskLoops.Where(x => x.LoopStatus == "RequestToStart").Include(x => x.Task.GatherTask).Include(x=> x.Task.TradeTask).ToList();
+                _tasksToStart = db.TaskLoops.Where(x => x.LoopStatus == "RequestToStart").Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
+            }
+        }
+
+        public void PollForTasksToStop()
+        {
+            using (var db = new PoloniexContext())
+            {
                 _tasksToStop = db.TaskLoops.Where(x => x.LoopStatus == "RequestToStop").Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
             }
         }
 
         public void StartTasks()
         {
-            foreach(var taskLoop in _tasksToStart)
+            foreach (var taskLoop in _tasksToStart)
             {
-                switch(taskLoop.Task.TaskType)
+                switch (taskLoop.Task.TaskType)
                 {
-                    case "":
+                    case "GatherTask":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            try
+                            {
+                                GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals(taskLoop.Task.GatherTask.CurrencyPair);
+                            }
+                            catch (Exception exception)
+                            {
+                                Logger.WriteException(exception);
+                            }
+                        });
+                        _globalStateManager.AddTaskLoop(taskLoop, GatherTaskManager.GetGatherTaskTimer(taskLoop.TaskId));
+                        using (var db = new PoloniexContext())
+                        {
+                            taskLoop.LoopStatus = "Started";
+                            taskLoop.LoopStartedDateTime = DateTime.UtcNow;
+                            db.Entry(taskLoop).State = EntityState.Modified;
+                            db.SaveChanges();
+                        }
+                        System.Threading.Tasks.Task.Run(() => { Logger.Write($"Started {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}"); });
                         break;
                 }
             }
@@ -47,7 +76,36 @@ namespace Poloniex.Core.Implementation
 
         public void StopTasks()
         {
+            foreach (var taskLoop in _tasksToStop)
+            {
+                switch (taskLoop.Task.TaskType)
+                {
+                    case "GatherTask":
+                        var tuple = _globalStateManager.RemoveTaskLoop(taskLoop.TaskId);
+                        tuple.Item2.Stop();
+                        using (var db = new PoloniexContext())
+                        {
+                            taskLoop.LoopStatus = "Stopped";
+                            db.Entry(taskLoop).State = EntityState.Modified;
+                            db.SaveChanges();
+                        }
+                        System.Threading.Tasks.Task.Run(() => { Logger.Write($"Stopped {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}"); });
+                        break;
+                }
+            }
+        }
 
+        public static void Terminate()
+        {
+            using (var db = new PoloniexContext())
+            {
+                var taskLoops = db.TaskLoops.Where(x => x.LoopStatus == "Started" || x.LoopStatus == "RequestToStop").ToList();
+                taskLoops.ForEach(x =>
+                {
+                    x.LoopStatus = "Stopped";
+                });
+                db.SaveChanges();
+            }
         }
     }
 }

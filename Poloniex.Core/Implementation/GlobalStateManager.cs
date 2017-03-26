@@ -2,6 +2,8 @@
 using Poloniex.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Timers;
 
 namespace Poloniex.Core.Implementation
@@ -30,6 +32,37 @@ namespace Poloniex.Core.Implementation
             }
 
             return result;
+        }
+
+        public void ClearTaskLoops()
+        {
+            foreach (var tuple in GlobalStateManagerHelper.TaskLoops)
+            {
+                tuple.Item2.Stop();
+            }
+            GlobalStateManagerHelper.TaskLoops.Clear();
+        }
+
+        public int GetCount()
+        {
+            return GlobalStateManagerHelper.TaskLoops.Count;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            if (GlobalStateManagerHelper.TaskLoops.Any())
+            {
+                foreach (var tuple in GlobalStateManagerHelper.TaskLoops)
+                {
+                    sb.Append($"{{{tuple.Item1.TaskLoopId}}}");
+                }
+            }
+            else
+            {
+                sb.Append("null");
+            }
+            return sb.ToString();
         }
     }
 

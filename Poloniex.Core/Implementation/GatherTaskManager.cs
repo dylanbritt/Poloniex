@@ -14,7 +14,17 @@ namespace Poloniex.Core.Implementation
         {
             var curDateTime = inputDateTime ?? DateTime.UtcNow;
 
-            // 2678400 seconds = 1 month
+            var tmpDelDateTime = curDateTime.AddSeconds(-2678400);
+            using (var db = new PoloniexContext())
+            {
+                var del =
+                    db.CryptoCurrencyDataPoints
+                        .Where(x => x.ClosingDateTime <= curDateTime && x.ClosingDateTime >= tmpDelDateTime && x.Currency == currencyPair).ToList();
+                db.CryptoCurrencyDataPoints.RemoveRange(del);
+                db.SaveChanges();
+            }
+
+            // 2678400 seconds = 31 days
             // 21600 seconds = 6 hours
             for (int i = 2678400; i > 0; i = i - 21600)
             {
@@ -136,6 +146,17 @@ namespace Poloniex.Core.Implementation
             }
         }
 
+        public static Timer GetGatherTaskTimer(Guid taskId)
+        {
+            GatherTask task;
+            using (var db = new PoloniexContext())
+            {
+                task = db.GatherTasks.Single(x => x.TaskId == taskId);
+            }
+
+            return GetGatherTaskTimer(task.CurrencyPair, task.Interval, true);
+        }
+
         public static Timer GetGatherTaskTimer(string currencyPair, int inverval, bool startTimer = false)
         {
             var timer = new Timer();
@@ -151,7 +172,7 @@ namespace Poloniex.Core.Implementation
             return timer;
         }
 
-        private static void GatherTaskElapsed(object sender, string currencyPair, int interval)
+        public static void GatherTaskElapsed(object sender, string currencyPair, int interval)
         {
             DateTime dateTimeNow = DateTime.UtcNow;
             DateTime dateTimePast = dateTimeNow.AddSeconds(-(interval * 4));
@@ -159,24 +180,34 @@ namespace Poloniex.Core.Implementation
             var result = PoloniexExchangeService.Instance.ReturnTradeHistory(currencyPair, dateTimePast, dateTimeNow);
             result = result.OrderBy(x => x.date).ToList();
 
+            var dataPoint = new CryptoCurrencyDataPoint
+            {
+                Currency = currencyPair,
+                Interval = interval,
+                ClosingDateTime = dateTimeNow,
+            };
+
             if (result.Any())
             {
                 var curRate = result.Last().rate;
-                var dataPoint = new CryptoCurrencyDataPoint
-                {
-                    Currency = currencyPair,
-                    Interval = interval,
-                    ClosingDateTime = dateTimeNow,
-                };
-
                 dataPoint.ClosingValue = curRate;
-
+            }
+            else
+            {
                 using (var db = new PoloniexContext())
                 {
-                    dataPoint.CreatedDateTime = DateTime.UtcNow;
-                    db.CryptoCurrencyDataPoints.Add(dataPoint);
-                    db.SaveChanges();
+                    dataPoint.ClosingValue = db.CryptoCurrencyDataPoints
+                        .Where(x => x.Currency == dataPoint.Currency && x.Interval == dataPoint.Interval)
+                        .OrderByDescending(x => x.ClosingDateTime)
+                        .Take(1).Single().ClosingValue;
                 }
+            }
+
+            using (var db = new PoloniexContext())
+            {
+                dataPoint.CreatedDateTime = DateTime.UtcNow;
+                db.CryptoCurrencyDataPoints.Add(dataPoint);
+                db.SaveChanges();
             }
         }
     }

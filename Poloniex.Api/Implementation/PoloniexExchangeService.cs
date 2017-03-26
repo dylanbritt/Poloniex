@@ -1,12 +1,18 @@
-﻿using RestSharp;
+﻿using Newtonsoft.Json;
+using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using static Poloniex.Core.Domain.Models.ReturnTradeHistoryResult;
 
 namespace Poloniex.Api.Implementation
 {
-    public static class PoloniexExchangeServiceExtensions
+    internal static class PoloniexExchangeServiceExtensions
     {
         public static long ToUnixDateTime(this DateTime dt)
         {
@@ -15,6 +21,12 @@ namespace Poloniex.Api.Implementation
 
             return unixTimestamp;
         }
+
+        public static string ToUrlEncoded(this Dictionary<string, object> dictionary)
+        {
+            return string.Join("&", dictionary.Select((x) => x.Key + "=" + x.Value.ToString()));
+        }
+
     }
 
     public class PoloniexExchangeService
@@ -24,16 +36,61 @@ namespace Poloniex.Api.Implementation
 
         private const string BaseUrl = "https://poloniex.com";
         private const string ReturnTradeHistoryTemplate = "public?command=returnTradeHistory&currencyPair={0}&start={1}&end={2}";
+        private const string TradingApi = "tradingApi";
 
         private PoloniexExchangeService() { }
 
         public static PoloniexExchangeService Instance { get { return _instance; } }
 
-        public DateTime ToDateTime(long unixTimestamp)
+        private class Commands
         {
-            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            public const string ReturnBalances = "returnBalances";
+        }
 
-            return dateTime.AddSeconds(unixTimestamp);
+        private string PostCommand(string command, Dictionary<string, object> dictionary = null)
+        {
+            if (dictionary == null)
+                dictionary = new Dictionary<string, object>();
+
+            var uri = $"{BaseUrl}/{TradingApi}";
+
+            /*
+             * Headers:
+             *  Key
+             *  Sign
+             *  
+             * Parameters:
+             *  command
+             *  nonce                     
+             */
+
+            var apiKey = ConfigurationManager.AppSettings["poloniexApiKey"];
+            var secret = ConfigurationManager.AppSettings["poloniexSecret"];
+            var nonce = (int)DateTime.UtcNow.ToUnixDateTime();
+            dictionary.Add("nonce", nonce);
+            dictionary.Add("command", command);
+
+            string postData = dictionary.ToUrlEncoded();
+
+            byte[] secretkey = Encoding.UTF8.GetBytes(secret); // new Byte[128];
+            string stringHash = string.Empty;
+
+            using (HMACSHA512 hmac = new HMACSHA512(secretkey))
+            {
+                var inputToHash = Encoding.UTF8.GetBytes(postData);
+                var byteHash = hmac.ComputeHash(inputToHash);
+                stringHash = BitConverter.ToString(byteHash).Replace("-", "").ToLower();
+            }
+
+            var webClient = new WebClient();
+            webClient.Headers.Add("Key", apiKey);
+            webClient.Headers.Add("Sign", stringHash);
+
+            webClient.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+
+            var result = webClient.UploadString(uri, "POST", postData);
+
+            return result;
         }
 
         public List<TradeOrder> ReturnTradeHistory(string currencyPair, DateTime startUtcTime, DateTime endUtcTime)
@@ -53,10 +110,39 @@ namespace Poloniex.Api.Implementation
                     if (response.StatusCode == System.Net.HttpStatusCode.OK)
                         return response.Data;
 
-                    if (count == 3)
+                    if (count == 2)
                         throw new InvalidOperationException($"RestRequest exceeded three attempts.");
 
                     count++;
+                }
+            }
+        }
+
+        public Dictionary<string, decimal> ReturnBalances()
+        {
+            lock (_syncRoot)
+            {
+                short count = 0;
+                while (true)
+                {
+                    // ################################################################
+
+                    try
+                    {
+                        Thread.Sleep(175); // throttle api calls to avoid ban
+                        var res = PostCommand(Commands.ReturnBalances);
+
+                        return JsonConvert.DeserializeObject<Dictionary<string, decimal>>(res);
+                    }
+                    catch
+                    {
+                        if (count == 2)
+                            throw new InvalidOperationException($"RestRequest exceeded three attempts.");
+
+                        count++;
+                    }
+
+                    // ################################################################
                 }
             }
         }

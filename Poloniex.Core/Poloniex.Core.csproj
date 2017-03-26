@@ -57,6 +57,7 @@
     <Compile Include="Implementation\GlobalStateManager.cs" />
     <Compile Include="Implementation\MovingAverageManager.cs" />
     <Compile Include="Implementation\TaskLoopScheduler.cs" />
+    <Compile Include="Implementation\TradeManager.cs" />
     <Compile Include="Interfaces\IGlobalStateManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -72,6 +73,10 @@
     <ProjectReference Include="..\Poloniex.Data\Poloniex.Data.csproj">
       <Project>{7C6EBDE0-193C-46C1-B45C-9E6218A9D7D9}</Project>
       <Name>Poloniex.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Poloniex.Log\Poloniex.Log.csproj">
+      <Project>{814D2E46-9D50-460D-9D76-541F5A30A83A}</Project>
+      <Name>Poloniex.Log</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

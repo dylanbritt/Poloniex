@@ -74,12 +74,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Scripts\Debug-InstallService.bat" />
     <None Include="Scripts\Debug-UninstallService.bat" />
     <None Include="Scripts\Release-InstallService.bat" />
     <None Include="Scripts\Release-UninstallService.bat" />
+    <None Include="Scripts\StartService.bat" />
+    <None Include="Scripts\StopService.bat" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ProjectInstaller.resx">
