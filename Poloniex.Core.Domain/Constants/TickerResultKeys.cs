@@ -4,5 +4,6 @@
     {
         public const string LowestAsk = "lowestAsk";
         public const string HighestBid = "highestBid";
+        public const string Last = "last";
     }
 }

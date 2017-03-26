@@ -2,7 +2,7 @@
 
 namespace Poloniex.Core.Domain.Models
 {
-    public class ResultingTrade
+    public class BuySellResultingTrade
     {
         decimal amount { get; set; }
 

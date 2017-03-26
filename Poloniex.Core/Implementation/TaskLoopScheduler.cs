@@ -68,7 +68,7 @@ namespace Poloniex.Core.Implementation
                             db.Entry(taskLoop).State = EntityState.Modified;
                             db.SaveChanges();
                         }
-                        Logger.Write($"Started {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}");
+                        Logger.Write($"Started {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}", Logger.LogType.ServiceLog);
                         break;
                 }
             }
@@ -89,7 +89,7 @@ namespace Poloniex.Core.Implementation
                             db.Entry(taskLoop).State = EntityState.Modified;
                             db.SaveChanges();
                         }
-                        Logger.Write($"Stopped {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}");
+                        Logger.Write($"Stopped {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}", Logger.LogType.ServiceLog);
                         break;
                 }
             }

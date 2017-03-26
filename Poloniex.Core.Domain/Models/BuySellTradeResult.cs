@@ -2,10 +2,10 @@
 
 namespace Poloniex.Core.Domain.Models
 {
-    public class TradeResult
+    public class BuySellTradeResult
     {
         public long orderNumber { get; set; }
 
-        public List<ResultingTrade> resultingTrades { get; set; }
+        public List<BuySellResultingTrade> resultingTrades { get; set; }
     }
 }

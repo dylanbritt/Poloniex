@@ -215,7 +215,7 @@ namespace Poloniex.Api.Implementation
             }
         }
 
-        public TradeResult Buy(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        public BuySellTradeResult Buy(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
         {
             lock (_syncRoot)
             {
@@ -245,8 +245,9 @@ namespace Poloniex.Api.Implementation
 
                         Thread.Sleep(175); // throttle api calls to avoid ban
                         var res = PostCommand(Commands.Buy, parameters);
+                        Logger.Write($"{Commands.Buy}: {res}", Logger.LogType.RestLog);
 
-                        return JsonConvert.DeserializeObject<TradeResult>(res);
+                        return JsonConvert.DeserializeObject<BuySellTradeResult>(res);
                     }
                     catch (Exception exception)
                     {
@@ -262,7 +263,7 @@ namespace Poloniex.Api.Implementation
             }
         }
 
-        public string Sell(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        public BuySellTradeResult Sell(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
         {
             lock (_syncRoot)
             {
@@ -292,9 +293,9 @@ namespace Poloniex.Api.Implementation
 
                         Thread.Sleep(175); // throttle api calls to avoid ban
                         var res = PostCommand(Commands.Sell, parameters);
+                        Logger.Write($"{Commands.Sell}: {res}", Logger.LogType.RestLog);
 
-                        return res;
-                        //return JsonConvert.DeserializeObject<Dictionary<string, decimal>>(res);
+                        return JsonConvert.DeserializeObject<BuySellTradeResult>(res);
                     }
                     catch (Exception exception)
                     {
@@ -310,7 +311,7 @@ namespace Poloniex.Api.Implementation
             }
         }
 
-        public string MoveOrder(long orderNumber, decimal rate, decimal amount)
+        public MoveOrderTradeResult MoveOrder(long orderNumber, decimal rate, decimal amount)
         {
             lock (_syncRoot)
             {
@@ -328,9 +329,9 @@ namespace Poloniex.Api.Implementation
 
                         Thread.Sleep(175); // throttle api calls to avoid ban
                         var res = PostCommand(Commands.MoveOrder, parameters);
+                        Logger.Write($"{Commands.MoveOrder}: {res}", Logger.LogType.RestLog);
 
-                        return res;
-                        //return JsonConvert.DeserializeObject<TradeResult>(res);
+                        return JsonConvert.DeserializeObject<MoveOrderTradeResult>(res);
                     }
                     catch (Exception exception)
                     {

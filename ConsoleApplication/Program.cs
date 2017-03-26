@@ -327,7 +327,8 @@ namespace ConsoleApplication
 
             //int stop = 0;
 
-            TradeManager.BuyBtcFromUsdt();
+            //TradeManager.BuyBtcFromUsdt();
+            TradeManager.SellBtcToUsdt();
 
             Console.ReadLine();
         }

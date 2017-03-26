@@ -47,7 +47,7 @@ namespace Poloniex.Service.Framework
 
         public static void TimerTick(object sender, ElapsedEventArgs e)
         {
-            Logger.Write("Entering TimerTick.");
+            Logger.Write("Entering TimerTick.", Logger.LogType.ServiceLog);
 
             System.Threading.Tasks.Task.Run(() =>
             {
@@ -55,7 +55,7 @@ namespace Poloniex.Service.Framework
                 {
                     //TimerHelper.Timer.Stop();
                     SchedulerId = (SchedulerId + 1) % 4;
-                    Logger.Write($"SchedulerId: {SchedulerId}");
+                    Logger.Write($"SchedulerId: {SchedulerId}", Logger.LogType.ServiceLog);
 
                     var tls = new TaskLoopScheduler();
                     switch (SchedulerId)
@@ -74,7 +74,7 @@ namespace Poloniex.Service.Framework
                             break;
                     }
 
-                    Logger.Write($"{new GlobalStateManager().GetCount()} TaskLoop(s) running: {new GlobalStateManager().ToString()}");
+                    Logger.Write($"{new GlobalStateManager().GetCount()} TaskLoop(s) running: {new GlobalStateManager().ToString()}", Logger.LogType.ServiceLog);
                 }
                 catch (Exception exception)
                 {
@@ -86,7 +86,7 @@ namespace Poloniex.Service.Framework
                 }
             });
 
-            Logger.Write("Exiting TimerTick.");
+            Logger.Write("Exiting TimerTick.", Logger.LogType.ServiceLog);
 
             TimerHelper.Timer.Interval = GetInterval(TimerHelper.TimerTickInterval);
             TimerHelper.Timer.Start();
@@ -94,10 +94,10 @@ namespace Poloniex.Service.Framework
 
         public static void Start()
         {
-            Logger.Write("Service started.");
-            Logger.Write("Syncing TimerTick.");
+            Logger.Write("Service started.", Logger.LogType.ServiceLog);
+            Logger.Write("Syncing TimerTick.", Logger.LogType.ServiceLog);
             while (DateTime.UtcNow.Second != (60 - ConfigurationHelper.TimerTickInterval) % 60) ;
-            Logger.Write("TimerTick synced.");
+            Logger.Write("TimerTick synced.", Logger.LogType.ServiceLog);
             TimerHelper.Timer.Start();
         }
 
@@ -107,7 +107,7 @@ namespace Poloniex.Service.Framework
             TaskLoopScheduler.Terminate();
 
             TimerHelper.Timer.Stop();
-            Logger.Write("Service stopped.");
+            Logger.Write("Service stopped.", Logger.LogType.ServiceLog);
         }
 
         private static int GetInterval(int interval)
