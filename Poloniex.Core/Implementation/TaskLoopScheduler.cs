@@ -89,7 +89,7 @@ namespace Poloniex.Core.Implementation
                             db.Entry(taskLoop).State = EntityState.Modified;
                             db.SaveChanges();
                         }
-                        System.Threading.Tasks.Task.Run(() => { Logger.Write($"Stopped {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}"); });
+                        Logger.Write($"Stopped {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}");
                         break;
                 }
             }
