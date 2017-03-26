@@ -137,7 +137,7 @@ namespace Poloniex.Api.Implementation
                     catch
                     {
                         if (count == 2)
-                            throw new InvalidOperationException($"RestRequest exceeded three attempts.");
+                            throw new InvalidOperationException($"PostCommand exceeded three attempts.");
 
                         count++;
                     }

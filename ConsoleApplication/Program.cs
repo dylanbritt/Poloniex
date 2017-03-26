@@ -1,5 +1,7 @@
-﻿using Poloniex.Core.Implementation;
+﻿using Poloniex.Api.Implementation;
+using Poloniex.Core.Implementation;
 using System;
+using System.Configuration;
 
 namespace ConsoleApplication
 {
@@ -295,29 +297,25 @@ namespace ConsoleApplication
             // Testing Trade
             // ################################################################
 
-            //var apiKey = ConfigurationManager.AppSettings["poloniexApiKey"];
-            //var secret = ConfigurationManager.AppSettings["poloniexSecret"];
-            //var nonce = DateTime.UtcNow.ToUnixDateTime();
-
-            //var res = PoloniexExchangeService.Instance.ReturnBalances();
+            var res = PoloniexExchangeService.Instance.ReturnBalances();
 
             // ################################################################
             // ################################################################
             // ################################################################
 
-            // debugging
+            //// debugging
 
-            //var tls = new TaskLoopScheduler();
-            //tls.PollForTasksToStart();
-            //tls.StartTasks();
+            ////var tls = new TaskLoopScheduler();
+            ////tls.PollForTasksToStart();
+            ////tls.StartTasks();
 
-            //var tls = new TaskLoopScheduler();
-            //tls.PollForTasksToStart();
-            //tls.StartTasks();
+            ////var tls = new TaskLoopScheduler();
+            ////tls.PollForTasksToStart();
+            ////tls.StartTasks();
 
-            var dt = DateTime.Parse("2017-03-25 00:03:00");
+            //var dt = DateTime.Parse("2017-03-25 00:03:00");
 
-            GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals("USDT_BTC", dt);
+            //GatherTaskManager.BackFillGatherTaskDataForOneMonthAtMinuteIntervals("USDT_BTC", dt);
 
             Console.ReadLine();
         }

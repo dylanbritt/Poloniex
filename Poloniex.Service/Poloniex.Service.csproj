@@ -77,8 +77,12 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Config\appSettings.config" />
-    <Content Include="Config\connectionStrings.config" />
+    <Content Include="Config\appSettings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\connectionStrings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Scripts\Debug-InstallService.bat" />
     <None Include="Scripts\Debug-UninstallService.bat" />
