@@ -43,9 +43,11 @@
   <ItemGroup>
     <Compile Include="Constants\CurrencyConstants.cs" />
     <Compile Include="Constants\CurrencyPairConstants.cs" />
+    <Compile Include="Constants\EventActionStatus.cs" />
     <Compile Include="Constants\EventActionType.cs" />
     <Compile Include="Constants\MovingAverageType.cs" />
     <Compile Include="Constants\Poloniex\OpenOrderKeys.cs" />
+    <Compile Include="Constants\LoopStatus.cs" />
     <Compile Include="Constants\TaskType.cs" />
     <Compile Include="Constants\Poloniex\TickerResultKeys.cs" />
     <Compile Include="Constants\Poloniex\TradeOrderType.cs" />

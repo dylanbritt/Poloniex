@@ -206,7 +206,7 @@ namespace Poloniex.Core.Implementation
                             dataPoint.ClosingValue = db.CryptoCurrencyDataPoints
                                 .Where(x => x.CurrencyPair == dataPoint.CurrencyPair)
                                 .OrderByDescending(x => x.ClosingDateTime)
-                                .Take(1).Single().ClosingValue;
+                                .First().ClosingValue;
                         }
                     }
 
@@ -222,12 +222,12 @@ namespace Poloniex.Core.Implementation
                         for (int i = 0; i < eventActions.Count(); i++)
                         {
                             Logger.Write($"Executing action {i + 1} of {eventActions.Count()}", Logger.LogType.ServiceLog);
-                            var threadAction = eventActions[i].Action;
+                            var threadEventAction = eventActions[i];
                             System.Threading.Tasks.Task.Run(() =>
                             {
                                 try
                                 {
-                                    threadAction();
+                                    threadEventAction.Action(threadEventAction.EventActionId);
                                 }
                                 catch (Exception exception)
                                 {

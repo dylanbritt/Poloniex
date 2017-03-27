@@ -1,4 +1,5 @@
 ﻿using Poloniex.Core.Domain.Constants;
+using Poloniex.Core.Domain.Models;
 using Poloniex.Data.Contexts;
 using System;
 using System.Collections.Generic;
@@ -9,27 +10,64 @@ namespace Poloniex.Core.Implementation
 {
     public static class MovingAverageManager
     {
-        public static void InitEma(Guid eventActionId)
+        public static void InitEmaBySma(Guid eventActionId)
         {
             using (var db = new PoloniexContext())
             {
-                var eventAction = db.EventActions.Include(x => x.Task).Single(x => x.EventActionId == eventActionId);
+                var eventAction = db.EventActions.Include(x => x.MovingAverageEventAction).Single(x => x.EventActionId == eventActionId);
 
-                string currencyPair = string.Empty;
-                switch (eventAction.Task.TaskType)
+                var smaInputClosingValues = db.CryptoCurrencyDataPoints
+                    .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
+                    .OrderByDescending(x => x.ClosingDateTime)
+                    .Take(eventAction.MovingAverageEventAction.Interval)
+                    .Select(x => x.ClosingValue)
+                    .ToList();
+
+                var curEma = new MovingAverage()
                 {
-                    case TaskType.GatherTask:
-                        currencyPair = eventAction.Task.GatherTask.CurrencyPair;
-                        break;
-                }
+                    MovingAverageType = MovingAverageType.ExponentialMovingAverage,
+                    CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
+                    Interval = eventAction.MovingAverageEventAction.Interval,
+                    ClosingDateTime = DateTime.UtcNow,
+                    ClosingValue = MovingAverageCalculations.CalculateSma(smaInputClosingValues)
+                };
 
-                // db.CryptoCurrencyDataPoints.Where(x => x.CurrencyPair == currencyPair).OrderByDescending(x => x.ClosingDateTime).Take(eventAction.)
+                db.MovingAverages.Add(curEma);
+                db.SaveChanges();
             }
         }
 
-        public static void UpdateEma(Guid taskId)
+        public static void UpdateEma(Guid eventActionId)
         {
+            using (var db = new PoloniexContext())
+            {
+                var eventAction = db.EventActions.Include(x => x.MovingAverageEventAction).Single(x => x.EventActionId == eventActionId);
 
+                var closingValue = db.CryptoCurrencyDataPoints
+                    .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
+                    .OrderByDescending(x => x.ClosingDateTime)
+                    .First();
+
+                var prevEma = db.MovingAverages
+                    .Where(x =>
+                        x.MovingAverageType == eventAction.MovingAverageEventAction.MovingAverageType &&
+                        x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair &&
+                        x.Interval == eventAction.MovingAverageEventAction.Interval)
+                    .OrderByDescending(x => x.ClosingDateTime)
+                    .First();
+
+                var curEma = new MovingAverage()
+                {
+                    MovingAverageType = MovingAverageType.ExponentialMovingAverage,
+                    CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
+                    Interval = eventAction.MovingAverageEventAction.Interval,
+                    ClosingDateTime = DateTime.UtcNow,
+                    ClosingValue = MovingAverageCalculations.CalculateEma(closingValue.ClosingValue, prevEma.ClosingValue, eventAction.MovingAverageEventAction.Interval)
+                };
+
+                db.MovingAverages.Add(curEma);
+                db.SaveChanges();
+            }
         }
     }
 

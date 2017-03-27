@@ -10,13 +10,13 @@ namespace Poloniex.Core.Domain.Models
         public Guid EventActionId { get; set; }
 
         [Required, MaxLength(32)]
-        public string EventType { get; set; }
+        public string EventActionType { get; set; }
 
         [Required, MaxLength(32)]
         public string EventActionStatus { get; set; }
 
         [NotMapped]
-        public Action Action { get; set; }
+        public Action<Guid> Action { get; set; }
 
         // Foreign key
         [ForeignKey("Task")]

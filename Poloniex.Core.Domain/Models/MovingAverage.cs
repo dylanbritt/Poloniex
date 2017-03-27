@@ -9,8 +9,11 @@ namespace Poloniex.Core.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid MovingAverageId { get; set; }
 
+        [Required, MaxLength(32)]
+        public string MovingAverageType { get; set; }
+
         [Required, MaxLength(16)]
-        public string Currency { get; set; }
+        public string CurrencyPair { get; set; }
 
         [Required]
         public int Interval { get; set; }

@@ -58,6 +58,7 @@ namespace Poloniex.Service.Framework
                     Logger.Write($"SchedulerId: {SchedulerId}", Logger.LogType.ServiceLog);
 
                     var tls = new TaskLoopScheduler();
+                    var eas = new EventActionScheduler();
                     switch (SchedulerId)
                     {
                         case 0:
@@ -65,6 +66,8 @@ namespace Poloniex.Service.Framework
                             tls.StartTasks();
                             break;
                         case 1:
+                            eas.PollForEventActionsToStart();
+                            eas.StartEventActions();
                             break;
                         case 2:
                             break;

@@ -1,4 +1,5 @@
-﻿using Poloniex.Core.Domain.Models;
+﻿using Poloniex.Core.Domain.Constants;
+using Poloniex.Core.Domain.Models;
 using Poloniex.Core.Interfaces;
 using Poloniex.Data.Contexts;
 using Poloniex.Log;
@@ -30,7 +31,7 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                _tasksToStart = db.TaskLoops.Where(x => x.LoopStatus == "RequestToStart").Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
+                _tasksToStart = db.TaskLoops.Where(x => x.LoopStatus == LoopStatus.RequestToStart).Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
             }
         }
 
@@ -38,7 +39,7 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                _tasksToStop = db.TaskLoops.Where(x => x.LoopStatus == "RequestToStop").Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
+                _tasksToStop = db.TaskLoops.Where(x => x.LoopStatus == LoopStatus.RequestToStop).Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
             }
         }
 
@@ -61,17 +62,10 @@ namespace Poloniex.Core.Implementation
                             }
                         });
                         var eventActions = new List<EventAction>();
-                        eventActions.Add(new EventAction
-                        {
-                            Action = () =>
-                            {
-                                Logger.Write("eventAction fired!", Logger.LogType.ServiceLog);
-                            }
-                        });
                         _globalStateManager.AddTaskLoop(taskLoop, GatherTaskManager.GetGatherTaskTimer(taskLoop.TaskId, eventActions), eventActions);
                         using (var db = new PoloniexContext())
                         {
-                            taskLoop.LoopStatus = "Started";
+                            taskLoop.LoopStatus = LoopStatus.Started;
                             taskLoop.LoopStartedDateTime = DateTime.UtcNow;
                             db.Entry(taskLoop).State = EntityState.Modified;
                             db.SaveChanges();
@@ -93,7 +87,7 @@ namespace Poloniex.Core.Implementation
                         tuple.Item2.Stop();
                         using (var db = new PoloniexContext())
                         {
-                            taskLoop.LoopStatus = "Stopped";
+                            taskLoop.LoopStatus = LoopStatus.Stopped;
                             db.Entry(taskLoop).State = EntityState.Modified;
                             db.SaveChanges();
                         }
@@ -107,10 +101,10 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                var taskLoops = db.TaskLoops.Where(x => x.LoopStatus == "Started" || x.LoopStatus == "RequestToStop").ToList();
+                var taskLoops = db.TaskLoops.Where(x => x.LoopStatus == LoopStatus.Started || x.LoopStatus == LoopStatus.RequestToStop).ToList();
                 taskLoops.ForEach(x =>
                 {
-                    x.LoopStatus = "Stopped";
+                    x.LoopStatus = LoopStatus.Stopped;
                 });
                 db.SaveChanges();
             }
