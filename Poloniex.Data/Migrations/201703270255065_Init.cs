@@ -12,7 +12,7 @@ namespace Poloniex.Data.Migrations
                 c => new
                     {
                         CryptoCurrencyDataPointId = c.Guid(nullable: false, identity: true),
-                        Currency = c.String(nullable: false, maxLength: 16),
+                        CurrencyPair = c.String(nullable: false, maxLength: 16),
                         ClosingDateTime = c.DateTime(nullable: false),
                         ClosingValue = c.Decimal(nullable: false, precision: 22, scale: 12),
                         CreatedDateTime = c.DateTime(nullable: false),
@@ -31,6 +31,20 @@ namespace Poloniex.Data.Migrations
                 .PrimaryKey(t => t.EventActionId)
                 .ForeignKey("dbo.Tasks", t => t.TaskId, cascadeDelete: true)
                 .Index(t => t.TaskId);
+            
+            CreateTable(
+                "dbo.MovingAverageEventActions",
+                c => new
+                    {
+                        EventActionId = c.Guid(nullable: false),
+                        CalculateMovingAverageEventActionId = c.Guid(nullable: false),
+                        MovingAverageType = c.String(nullable: false, maxLength: 32),
+                        CurrencyPair = c.String(nullable: false, maxLength: 16),
+                        Interval = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => t.EventActionId)
+                .ForeignKey("dbo.EventActions", t => t.EventActionId)
+                .Index(t => t.EventActionId);
             
             CreateTable(
                 "dbo.Tasks",
@@ -80,6 +94,18 @@ namespace Poloniex.Data.Migrations
                 .Index(t => t.TaskId);
             
             CreateTable(
+                "dbo.MovingAverages",
+                c => new
+                    {
+                        MovingAverageId = c.Guid(nullable: false, identity: true),
+                        Currency = c.String(nullable: false, maxLength: 16),
+                        Interval = c.Int(nullable: false),
+                        ClosingDateTime = c.DateTime(nullable: false),
+                        ClosingValue = c.Decimal(nullable: false, precision: 18, scale: 2),
+                    })
+                .PrimaryKey(t => t.MovingAverageId);
+            
+            CreateTable(
                 "dbo.Users",
                 c => new
                     {
@@ -99,15 +125,19 @@ namespace Poloniex.Data.Migrations
             DropForeignKey("dbo.TradeTasks", "TaskId", "dbo.Tasks");
             DropForeignKey("dbo.TaskLoops", "TaskId", "dbo.Tasks");
             DropForeignKey("dbo.GatherTasks", "TaskId", "dbo.Tasks");
+            DropForeignKey("dbo.MovingAverageEventActions", "EventActionId", "dbo.EventActions");
             DropIndex("dbo.TradeTasks", new[] { "TaskId" });
             DropIndex("dbo.TaskLoops", new[] { "TaskId" });
             DropIndex("dbo.GatherTasks", new[] { "TaskId" });
+            DropIndex("dbo.MovingAverageEventActions", new[] { "EventActionId" });
             DropIndex("dbo.EventActions", new[] { "TaskId" });
             DropTable("dbo.Users");
+            DropTable("dbo.MovingAverages");
             DropTable("dbo.TradeTasks");
             DropTable("dbo.TaskLoops");
             DropTable("dbo.GatherTasks");
             DropTable("dbo.Tasks");
+            DropTable("dbo.MovingAverageEventActions");
             DropTable("dbo.EventActions");
             DropTable("dbo.CryptoCurrencyDataPoints");
         }

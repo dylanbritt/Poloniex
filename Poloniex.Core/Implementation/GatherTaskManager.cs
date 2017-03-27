@@ -21,7 +21,7 @@ namespace Poloniex.Core.Implementation
             {
                 var del =
                     db.CryptoCurrencyDataPoints
-                        .Where(x => x.ClosingDateTime <= curDateTime && x.ClosingDateTime >= tmpDelDateTime && x.Currency == currencyPair).ToList();
+                        .Where(x => x.ClosingDateTime <= curDateTime && x.ClosingDateTime >= tmpDelDateTime && x.CurrencyPair == currencyPair).ToList();
                 db.CryptoCurrencyDataPoints.RemoveRange(del);
                 db.SaveChanges();
             }
@@ -47,7 +47,7 @@ namespace Poloniex.Core.Implementation
 
                     var dataPoint = new CryptoCurrencyDataPoint
                     {
-                        Currency = currencyPair,
+                        CurrencyPair = currencyPair,
                         ClosingDateTime = intervalBeginningDateTime.AddSeconds((j + 1) * 60),
                         CreatedDateTime = DateTime.UtcNow
                     };
@@ -89,7 +89,7 @@ namespace Poloniex.Core.Implementation
             {
                 var del =
                     db.CryptoCurrencyDataPoints
-                        .Where(x => x.Currency == currencyPair)
+                        .Where(x => x.CurrencyPair == currencyPair)
                         .OrderByDescending(x => x.ClosingDateTime)
                         .Take(numberOfIntervals);
                 db.CryptoCurrencyDataPoints.RemoveRange(del);
@@ -114,7 +114,7 @@ namespace Poloniex.Core.Implementation
 
                 var dataPoint = new CryptoCurrencyDataPoint
                 {
-                    Currency = currencyPair,
+                    CurrencyPair = currencyPair,
                     ClosingDateTime = intervalEndDateTime,
                 };
 
@@ -190,7 +190,7 @@ namespace Poloniex.Core.Implementation
 
                     var dataPoint = new CryptoCurrencyDataPoint
                     {
-                        Currency = currencyPair,
+                        CurrencyPair = currencyPair,
                         ClosingDateTime = dateTimeNow,
                     };
 
@@ -204,7 +204,7 @@ namespace Poloniex.Core.Implementation
                         using (var db = new PoloniexContext())
                         {
                             dataPoint.ClosingValue = db.CryptoCurrencyDataPoints
-                                .Where(x => x.Currency == dataPoint.Currency)
+                                .Where(x => x.CurrencyPair == dataPoint.CurrencyPair)
                                 .OrderByDescending(x => x.ClosingDateTime)
                                 .Take(1).Single().ClosingValue;
                         }

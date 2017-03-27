@@ -56,7 +56,7 @@
     <Compile Include="Implementation\EventActionScheduler.cs" />
     <Compile Include="Implementation\GatherTaskManager.cs" />
     <Compile Include="Implementation\GlobalStateManager.cs" />
-    <Compile Include="Implementation\MovingAverageCalculations.cs" />
+    <Compile Include="Implementation\MovingAverageManager.cs" />
     <Compile Include="Implementation\TaskLoopScheduler.cs" />
     <Compile Include="Implementation\TradeManager.cs" />
     <Compile Include="Interfaces\IGlobalStateManager.cs" />

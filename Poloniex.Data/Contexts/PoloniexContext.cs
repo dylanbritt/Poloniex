@@ -18,11 +18,12 @@ namespace Poloniex.Data.Contexts
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<CryptoCurrencyDataPoint> CryptoCurrencyDataPoints { get; set; }
+        public DbSet<EventAction> EventActions { get; set; }
+        public DbSet<GatherTask> GatherTasks { get; set; }
+        public DbSet<MovingAverage> MovingAverages { get; set; }
         public DbSet<TaskLoop> TaskLoops { get; set; }
         public DbSet<Task> Tasks { get; set; }
-        public DbSet<GatherTask> GatherTasks { get; set; }
-        public DbSet<EventAction> EventActions { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

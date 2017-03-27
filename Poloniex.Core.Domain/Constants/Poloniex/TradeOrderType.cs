@@ -1,4 +1,4 @@
-﻿namespace Poloniex.Core.Domain.Constants
+﻿namespace Poloniex.Core.Domain.Constants.Poloniex
 {
     public static class TradeOrderType
     {

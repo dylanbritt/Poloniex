@@ -24,5 +24,7 @@ namespace Poloniex.Core.Domain.Models
 
         // Navigation properites
         public virtual Task Task { get; set; }
+
+        public virtual MovingAverageEventAction MovingAverageEventAction { get; set; }
     }
 }

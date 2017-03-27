@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Poloniex.Core.Domain.Models
 {
-    public class SimpleMovingAverage
+    public class MovingAverage
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid SimpleMovingAverageId { get; set; }
+        public Guid MovingAverageId { get; set; }
 
         [Required, MaxLength(16)]
         public string Currency { get; set; }

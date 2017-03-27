@@ -10,7 +10,7 @@ namespace Poloniex.Core.Domain.Models
         public Guid CryptoCurrencyDataPointId { get; set; }
 
         [Required, MaxLength(16)]
-        public string Currency { get; set; }
+        public string CurrencyPair { get; set; }
 
         [Required]
         public DateTime ClosingDateTime { get; set; }

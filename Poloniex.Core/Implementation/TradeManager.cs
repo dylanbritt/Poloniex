@@ -1,5 +1,6 @@
 ﻿using Poloniex.Api.Implementation;
 using Poloniex.Core.Domain.Constants;
+using Poloniex.Core.Domain.Constants.Poloniex;
 using Poloniex.Log;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace Poloniex.Core.Implementation
                     var latestUsdtBtcTicker = res[CurrencyPairConstants.USDT_BTC];
 
                     // last
-                    decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.Last];
+                    decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.last];
 
                     /* TESTING CODE : BEGIN */
                     //decimal buyRate = (0.75M) * usdtBtcLastPrice; // TODO: FIX!!!
@@ -64,7 +65,7 @@ namespace Poloniex.Core.Implementation
 
                     // Get open orders
                     var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(CurrencyPairConstants.USDT_BTC);
-                    var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.OrderNumber] == orderNumber.ToString());
+                    var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.orderNumber] == orderNumber.ToString());
 
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
@@ -92,7 +93,7 @@ namespace Poloniex.Core.Implementation
                     var latestUsdtBtcTicker = res[CurrencyPairConstants.USDT_BTC];
 
                     // last
-                    decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.Last];
+                    decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.last];
 
                     /* TESTING CODE : BEGIN */
                     //decimal sellRate = (1.25M) * usdtBtcLastPrice; // TODO: FIX!!!
@@ -128,7 +129,7 @@ namespace Poloniex.Core.Implementation
 
                     // Get open orders
                     var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(CurrencyPairConstants.USDT_BTC);
-                    var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.OrderNumber] == orderNumber.ToString());
+                    var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.orderNumber] == orderNumber.ToString());
 
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
