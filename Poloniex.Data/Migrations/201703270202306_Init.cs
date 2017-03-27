@@ -20,6 +20,28 @@ namespace Poloniex.Data.Migrations
                 .PrimaryKey(t => t.CryptoCurrencyDataPointId);
             
             CreateTable(
+                "dbo.EventActions",
+                c => new
+                    {
+                        EventActionId = c.Guid(nullable: false, identity: true),
+                        EventType = c.String(nullable: false, maxLength: 32),
+                        EventActionStatus = c.String(nullable: false, maxLength: 32),
+                        TaskId = c.Guid(nullable: false),
+                    })
+                .PrimaryKey(t => t.EventActionId)
+                .ForeignKey("dbo.Tasks", t => t.TaskId, cascadeDelete: true)
+                .Index(t => t.TaskId);
+            
+            CreateTable(
+                "dbo.Tasks",
+                c => new
+                    {
+                        TaskId = c.Guid(nullable: false, identity: true),
+                        TaskType = c.String(nullable: false, maxLength: 32),
+                    })
+                .PrimaryKey(t => t.TaskId);
+            
+            CreateTable(
                 "dbo.GatherTasks",
                 c => new
                     {
@@ -32,21 +54,12 @@ namespace Poloniex.Data.Migrations
                 .Index(t => t.TaskId);
             
             CreateTable(
-                "dbo.Tasks",
-                c => new
-                    {
-                        TaskId = c.Guid(nullable: false, identity: true),
-                        TaskType = c.String(nullable: false),
-                    })
-                .PrimaryKey(t => t.TaskId);
-            
-            CreateTable(
                 "dbo.TaskLoops",
                 c => new
                     {
                         TaskId = c.Guid(nullable: false),
                         TaskLoopId = c.Guid(nullable: false, identity: true),
-                        LoopStatus = c.String(nullable: false),
+                        LoopStatus = c.String(nullable: false, maxLength: 32),
                         LoopStartedDateTime = c.DateTime(),
                         Interval = c.Int(nullable: false),
                     })
@@ -82,17 +95,20 @@ namespace Poloniex.Data.Migrations
         
         public override void Down()
         {
-            DropForeignKey("dbo.GatherTasks", "TaskId", "dbo.Tasks");
+            DropForeignKey("dbo.EventActions", "TaskId", "dbo.Tasks");
             DropForeignKey("dbo.TradeTasks", "TaskId", "dbo.Tasks");
             DropForeignKey("dbo.TaskLoops", "TaskId", "dbo.Tasks");
+            DropForeignKey("dbo.GatherTasks", "TaskId", "dbo.Tasks");
             DropIndex("dbo.TradeTasks", new[] { "TaskId" });
             DropIndex("dbo.TaskLoops", new[] { "TaskId" });
             DropIndex("dbo.GatherTasks", new[] { "TaskId" });
+            DropIndex("dbo.EventActions", new[] { "TaskId" });
             DropTable("dbo.Users");
             DropTable("dbo.TradeTasks");
             DropTable("dbo.TaskLoops");
-            DropTable("dbo.Tasks");
             DropTable("dbo.GatherTasks");
+            DropTable("dbo.Tasks");
+            DropTable("dbo.EventActions");
             DropTable("dbo.CryptoCurrencyDataPoints");
         }
     }

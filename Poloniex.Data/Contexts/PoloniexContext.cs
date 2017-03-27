@@ -23,5 +23,6 @@ namespace Poloniex.Data.Contexts
         public DbSet<TaskLoop> TaskLoops { get; set; }
         public DbSet<Task> Tasks { get; set; }
         public DbSet<GatherTask> GatherTasks { get; set; }
+        public DbSet<EventAction> EventActions { get; set; }
     }
 }

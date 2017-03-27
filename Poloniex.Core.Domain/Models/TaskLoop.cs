@@ -9,7 +9,7 @@ namespace Poloniex.Core.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid TaskLoopId { get; set; }
 
-        [Required]
+        [Required, MaxLength(32)]
         public string LoopStatus { get; set; }
 
         public DateTime? LoopStartedDateTime { get; set; }

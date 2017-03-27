@@ -46,7 +46,7 @@
     <Compile Include="Constants\OpenOrderKeys.cs" />
     <Compile Include="Constants\TickerResultKeys.cs" />
     <Compile Include="Constants\TradeOrderType.cs" />
-    <Compile Include="Models\GatherTaskEventAction.cs" />
+    <Compile Include="Models\EventAction.cs" />
     <Compile Include="Models\Poloniex\BuySellResultingTrade.cs" />
     <Compile Include="Models\Poloniex\MoveOrderTradeResult.cs" />
     <Compile Include="Models\Poloniex\BuySellTradeResult.cs" />

@@ -60,8 +60,8 @@ namespace Poloniex.Core.Implementation
                                 Logger.WriteException(exception);
                             }
                         });
-                        var eventActions = new List<GatherTaskEventAction>();
-                        eventActions.Add(new GatherTaskEventAction
+                        var eventActions = new List<EventAction>();
+                        eventActions.Add(new EventAction
                         {
                             Action = () =>
                             {

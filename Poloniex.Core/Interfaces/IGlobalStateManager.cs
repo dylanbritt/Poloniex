@@ -7,10 +7,10 @@ namespace Poloniex.Core.Interfaces
 {
     public interface IGlobalStateManager
     {
-        void AddTaskLoop(TaskLoop taskLoop, Timer timer, List<GatherTaskEventAction> eventActions);
+        void AddTaskLoop(TaskLoop taskLoop, Timer timer, List<EventAction> eventActions);
 
-        Tuple<TaskLoop, Timer, List<GatherTaskEventAction>> GetTaskLoop(Guid taskId);
+        Tuple<TaskLoop, Timer, List<EventAction>> GetTaskLoop(Guid taskId);
 
-        Tuple<TaskLoop, Timer, List<GatherTaskEventAction>> RemoveTaskLoop(Guid taskId);
+        Tuple<TaskLoop, Timer, List<EventAction>> RemoveTaskLoop(Guid taskId);
     }
 }

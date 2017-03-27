@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Poloniex.Core.Implementation
 {
-    public static class MovingAverageManager
+    public static class MovingAverageCalculations
     {
         public static void Bind()
         {

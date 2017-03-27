@@ -146,7 +146,7 @@ namespace Poloniex.Core.Implementation
             }
         }
 
-        public static Timer GetGatherTaskTimer(Guid taskId, List<GatherTaskEventAction> eventActions)
+        public static Timer GetGatherTaskTimer(Guid taskId, List<EventAction> eventActions)
         {
             GatherTask gatherTask;
             using (var db = new PoloniexContext())
@@ -157,7 +157,7 @@ namespace Poloniex.Core.Implementation
             return GetGatherTaskTimer(gatherTask.CurrencyPair, gatherTask.Task.TaskLoop.Interval, eventActions, true);
         }
 
-        public static Timer GetGatherTaskTimer(string currencyPair, int inverval, List<GatherTaskEventAction> eventActions, bool startTimer)
+        public static Timer GetGatherTaskTimer(string currencyPair, int inverval, List<EventAction> eventActions, bool startTimer)
         {
             var timer = new Timer();
 
@@ -173,7 +173,7 @@ namespace Poloniex.Core.Implementation
             return timer;
         }
 
-        public static void GatherTaskElapsed(object sender, string currencyPair, int interval, Timer t, List<GatherTaskEventAction> eventActions)
+        public static void GatherTaskElapsed(object sender, string currencyPair, int interval, Timer t, List<EventAction> eventActions)
         {
             t.Interval = GetInterval(interval);
             t.Start();
