@@ -219,21 +219,12 @@ namespace Poloniex.Core.Implementation
 
                     if (eventActions != null)
                     {
-                        for (int i = 0; i < eventActions.Count(); i++)
+                        var sortedActions = eventActions.OrderBy(x => x.Priority).ToList();
+                        for (int i = 0; i < sortedActions.Count(); i++)
                         {
-                            Logger.Write($"Executing action {i + 1} of {eventActions.Count()}", Logger.LogType.ServiceLog);
-                            var threadEventAction = eventActions[i];
-                            System.Threading.Tasks.Task.Run(() =>
-                            {
-                                try
-                                {
-                                    threadEventAction.Action(threadEventAction.EventActionId);
-                                }
-                                catch (Exception exception)
-                                {
-                                    Logger.WriteException(exception);
-                                }
-                            });
+                            Logger.Write($"Executing action {i + 1} of {sortedActions.Count()}", Logger.LogType.ServiceLog);
+                            var threadEventAction = sortedActions[i];
+                            threadEventAction.Action(threadEventAction.EventActionId);
                         }
                     }
                 }
