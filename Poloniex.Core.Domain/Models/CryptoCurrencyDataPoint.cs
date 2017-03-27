@@ -6,7 +6,7 @@ namespace Poloniex.Core.Domain.Models
 {
     public class CryptoCurrencyDataPoint
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid CryptoCurrencyDataPointId { get; set; }
 
         [Required, MaxLength(16)]

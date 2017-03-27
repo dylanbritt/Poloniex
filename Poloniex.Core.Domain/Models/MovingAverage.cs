@@ -6,7 +6,7 @@ namespace Poloniex.Core.Domain.Models
 {
     public class MovingAverage
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid MovingAverageId { get; set; }
 
         [Required, MaxLength(32)]

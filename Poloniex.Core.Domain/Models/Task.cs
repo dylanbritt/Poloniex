@@ -7,7 +7,7 @@ namespace Poloniex.Core.Domain.Models
 {
     public class Task
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid TaskId { get; set; }
 
         [Required, MaxLength(32)]

@@ -37,7 +37,7 @@ namespace Poloniex.Data.Migrations
                 c => new
                     {
                         EventActionId = c.Guid(nullable: false),
-                        CalculateMovingAverageEventActionId = c.Guid(nullable: false),
+                        CalculateMovingAverageEventActionId = c.Guid(nullable: false, identity: true),
                         MovingAverageType = c.String(nullable: false, maxLength: 32),
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
                         Interval = c.Int(nullable: false),

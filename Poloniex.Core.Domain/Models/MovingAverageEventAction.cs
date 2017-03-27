@@ -6,6 +6,7 @@ namespace Poloniex.Core.Domain.Models
 {
     public class MovingAverageEventAction
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid CalculateMovingAverageEventActionId { get; set; }
 
         [Required, MaxLength(32)]
@@ -20,7 +21,7 @@ namespace Poloniex.Core.Domain.Models
         // Foreign Keys
         [Key, ForeignKey("EventAction")]
         public Guid EventActionId { get; set; }
-        
+
         // Navigation properites
         public virtual EventAction EventAction { get; set; }
     }
