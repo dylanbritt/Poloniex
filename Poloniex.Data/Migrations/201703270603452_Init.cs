@@ -24,6 +24,7 @@ namespace Poloniex.Data.Migrations
                 c => new
                     {
                         EventActionId = c.Guid(nullable: false, identity: true),
+                        Priority = c.Int(nullable: false),
                         EventActionType = c.String(nullable: false, maxLength: 32),
                         EventActionStatus = c.String(nullable: false, maxLength: 32),
                         TaskId = c.Guid(nullable: false),
@@ -102,7 +103,8 @@ namespace Poloniex.Data.Migrations
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
                         Interval = c.Int(nullable: false),
                         ClosingDateTime = c.DateTime(nullable: false),
-                        ClosingValue = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        MovingAverageClosingValue = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        LastClosingValue = c.Decimal(nullable: false, precision: 18, scale: 2),
                     })
                 .PrimaryKey(t => t.MovingAverageId);
             

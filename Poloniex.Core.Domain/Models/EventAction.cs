@@ -9,6 +9,9 @@ namespace Poloniex.Core.Domain.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid EventActionId { get; set; }
 
+        [Required]
+        public int Priority { get; set; }
+
         [Required, MaxLength(32)]
         public string EventActionType { get; set; }
 

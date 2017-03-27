@@ -29,7 +29,8 @@ namespace Poloniex.Core.Implementation
                     CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
                     Interval = eventAction.MovingAverageEventAction.Interval,
                     ClosingDateTime = DateTime.UtcNow,
-                    ClosingValue = MovingAverageCalculations.CalculateSma(smaInputClosingValues)
+                    MovingAverageClosingValue = MovingAverageCalculations.CalculateSma(smaInputClosingValues),
+                    LastClosingValue = smaInputClosingValues.First()
                 };
 
                 db.MovingAverages.Add(curEma);
@@ -62,7 +63,8 @@ namespace Poloniex.Core.Implementation
                     CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
                     Interval = eventAction.MovingAverageEventAction.Interval,
                     ClosingDateTime = DateTime.UtcNow,
-                    ClosingValue = MovingAverageCalculations.CalculateEma(closingValue.ClosingValue, prevEma.ClosingValue, eventAction.MovingAverageEventAction.Interval)
+                    MovingAverageClosingValue = MovingAverageCalculations.CalculateEma(closingValue.ClosingValue, prevEma.MovingAverageClosingValue, eventAction.MovingAverageEventAction.Interval),
+                    LastClosingValue = closingValue.ClosingValue
                 };
 
                 db.MovingAverages.Add(curEma);
