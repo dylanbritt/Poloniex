@@ -146,7 +146,7 @@ namespace Poloniex.Core.Implementation
             }
         }
 
-        public static Timer GetGatherTaskTimer(Guid taskId)
+        public static Timer GetGatherTaskTimer(Guid taskId, List<GatherTaskEventAction> eventActions)
         {
             GatherTask gatherTask;
             using (var db = new PoloniexContext())
@@ -154,16 +154,16 @@ namespace Poloniex.Core.Implementation
                 gatherTask = db.GatherTasks.Include(x => x.Task.TaskLoop).Single(x => x.TaskId == taskId);
             }
 
-            return GetGatherTaskTimer(gatherTask.CurrencyPair, gatherTask.Task.TaskLoop.Interval, true);
+            return GetGatherTaskTimer(gatherTask.CurrencyPair, gatherTask.Task.TaskLoop.Interval, eventActions, true);
         }
 
-        public static Timer GetGatherTaskTimer(string currencyPair, int inverval, bool startTimer = false)
+        public static Timer GetGatherTaskTimer(string currencyPair, int inverval, List<GatherTaskEventAction> eventActions, bool startTimer)
         {
             var timer = new Timer();
 
             timer.Interval = inverval * 1000;
             timer.AutoReset = false;
-            timer.Elapsed += (sender, elapsedEventArgs) => GatherTaskElapsed(sender, currencyPair, inverval, timer);
+            timer.Elapsed += (sender, elapsedEventArgs) => GatherTaskElapsed(sender, currencyPair, inverval, timer, eventActions);
 
             if (startTimer)
             {
@@ -173,7 +173,7 @@ namespace Poloniex.Core.Implementation
             return timer;
         }
 
-        public static void GatherTaskElapsed(object sender, string currencyPair, int interval, Timer t)
+        public static void GatherTaskElapsed(object sender, string currencyPair, int interval, Timer t, List<GatherTaskEventAction> eventActions)
         {
             t.Interval = GetInterval(interval);
             t.Start();
@@ -215,6 +215,26 @@ namespace Poloniex.Core.Implementation
                         dataPoint.CreatedDateTime = DateTime.UtcNow;
                         db.CryptoCurrencyDataPoints.Add(dataPoint);
                         db.SaveChanges();
+                    }
+
+                    if (eventActions != null)
+                    {
+                        for (int i = 0; i < eventActions.Count(); i++)
+                        {
+                            Logger.Write($"Executing action {i + 1} of {eventActions.Count()}", Logger.LogType.ServiceLog);
+                            var threadAction = eventActions[i].Action;
+                            System.Threading.Tasks.Task.Run(() =>
+                            {
+                                try
+                                {
+                                    threadAction();
+                                }
+                                catch (Exception exception)
+                                {
+                                    Logger.WriteException(exception);
+                                }
+                            });
+                        }
                     }
                 }
                 catch (Exception exception)

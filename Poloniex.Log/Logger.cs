@@ -125,7 +125,7 @@ namespace Poloniex.Log
                     if (logType != null && !IsLogTypeEnabled(logType))
                         return;
 
-                    var logName = AppDomain.CurrentDomain.BaseDirectory + logType == null ? $"\\{LOG_NAME}" : $"\\{logType}-{LOG_NAME}";
+                    var logName = AppDomain.CurrentDomain.BaseDirectory + (logType == null ? $"\\{LOG_NAME}" : $"\\{logType}-{LOG_NAME}");
                     using (var sw = new StreamWriter(logName, true))
                     {
                         sw.WriteLine(DateTime.Now.ToString(DATE_TIME_FORMAT) + ": " + message.Trim());

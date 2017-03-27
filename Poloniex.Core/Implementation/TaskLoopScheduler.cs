@@ -60,7 +60,15 @@ namespace Poloniex.Core.Implementation
                                 Logger.WriteException(exception);
                             }
                         });
-                        _globalStateManager.AddTaskLoop(taskLoop, GatherTaskManager.GetGatherTaskTimer(taskLoop.TaskId));
+                        var eventActions = new List<GatherTaskEventAction>();
+                        eventActions.Add(new GatherTaskEventAction
+                        {
+                            Action = () =>
+                            {
+                                Logger.Write("eventAction fired!", Logger.LogType.ServiceLog);
+                            }
+                        });
+                        _globalStateManager.AddTaskLoop(taskLoop, GatherTaskManager.GetGatherTaskTimer(taskLoop.TaskId, eventActions), eventActions);
                         using (var db = new PoloniexContext())
                         {
                             taskLoop.LoopStatus = "Started";

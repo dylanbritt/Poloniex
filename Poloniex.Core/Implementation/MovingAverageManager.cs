@@ -5,6 +5,11 @@ namespace Poloniex.Core.Implementation
 {
     public static class MovingAverageManager
     {
+        public static void Bind()
+        {
+
+        }
+
         public static decimal CalculateSma(List<decimal> closingValues)
         {
             return closingValues.Sum() / closingValues.Count;

@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Poloniex.Core.Implementation
 {
-    public class TradeManager
+    public static class TradeManager
     {
         private static readonly object _syncRoot = new object();
 

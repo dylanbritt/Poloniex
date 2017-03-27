@@ -10,14 +10,14 @@ namespace Poloniex.Core.Implementation
 {
     public class GlobalStateManager : IGlobalStateManager
     {
-        public void AddTaskLoop(TaskLoop taskLoop, Timer timer)
+        public void AddTaskLoop(TaskLoop taskLoop, Timer timer, List<GatherTaskEventAction> eventActions)
         {
-            GlobalStateManagerHelper.TaskLoops.Add(new Tuple<TaskLoop, Timer>(taskLoop, timer));
+            GlobalStateManagerHelper.TaskLoops.Add(new Tuple<TaskLoop, Timer, List<GatherTaskEventAction>>(taskLoop, timer, eventActions));
         }
 
-        public Tuple<TaskLoop, Timer> RemoveTaskLoop(Guid taskId)
+        public Tuple<TaskLoop, Timer, List<GatherTaskEventAction>> GetTaskLoop(Guid taskId)
         {
-            Tuple<TaskLoop, Timer> result = null;
+            Tuple<TaskLoop, Timer, List<GatherTaskEventAction>> result = null;
 
             for (int i = 0; i < GlobalStateManagerHelper.TaskLoops.Count; i++)
             {
@@ -25,8 +25,28 @@ namespace Poloniex.Core.Implementation
                 {
                     var taskLoop = GlobalStateManagerHelper.TaskLoops[i].Item1;
                     var timer = GlobalStateManagerHelper.TaskLoops[i].Item2;
+                    var eventActions = GlobalStateManagerHelper.TaskLoops[i].Item3;
+                    result = new Tuple<TaskLoop, Timer, List<GatherTaskEventAction>>(taskLoop, timer, eventActions);
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public Tuple<TaskLoop, Timer, List<GatherTaskEventAction>> RemoveTaskLoop(Guid taskId)
+        {
+            Tuple<TaskLoop, Timer, List<GatherTaskEventAction>> result = null;
+
+            for (int i = 0; i < GlobalStateManagerHelper.TaskLoops.Count; i++)
+            {
+                if (GlobalStateManagerHelper.TaskLoops[i].Item1.TaskId == taskId)
+                {
+                    var taskLoop = GlobalStateManagerHelper.TaskLoops[i].Item1;
+                    var timer = GlobalStateManagerHelper.TaskLoops[i].Item2;
+                    var eventActions = GlobalStateManagerHelper.TaskLoops[i].Item3;
                     GlobalStateManagerHelper.TaskLoops.RemoveAt(i);
-                    result = new Tuple<TaskLoop, Timer>(taskLoop, timer);
+                    result = new Tuple<TaskLoop, Timer, List<GatherTaskEventAction>>(taskLoop, timer, eventActions);
                     break;
                 }
             }
@@ -68,6 +88,6 @@ namespace Poloniex.Core.Implementation
 
     public static class GlobalStateManagerHelper
     {
-        public static List<Tuple<TaskLoop, Timer>> TaskLoops = new List<Tuple<TaskLoop, Timer>>();
+        public static List<Tuple<TaskLoop, Timer, List<GatherTaskEventAction>>> TaskLoops = new List<Tuple<TaskLoop, Timer, List<GatherTaskEventAction>>>();
     }
 }
