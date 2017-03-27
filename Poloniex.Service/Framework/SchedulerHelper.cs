@@ -70,10 +70,12 @@ namespace Poloniex.Service.Framework
                             eas.StartEventActions();
                             break;
                         case 2:
-                            break;
-                        case 3:
                             tls.PollForTasksToStop();
                             tls.StopTasks();
+                            break;
+                        case 3:
+                            eas.PollForEventActionsToStop();
+                            eas.StopEventActions();
                             break;
                     }
 
@@ -118,6 +120,18 @@ namespace Poloniex.Service.Framework
             DateTime now = DateTime.UtcNow;
             DateTime next = now.AddSeconds(interval);
             next = next.AddMilliseconds(-next.Millisecond);
+            if (interval % 5 == 0)
+            {
+                if (next.Second == 9 || next.Second == 4)
+                {
+                    next = next.AddSeconds(1);
+                }
+                if (next.Second == 1 || next.Second == 6)
+                {
+                    next = next.AddSeconds(-1);
+                }
+            }
+            next = next.AddMilliseconds(5);
             return (int)(next - now).TotalMilliseconds;
         }
     }

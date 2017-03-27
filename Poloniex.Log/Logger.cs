@@ -12,6 +12,7 @@ namespace Poloniex.Log
 
         public static class LogType
         {
+            public const string ObjectLifetimeLog = "ObjectLifetimeLog";
             public const string RestLog = "RestLog";
             public const string ServiceLog = "ServiceLog";
             public const string TransactionLog = "TransactionLog";
@@ -35,6 +36,27 @@ namespace Poloniex.Log
                     }
                 }
                 return (bool)_enableLog;
+            }
+        }
+
+        private static bool? _enableObjectLifetimeLog = null;
+        private static bool EnableObjectLifetimeLog
+        {
+            get
+            {
+                if (_enableObjectLifetimeLog == null)
+                {
+                    var str = ConfigurationManager.AppSettings[nameof(EnableObjectLifetimeLog)];
+                    if (string.IsNullOrWhiteSpace(str))
+                    {
+                        _enableObjectLifetimeLog = false;
+                    }
+                    else
+                    {
+                        _enableObjectLifetimeLog = bool.Parse(str);
+                    }
+                }
+                return (bool)_enableObjectLifetimeLog;
             }
         }
 

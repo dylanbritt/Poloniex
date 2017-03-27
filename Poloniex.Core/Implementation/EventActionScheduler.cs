@@ -12,6 +12,7 @@ namespace Poloniex.Core.Implementation
     public class EventActionScheduler
     {
         public List<EventAction> _EventActionsToStart { get; set; }
+        public List<EventAction> _EventActionsToStop { get; set; }
 
         public void PollForEventActionsToStart()
         {
@@ -19,6 +20,14 @@ namespace Poloniex.Core.Implementation
             {
                 var tmpDateTime = DateTime.UtcNow.AddMinutes(-3);
                 _EventActionsToStart = db.EventActions.Where(x => x.EventActionStatus == EventActionStatus.RequestToStart && x.Task.TaskLoop.LoopStartedDateTime < tmpDateTime).ToList();
+            }
+        }
+
+        public void PollForEventActionsToStop()
+        {
+            using (var db = new PoloniexContext())
+            {
+                var eventActionsToStop = db.EventActions.Where(x => x.EventActionStatus == EventActionStatus.RequestToStop).ToList();
             }
         }
 
@@ -34,15 +43,39 @@ namespace Poloniex.Core.Implementation
                         break;
                 }
                 var globalStateEvent = new GlobalStateManager().GetTaskLoop(ea.TaskId);
-                var eventAction = globalStateEvent.Item3;
+                var eventActions = globalStateEvent.Item3;
                 ea.EventActionStatus = EventActionStatus.Started;
-                using(var db = new PoloniexContext())
+                using (var db = new PoloniexContext())
                 {
                     db.Entry(ea).State = EntityState.Modified;
                     db.SaveChanges();
                 }
-                eventAction.Add(ea);
+                eventActions.Add(ea);
                 Logger.Write($"Started {ea.EventActionType} with eventActionId: {ea.EventActionId}", Logger.LogType.ServiceLog);
+            }
+        }
+
+        public void StopEventActions()
+        {
+            foreach (var ea in _EventActionsToStart)
+            {
+                var globalStateEvent = new GlobalStateManager().GetTaskLoop(ea.TaskId);
+                var eventActions = globalStateEvent.Item3;
+                for (int i = 0; i < eventActions.Count; i++)
+                {
+                    if (eventActions[i].EventActionId == ea.EventActionId)
+                    {
+                        eventActions.RemoveAt(i);
+                        break;
+                    }
+                }
+                ea.EventActionStatus = EventActionStatus.Stopped;
+                using (var db = new PoloniexContext())
+                {
+                    db.Entry(ea).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                Logger.Write($"Stopped {ea.EventActionType} with eventActionId: {ea.EventActionId}", Logger.LogType.ServiceLog);
             }
         }
     }

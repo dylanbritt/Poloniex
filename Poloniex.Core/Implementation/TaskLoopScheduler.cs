@@ -91,6 +91,17 @@ namespace Poloniex.Core.Implementation
                             db.Entry(taskLoop).State = EntityState.Modified;
                             db.SaveChanges();
                         }
+                        var eventActions = tuple.Item3;
+                        foreach(var ea in eventActions)
+                        {
+                            ea.EventActionStatus = EventActionStatus.Stopped;
+                            using (var db = new PoloniexContext())
+                            {
+                                db.Entry(ea).State = EntityState.Modified;
+                                db.SaveChanges();
+                            }
+                            Logger.Write($"Stopped {ea.EventActionType} with eventActionId: {ea.EventActionId}", Logger.LogType.ServiceLog);
+                        }
                         Logger.Write($"Stopped {taskLoop.Task.TaskType} with taskId: {taskLoop.TaskId}", Logger.LogType.ServiceLog);
                         break;
                 }
