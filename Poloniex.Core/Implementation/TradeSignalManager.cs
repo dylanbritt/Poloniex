@@ -25,21 +25,19 @@ namespace Poloniex.Core.Implementation
             using (var db = new PoloniexContext())
             {
                 var tradeSignalEventAction = db.TradeSignalEventActions
-                    .Include(x => x.SignalMovingAverage)
-                    .Include(x => x.BaseMovingAverage)
                     .Single(x => x.EventActionId == eventActionId);
 
                 var latestSignalMovingAverage = db.MovingAverages
                     .Where(x =>
-                        x.CurrencyPair == tradeSignalEventAction.SignalMovingAverage.CurrencyPair &&
-                        x.Interval == tradeSignalEventAction.SignalMovingAverage.Interval)
+                        x.CurrencyPair == tradeSignalEventAction.CurrencyPair &&
+                        x.Interval == tradeSignalEventAction.SignalMovingAverageInterval)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
 
                 var latestBaseMovingAverage = db.MovingAverages
                     .Where(x =>
-                        x.CurrencyPair == tradeSignalEventAction.BaseMovingAverage.CurrencyPair &&
-                        x.Interval == tradeSignalEventAction.BaseMovingAverage.Interval)
+                        x.CurrencyPair == tradeSignalEventAction.CurrencyPair &&
+                        x.Interval == tradeSignalEventAction.BaseMovingAverageInterval)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
 

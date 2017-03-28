@@ -1,8 +1,6 @@
-﻿using Poloniex.Api.Implementation;
-using Poloniex.Core.Domain.Constants;
-using Poloniex.Core.Implementation;
+﻿using Poloniex.Data.Contexts;
 using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 
 namespace ConsoleApplication
@@ -329,6 +327,12 @@ namespace ConsoleApplication
 
             //TradeManager.BuyBtcFromUsdt();
             //TradeManager.SellBtcToUsdt();
+
+            using (var db = new PoloniexContext())
+            {
+                var guid = Guid.Parse("BD536DE3-1FEB-47DA-A894-6FAEFBCE97E2");
+                var eventAction = db.EventActions.Include(x => x.MovingAverageEventAction).Single(x => x.EventActionId == guid);
+            }
 
             Console.ReadLine();
         }

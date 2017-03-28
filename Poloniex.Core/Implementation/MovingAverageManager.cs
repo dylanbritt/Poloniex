@@ -17,7 +17,7 @@ namespace Poloniex.Core.Implementation
                 var eventAction = db.EventActions.Include(x => x.MovingAverageEventAction).Single(x => x.EventActionId == eventActionId);
 
                 var smaInputClosingValues = db.CryptoCurrencyDataPoints
-                    .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
+                    .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction .CurrencyPair)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .Take(eventAction.MovingAverageEventAction.Interval)
                     .Select(x => x.ClosingValue)

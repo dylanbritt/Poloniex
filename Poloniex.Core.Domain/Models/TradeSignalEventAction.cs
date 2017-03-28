@@ -13,21 +13,20 @@ namespace Poloniex.Core.Domain.Models
         [Required, MaxLength(32)]
         public string TradeSignalEventActionType { get; set; }
 
+        [Required, MaxLength(16)]
+        public string CurrencyPair { get; set; }
+
+        [Required]
+        public int SignalMovingAverageInterval { get; set; }
+
+        [Required]
+        public int BaseMovingAverageInterval { get; set; }
+
         // Foriegn Keys
         [Key, ForeignKey("EventAction")]
         public Guid EventActionId { get; set; }
 
-        [ForeignKey("SignalMovingAverage")]
-        public Guid? SignalMovingAverageId { get; set; }
-
-        [ForeignKey("BaseMovingAverage")]
-        public Guid? BaseMovingAverageId { get; set; }
-
         // Navigation Properties
         public virtual EventAction EventAction { get; set; }
-
-        public virtual MovingAverageEventAction SignalMovingAverage { get; set; }
-
-        public virtual MovingAverageEventAction BaseMovingAverage { get; set; }
     }
 }
