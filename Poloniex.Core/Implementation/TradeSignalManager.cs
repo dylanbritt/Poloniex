@@ -82,7 +82,6 @@ namespace Poloniex.Core.Implementation
                         db.TradeSignalOrders.Add(buyTradeSignalOrder);
                         db.SaveChanges();
                         _hasHoldings = true;
-                        _shouldBuy = false;
                     }
 
                     if (_shouldSell)
@@ -98,10 +97,11 @@ namespace Poloniex.Core.Implementation
                         db.TradeSignalOrders.Add(sellTradeSignalOrder);
                         db.SaveChanges();
                         _hasHoldings = false;
-                        _shouldSell = false;
                     }
 
                     Logger.Write($"wasBullish: {_wasBullish}, isBullish: {_isBullish}, hasHolding: {_hasHoldings}, shouldBuy {_shouldBuy}, shouldSell {_shouldSell}", Logger.LogType.TransactionLog);
+                    _shouldBuy = false;
+                    _shouldSell = false;
                 }
                 else
                 {
