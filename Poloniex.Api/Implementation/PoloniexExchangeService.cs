@@ -29,7 +29,6 @@ namespace Poloniex.Api.Implementation
         {
             return string.Join("&", dictionary.Select((x) => x.Key + "=" + x.Value.ToString()));
         }
-
     }
 
     public class PoloniexExchangeService

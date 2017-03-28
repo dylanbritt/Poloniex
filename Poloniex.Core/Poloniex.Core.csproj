@@ -57,9 +57,10 @@
     <Compile Include="Implementation\GatherTaskManager.cs" />
     <Compile Include="Implementation\GlobalStateManager.cs" />
     <Compile Include="Implementation\MovingAverageManager.cs" />
-    <Compile Include="Implementation\SignalManager.cs" />
+    <Compile Include="Implementation\TradeSignalManager.cs" />
     <Compile Include="Implementation\TaskLoopScheduler.cs" />
     <Compile Include="Implementation\TradeManager.cs" />
+    <Compile Include="Implementation\TradeSignalOrderManager.cs" />
     <Compile Include="Interfaces\IGlobalStateManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

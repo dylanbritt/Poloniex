@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,5 +25,7 @@ namespace Poloniex.Core.Domain.Models
 
         // Navigation properites
         public virtual EventAction EventAction { get; set; }
+
+        public virtual ICollection<EventAction> TradeSignalEventAction { get; set; }
     }
 }

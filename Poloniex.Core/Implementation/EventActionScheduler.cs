@@ -1,5 +1,6 @@
 ﻿using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Models;
+using Poloniex.Core.Interfaces;
 using Poloniex.Data.Contexts;
 using Poloniex.Log;
 using System;
@@ -11,8 +12,21 @@ namespace Poloniex.Core.Implementation
 {
     public class EventActionScheduler
     {
+
+        private readonly IGlobalStateManager _globalStateManager;
+
         public List<EventAction> _EventActionsToStart { get; set; }
         public List<EventAction> _EventActionsToStop { get; set; }
+
+        public EventActionScheduler()
+        {
+            _globalStateManager = new GlobalStateManager();
+        }
+
+        public EventActionScheduler(IGlobalStateManager globalStateManager)
+        {
+            _globalStateManager = globalStateManager;
+        }
 
         public void PollForEventActionsToStart()
         {
@@ -41,8 +55,11 @@ namespace Poloniex.Core.Implementation
                         MovingAverageManager.InitEmaBySma(ea.EventActionId);
                         ea.Action = MovingAverageManager.UpdateEma;
                         break;
+                    case EventActionType.TradeSignal:
+                        ea.Action = TradeSignalManager.ProcessTradeSignalEventAction;
+                        break;
                 }
-                var globalStateEvent = new GlobalStateManager().GetTaskLoop(ea.TaskId);
+                var globalStateEvent = _globalStateManager.GetTaskLoop(ea.TaskId);
                 var eventActions = globalStateEvent.Item3;
                 ea.EventActionStatus = EventActionStatus.Started;
                 using (var db = new PoloniexContext())
@@ -59,7 +76,7 @@ namespace Poloniex.Core.Implementation
         {
             foreach (var ea in _EventActionsToStart)
             {
-                var globalStateEvent = new GlobalStateManager().GetTaskLoop(ea.TaskId);
+                var globalStateEvent = _globalStateManager.GetTaskLoop(ea.TaskId);
                 var eventActions = globalStateEvent.Item3;
                 for (int i = 0; i < eventActions.Count; i++)
                 {

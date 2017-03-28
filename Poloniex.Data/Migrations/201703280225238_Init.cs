@@ -28,10 +28,16 @@ namespace Poloniex.Data.Migrations
                         EventActionType = c.String(nullable: false, maxLength: 32),
                         EventActionStatus = c.String(nullable: false, maxLength: 32),
                         TaskId = c.Guid(nullable: false),
+                        MovingAverageEventAction_EventActionId = c.Guid(),
+                        MovingAverageEventAction_EventActionId1 = c.Guid(),
                     })
                 .PrimaryKey(t => t.EventActionId)
+                .ForeignKey("dbo.MovingAverageEventActions", t => t.MovingAverageEventAction_EventActionId)
+                .ForeignKey("dbo.MovingAverageEventActions", t => t.MovingAverageEventAction_EventActionId1)
                 .ForeignKey("dbo.Tasks", t => t.TaskId, cascadeDelete: true)
-                .Index(t => t.TaskId);
+                .Index(t => t.TaskId)
+                .Index(t => t.MovingAverageEventAction_EventActionId)
+                .Index(t => t.MovingAverageEventAction_EventActionId1);
             
             CreateTable(
                 "dbo.MovingAverageEventActions",
@@ -109,6 +115,41 @@ namespace Poloniex.Data.Migrations
                 .PrimaryKey(t => t.MovingAverageId);
             
             CreateTable(
+                "dbo.TradeSignalEventActions",
+                c => new
+                    {
+                        EventActionId = c.Guid(nullable: false),
+                        TradeSignalEventActionId = c.Guid(nullable: false, identity: true),
+                        TradeSignalEventActionType = c.String(nullable: false, maxLength: 32),
+                        SignalMovingAverageId = c.Guid(),
+                        BaseMovingAverageId = c.Guid(),
+                    })
+                .PrimaryKey(t => t.EventActionId)
+                .ForeignKey("dbo.MovingAverageEventActions", t => t.BaseMovingAverageId)
+                .ForeignKey("dbo.EventActions", t => t.EventActionId)
+                .ForeignKey("dbo.MovingAverageEventActions", t => t.SignalMovingAverageId)
+                .Index(t => t.EventActionId)
+                .Index(t => t.SignalMovingAverageId)
+                .Index(t => t.BaseMovingAverageId);
+            
+            CreateTable(
+                "dbo.TradeSignalOrders",
+                c => new
+                    {
+                        TradeSignalOrderId = c.Guid(nullable: false, identity: true),
+                        TradeSignalOrderType = c.String(nullable: false, maxLength: 32),
+                        LastValueAtRequest = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        LastValueAtProcessing = c.Decimal(precision: 18, scale: 2),
+                        PlaceValueTradedAt = c.Decimal(precision: 18, scale: 2),
+                        MoveValueTradedAt = c.Decimal(precision: 18, scale: 2),
+                        IsProcessed = c.Boolean(nullable: false),
+                        InProgress = c.Boolean(nullable: false),
+                        OrderRequestedDateTime = c.DateTime(nullable: false),
+                        OrderCompletedDateTime = c.DateTime(),
+                    })
+                .PrimaryKey(t => t.TradeSignalOrderId);
+            
+            CreateTable(
                 "dbo.Users",
                 c => new
                     {
@@ -124,17 +165,29 @@ namespace Poloniex.Data.Migrations
         
         public override void Down()
         {
+            DropForeignKey("dbo.TradeSignalEventActions", "SignalMovingAverageId", "dbo.MovingAverageEventActions");
+            DropForeignKey("dbo.TradeSignalEventActions", "EventActionId", "dbo.EventActions");
+            DropForeignKey("dbo.TradeSignalEventActions", "BaseMovingAverageId", "dbo.MovingAverageEventActions");
             DropForeignKey("dbo.EventActions", "TaskId", "dbo.Tasks");
             DropForeignKey("dbo.TradeTasks", "TaskId", "dbo.Tasks");
             DropForeignKey("dbo.TaskLoops", "TaskId", "dbo.Tasks");
             DropForeignKey("dbo.GatherTasks", "TaskId", "dbo.Tasks");
+            DropForeignKey("dbo.EventActions", "MovingAverageEventAction_EventActionId1", "dbo.MovingAverageEventActions");
+            DropForeignKey("dbo.EventActions", "MovingAverageEventAction_EventActionId", "dbo.MovingAverageEventActions");
             DropForeignKey("dbo.MovingAverageEventActions", "EventActionId", "dbo.EventActions");
+            DropIndex("dbo.TradeSignalEventActions", new[] { "BaseMovingAverageId" });
+            DropIndex("dbo.TradeSignalEventActions", new[] { "SignalMovingAverageId" });
+            DropIndex("dbo.TradeSignalEventActions", new[] { "EventActionId" });
             DropIndex("dbo.TradeTasks", new[] { "TaskId" });
             DropIndex("dbo.TaskLoops", new[] { "TaskId" });
             DropIndex("dbo.GatherTasks", new[] { "TaskId" });
             DropIndex("dbo.MovingAverageEventActions", new[] { "EventActionId" });
+            DropIndex("dbo.EventActions", new[] { "MovingAverageEventAction_EventActionId1" });
+            DropIndex("dbo.EventActions", new[] { "MovingAverageEventAction_EventActionId" });
             DropIndex("dbo.EventActions", new[] { "TaskId" });
             DropTable("dbo.Users");
+            DropTable("dbo.TradeSignalOrders");
+            DropTable("dbo.TradeSignalEventActions");
             DropTable("dbo.MovingAverages");
             DropTable("dbo.TradeTasks");
             DropTable("dbo.TaskLoops");

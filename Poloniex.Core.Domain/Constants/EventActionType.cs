@@ -3,5 +3,6 @@
     public static class EventActionType
     {
         public const string MovingAverage = "MovingAverage";
+        public const string TradeSignal = "TradeSignal";
     }
 }

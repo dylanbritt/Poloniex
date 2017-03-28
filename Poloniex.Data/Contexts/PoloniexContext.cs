@@ -24,6 +24,8 @@ namespace Poloniex.Data.Contexts
         public DbSet<MovingAverage> MovingAverages { get; set; }
         public DbSet<TaskLoop> TaskLoops { get; set; }
         public DbSet<Task> Tasks { get; set; }
+        public DbSet<TradeSignalEventAction> TradeSignalEventActions { get; set; }
+        public DbSet<TradeSignalOrder> TradeSignalOrders { get; set; }
         public DbSet<User> Users { get; set; }
     }
 }
