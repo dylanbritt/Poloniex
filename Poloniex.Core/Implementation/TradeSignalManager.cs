@@ -3,7 +3,6 @@ using Poloniex.Core.Domain.Models;
 using Poloniex.Data.Contexts;
 using Poloniex.Log;
 using System;
-using System.Data.Entity;
 using System.Linq;
 
 namespace Poloniex.Core.Implementation
@@ -19,6 +18,19 @@ namespace Poloniex.Core.Implementation
 
         private static bool _shouldBuy = false;
         private static bool _shouldSell = false;
+
+        public static void InitProcessTradeSignalEventAction()
+        {
+            _init = true;
+
+            _wasBullish = false;
+            _isBullish = false;
+
+            _hasHoldings = false;
+
+            _shouldBuy = false;
+            _shouldSell = false;
+        }
 
         public static void ProcessTradeSignalEventAction(Guid eventActionId)
         {
@@ -70,6 +82,7 @@ namespace Poloniex.Core.Implementation
                         db.TradeSignalOrders.Add(buyTradeSignalOrder);
                         db.SaveChanges();
                         _hasHoldings = true;
+                        _shouldBuy = false;
                     }
 
                     if (_shouldSell)
@@ -85,13 +98,14 @@ namespace Poloniex.Core.Implementation
                         db.TradeSignalOrders.Add(sellTradeSignalOrder);
                         db.SaveChanges();
                         _hasHoldings = false;
+                        _shouldSell = false;
                     }
 
-                    Logger.Write($"wasBullish: {_wasBullish}, isBullish: {_isBullish}, hasHolding: {_hasHoldings}, shouldBuy {_shouldBuy}, shouldSell {_shouldSell}", Logger.LogType.ServiceLog);
+                    Logger.Write($"wasBullish: {_wasBullish}, isBullish: {_isBullish}, hasHolding: {_hasHoldings}, shouldBuy {_shouldBuy}, shouldSell {_shouldSell}", Logger.LogType.TransactionLog);
                 }
                 else
                 {
-                    Logger.Write($"TradeTask init, evenActionId: {eventActionId}");
+                    Logger.Write($"TradeTask init, evenActionId: {eventActionId} (see TransactionLog)", Logger.LogType.ServiceLog);
                     _init = false;
                 }
 

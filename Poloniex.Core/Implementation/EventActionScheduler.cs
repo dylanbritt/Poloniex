@@ -56,6 +56,7 @@ namespace Poloniex.Core.Implementation
                         ea.Action = MovingAverageManager.UpdateEma;
                         break;
                     case EventActionType.TradeSignal:
+                        TradeSignalManager.InitProcessTradeSignalEventAction();
                         ea.Action = TradeSignalManager.ProcessTradeSignalEventAction;
                         break;
                 }
