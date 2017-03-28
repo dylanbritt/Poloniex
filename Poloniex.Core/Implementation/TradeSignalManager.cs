@@ -89,6 +89,11 @@ namespace Poloniex.Core.Implementation
 
                     Logger.Write($"wasBullish: {_wasBullish}, isBullish: {_isBullish}, hasHolding: {_hasHoldings}, shouldBuy {_shouldBuy}, shouldSell {_shouldSell}", Logger.LogType.ServiceLog);
                 }
+                else
+                {
+                    Logger.Write($"TradeTask init, evenActionId: {eventActionId}");
+                    _init = false;
+                }
 
                 _wasBullish = _isBullish;
             }

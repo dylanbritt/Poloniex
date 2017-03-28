@@ -330,7 +330,7 @@ namespace ConsoleApplication
 
             using (var db = new PoloniexContext())
             {
-                var guid = Guid.Parse("BD536DE3-1FEB-47DA-A894-6FAEFBCE97E2");
+                var guid = Guid.Parse("77E44CDB-3461-443C-AFF7-9ACC13B7A93F");
                 var eventAction = db.EventActions.Include(x => x.MovingAverageEventAction).Single(x => x.EventActionId == guid);
             }
 

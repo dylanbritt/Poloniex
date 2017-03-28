@@ -41,7 +41,7 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                var eventActionsToStop = db.EventActions.Where(x => x.EventActionStatus == EventActionStatus.RequestToStop).ToList();
+                _EventActionsToStop = db.EventActions.Where(x => x.EventActionStatus == EventActionStatus.RequestToStop).ToList();
             }
         }
 
@@ -74,7 +74,7 @@ namespace Poloniex.Core.Implementation
 
         public void StopEventActions()
         {
-            foreach (var ea in _EventActionsToStart)
+            foreach (var ea in _EventActionsToStop)
             {
                 var globalStateEvent = _globalStateManager.GetTaskLoop(ea.TaskId);
                 var eventActions = globalStateEvent.Item3;
