@@ -13,13 +13,12 @@ namespace ConsoleApplication
     {
         static void Main(string[] args)
         {
-            //var dt = DateTime.Parse("2017-03-28 00:15:00.000")
             var dt = DateTime.UtcNow;
 
             var quarterDaysToGoBack = 4 * 1;
 
-            var signalInterval = 65;
-            var baseInterval = 25;
+            var signalInterval = 13;
+            var baseInterval = 5;
 
             var currencyPair = CurrencyPairConstants.USDT_BTC;
 
@@ -36,11 +35,11 @@ namespace ConsoleApplication
             dt = dt.AddSeconds(-dt.Second);
             dt = dt.AddMilliseconds(-dt.Millisecond);
 
-            //GatherTaskManager.BackFillGatherTaskData(1, currencyPair, dt);
+            GatherTaskManager.BackFillGatherTaskData(1, currencyPair, dt);
 
-            //GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt);
-            //MovingAverageManager.BackFillEma(currencyPair, signalInterval, dt, dt.AddSeconds(-secondsBack));
-            //MovingAverageManager.BackFillEma(currencyPair, baseInterval, dt, dt.AddSeconds(-secondsBack));
+            GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt);
+            MovingAverageManager.BackFillEma(currencyPair, signalInterval, dt, dt.AddSeconds(-secondsBack));
+            MovingAverageManager.BackFillEma(currencyPair, baseInterval, dt, dt.AddSeconds(-secondsBack));
 
             // ################################################################
 
