@@ -59,6 +59,9 @@ namespace Poloniex.Core.Implementation
                         TradeSignalManager.InitProcessTradeSignalEventAction();
                         ea.Action = TradeSignalManager.ProcessTradeSignalEventAction;
                         break;
+                    case EventActionType.ProcessTradeSignalOrders:
+                        ea.Action = TradeSignalOrderManager.ProcessTradeSignalOrders;
+                        break;
                 }
                 var globalStateEvent = _globalStateManager.GetTaskLoop(ea.TaskId);
                 var eventActions = globalStateEvent.Item3;

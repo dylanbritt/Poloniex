@@ -1,19 +1,43 @@
-﻿namespace Poloniex.Core.Implementation
+﻿using Poloniex.Core.Domain.Constants;
+using Poloniex.Data.Contexts;
+using Poloniex.Log;
+using System;
+using System.Data.Entity;
+using System.Linq;
+
+namespace Poloniex.Core.Implementation
 {
     public class TradeSignalOrderManager
     {
-        public static void Tick()
+        public static void ProcessTradeSignalOrders(Guid eventActionId)
         {
-            // query = get oldest order uncompleted order (while nonething is in progress)
-            // get oldest unprocessed trade order
-            // must be after trade signal order started!
-            // otherwise ignore first request if it is a sell order    
-            // set record in progress
+            Logger.Write($"Executing ProcessTradeSignalOrders for eventActionId: {eventActionId}", Logger.LogType.TransactionLog);
+            using (var db = new PoloniexContext())
+            {
+                // get oldest uncompleted order
+                var oldest = db.TradeSignalOrders
+                    .Where(x => !x.IsProcessed)
+                    .OrderBy(x => x.OrderRequestedDateTime)
+                    .First();
+                oldest.IsProcessed = true;
+                oldest.InProgress = true;
+                db.Entry(oldest).State = EntityState.Modified;
+                db.SaveChanges();
 
-            // create thread ->
-            // execute order logic
-            // set database record to isCompleted
-            // unlock database record (in progress = false
+                if (oldest.TradeSignalOrderType == TradeSignalOrderType.Buy)
+                {
+                    TradeManager.BuyBtcFromUsdt(ref oldest);
+                }
+                else
+                {
+                    TradeManager.SellBtcToUsdt(ref oldest);
+                }
+
+                oldest.OrderCompletedDateTime = DateTime.UtcNow;
+                oldest.InProgress = false;
+                db.Entry(oldest).State = EntityState.Modified;
+                db.SaveChanges();
+            };
         }
     }
 }

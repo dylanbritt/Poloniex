@@ -1,6 +1,7 @@
 ﻿using Poloniex.Api.Implementation;
 using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Constants.Poloniex;
+using Poloniex.Core.Domain.Models;
 using Poloniex.Log;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Poloniex.Core.Implementation
     {
         private static readonly object _syncRoot = new object();
 
-        public static void BuyBtcFromUsdt(decimal percent = 1.00M)
+        public static void BuyBtcFromUsdt(ref TradeSignalOrder tradeSignalOrder, decimal percent = 1.00M)
         {
             lock (_syncRoot)
             {
@@ -47,6 +48,7 @@ namespace Poloniex.Core.Implementation
 
                     if (!isMoving)
                     {
+                        tradeSignalOrder.PlaceValueTradedAt = buyRate;
                         // BUY
                         var buyResult = PoloniexExchangeService.Instance.Buy(CurrencyPairConstants.USDT_BTC, buyRate, buyAmount);
                         orderNumber = buyResult.orderNumber;
@@ -55,6 +57,7 @@ namespace Poloniex.Core.Implementation
                     }
                     else
                     {
+                        tradeSignalOrder.MoveValueTradedAt = buyRate;
                         // MOVE
                         var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, buyRate, buyAmount);
                         orderNumber = moveResult.orderNumber;
@@ -70,13 +73,14 @@ namespace Poloniex.Core.Implementation
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
                     {
+                        tradeSignalOrder.LastValueAtProcessing = buyRate;
                         break;
                     }
                 }
             }
         }
 
-        public static void SellBtcToUsdt(decimal percent = 1.00M)
+        public static void SellBtcToUsdt(ref TradeSignalOrder tradeSignalOrder, decimal percent = 1.00M)
         {
             lock (_syncRoot)
             {
@@ -111,6 +115,7 @@ namespace Poloniex.Core.Implementation
 
                     if (!isMoving)
                     {
+                        tradeSignalOrder.PlaceValueTradedAt = sellRate;
                         // SELL
                         var sellResult = PoloniexExchangeService.Instance.Sell(CurrencyPairConstants.USDT_BTC, sellRate, sellAmount);
                         orderNumber = sellResult.orderNumber;
@@ -119,6 +124,7 @@ namespace Poloniex.Core.Implementation
                     }
                     else
                     {
+                        tradeSignalOrder.MoveValueTradedAt = sellRate;
                         // MOVE
                         var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, sellRate, sellAmount);
                         orderNumber = moveResult.orderNumber;
@@ -134,6 +140,7 @@ namespace Poloniex.Core.Implementation
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
                     {
+                        tradeSignalOrder.LastValueAtProcessing = sellRate;
                         break;
                     }
                 }
