@@ -12,11 +12,14 @@ namespace Poloniex.Core.Implementation
 {
     public static class GatherTaskManager
     {
-        public static void BackFillGatherTaskDataForOneMonth(string currencyPair, DateTime? inputDateTime = null)
+        public static void BackFillGatherTaskData(int numberOfQuarterDays, string currencyPair, DateTime? inputDateTime = null)
         {
+            var totalTimeToGoBack = numberOfQuarterDays * 21600;
+
             var curDateTime = inputDateTime ?? DateTime.UtcNow;
 
-            var tmpDelDateTime = curDateTime.AddSeconds(-2678400).AddMilliseconds(500);
+            //var tmpDelDateTime = curDateTime.AddSeconds(-2678400).AddMilliseconds(500);
+            var tmpDelDateTime = curDateTime.AddSeconds(-totalTimeToGoBack).AddMilliseconds(500);
             using (var db = new PoloniexContext())
             {
                 var del =
@@ -28,7 +31,8 @@ namespace Poloniex.Core.Implementation
 
             // 2678400 seconds = 31 days
             // 21600 seconds = 6 hours
-            for (int i = 2678400; i > 0; i = i - 21600)
+            //for (int i = 2678400; i > 0; i = i - 21600)
+            for (int i = totalTimeToGoBack; i > 0; i = i - 21600)
             {
                 var intervalBeginningDateTime = curDateTime.AddSeconds(-i);
                 var intervalEndDateTime = curDateTime.AddSeconds(-(i - 21600));
@@ -81,69 +85,6 @@ namespace Poloniex.Core.Implementation
             }
 
             return;
-        }
-
-        public static void BackFillGatherTaskData(string currencyPair, int interval, int numberOfIntervals, DateTime? dateTimeNowOptional = null)
-        {
-            using (var db = new PoloniexContext())
-            {
-                var del =
-                    db.CryptoCurrencyDataPoints
-                        .Where(x => x.CurrencyPair == currencyPair)
-                        .OrderByDescending(x => x.ClosingDateTime)
-                        .Take(numberOfIntervals);
-                db.CryptoCurrencyDataPoints.RemoveRange(del);
-                db.SaveChanges();
-            }
-
-            DateTime dateTimeNow = dateTimeNowOptional ?? DateTime.UtcNow;
-            DateTime dateTimePast = dateTimeNow.AddSeconds(-(interval * numberOfIntervals));
-
-            var result = PoloniexExchangeService.Instance.ReturnTradeHistory(currencyPair, dateTimePast, dateTimeNow);
-            result = result.OrderBy(x => x.date).ToList();
-
-            List<CryptoCurrencyDataPoint> cryptoCurrencyDataPoints = new List<CryptoCurrencyDataPoint>();
-            var curRate = result.First().rate;
-
-            int curPos = 0;
-
-            for (int i = numberOfIntervals; i > 0; i--)
-            {
-                var intervalBeginningDateTime = dateTimeNow.AddSeconds(-(interval * i));
-                var intervalEndDateTime = dateTimeNow.AddSeconds(-(interval * (i - 1)));
-
-                var dataPoint = new CryptoCurrencyDataPoint
-                {
-                    CurrencyPair = currencyPair,
-                    ClosingDateTime = intervalEndDateTime,
-                };
-
-                bool isAnyData = false;
-                while (curPos < result.Count && result[curPos].date < intervalEndDateTime)
-                {
-                    isAnyData = true;
-                    curPos++;
-                }
-                if (curPos == result.Count)
-                {
-                    curPos--;
-                }
-
-                if (isAnyData)
-                {
-                    curRate = result[curPos].rate;
-                }
-
-                dataPoint.ClosingValue = curRate;
-
-                cryptoCurrencyDataPoints.Add(dataPoint);
-            }
-
-            using (var db = new PoloniexContext())
-            {
-                db.CryptoCurrencyDataPoints.AddRange(cryptoCurrencyDataPoints);
-                db.SaveChanges();
-            }
         }
 
         public static Timer GetGatherTaskTimer(Guid taskId, List<EventAction> eventActions)

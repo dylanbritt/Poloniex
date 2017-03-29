@@ -54,7 +54,7 @@ namespace Poloniex.Core.Implementation
                         {
                             try
                             {
-                                GatherTaskManager.BackFillGatherTaskDataForOneMonth(taskLoop.Task.GatherTask.CurrencyPair);
+                                GatherTaskManager.BackFillGatherTaskData(4, taskLoop.Task.GatherTask.CurrencyPair);
                             }
                             catch (Exception exception)
                             {
@@ -92,7 +92,7 @@ namespace Poloniex.Core.Implementation
                             db.SaveChanges();
                         }
                         var eventActions = tuple.Item3;
-                        foreach(var ea in eventActions)
+                        foreach (var ea in eventActions)
                         {
                             ea.EventActionStatus = EventActionStatus.Stopped;
                             using (var db = new PoloniexContext())
