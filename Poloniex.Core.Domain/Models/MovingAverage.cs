@@ -22,7 +22,7 @@ namespace Poloniex.Core.Domain.Models
         public DateTime ClosingDateTime { get; set; }
 
         [Required]
-        public decimal MovingAverageClosingValue { get; set; }
+        public decimal MovingAverageValue { get; set; }
         
         [Required]
         public decimal LastClosingValue { get; set; }

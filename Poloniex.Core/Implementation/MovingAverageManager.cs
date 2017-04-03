@@ -1,9 +1,14 @@
 ﻿using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Models;
 using Poloniex.Data.Contexts;
+using Poloniex.Log;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 
 namespace Poloniex.Core.Implementation
@@ -29,7 +34,7 @@ namespace Poloniex.Core.Implementation
                     CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
                     Interval = eventAction.MovingAverageEventAction.Interval,
                     ClosingDateTime = DateTime.UtcNow,
-                    MovingAverageClosingValue = MovingAverageCalculations.CalculateSma(smaInputClosingValues),
+                    MovingAverageValue = MovingAverageCalculations.CalculateSma(smaInputClosingValues),
                     LastClosingValue = smaInputClosingValues.First()
                 };
 
@@ -63,7 +68,7 @@ namespace Poloniex.Core.Implementation
                     CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
                     Interval = eventAction.MovingAverageEventAction.Interval,
                     ClosingDateTime = DateTime.UtcNow,
-                    MovingAverageClosingValue = MovingAverageCalculations.CalculateEma(closingValue.ClosingValue, prevEma.MovingAverageClosingValue, eventAction.MovingAverageEventAction.Interval),
+                    MovingAverageValue = MovingAverageCalculations.CalculateEma(closingValue.ClosingValue, prevEma.MovingAverageValue, eventAction.MovingAverageEventAction.Interval),
                     LastClosingValue = closingValue.ClosingValue
                 };
 
@@ -72,7 +77,7 @@ namespace Poloniex.Core.Implementation
             }
         }
 
-        public static void BackFillEma(string currencyPair, int interval, DateTime beginDateTime, DateTime endDateTime)
+        public static void BackFillEma(string currencyPair, int interval, DateTime beginDateTime, DateTime endDateTime, decimal? prevEmaSeed)
         {
             // add time buffer to guarantee beginDate inclusive / endDate exclusive
             endDateTime = endDateTime.AddSeconds(1);
@@ -99,45 +104,123 @@ namespace Poloniex.Core.Implementation
                         x.ClosingDateTime >= endDateTime)
                     .ToList();
 
-                smaInput = db.CryptoCurrencyDataPoints
-                    .Where(x =>
-                        x.CurrencyPair == currencyPair &&
-                        x.ClosingDateTime < endDateTime)
-                    .OrderBy(x => x.ClosingDateTime)
-                    .Select(x => x.ClosingValue)
-                    .Take(interval)
-                    .ToList();
+                if (prevEmaSeed == null)
+                {
+                    smaInput = db.CryptoCurrencyDataPoints
+                        .Where(x =>
+                            x.CurrencyPair == currencyPair &&
+                            x.ClosingDateTime < endDateTime)
+                        .OrderBy(x => x.ClosingDateTime)
+                        .Select(x => x.ClosingValue)
+                        .Take(interval)
+                        .ToList();
 
-                prevEma = MovingAverageCalculations.CalculateSma(smaInput);
+                    prevEma = MovingAverageCalculations.CalculateSma(smaInput);
+                }
+                else
+                {
+                    prevEma = prevEmaSeed.Value;
+                }
 
             }
-            
-            var ctx = new PoloniexContext();
-            ctx.Configuration.AutoDetectChangesEnabled = false;
 
-            // Being calculating
+            //var ctx = new PoloniexContext();
+            //ctx.Configuration.AutoDetectChangesEnabled = false;
+
+            //// Begin calculating
+            //for (int i = 0; i < dataPoints.Count; i++)
+            //{
+            //    if (i % 100 == 0)
+            //    {
+            //        ctx.SaveChanges();
+            //        ctx = new PoloniexContext();
+            //        ctx.Configuration.AutoDetectChangesEnabled = false;
+            //    }
+            //    var newMovingAverage = new MovingAverage()
+            //    {
+            //        MovingAverageType = MovingAverageType.ExponentialMovingAverage,
+            //        CurrencyPair = currencyPair,
+            //        Interval = interval,
+            //        ClosingDateTime = dataPoints[i].ClosingDateTime,
+            //        MovingAverageClosingValue = MovingAverageCalculations.CalculateEma(dataPoints[i].ClosingValue, prevEma, interval),
+            //        LastClosingValue = dataPoints[i].ClosingValue
+            //    };
+            //    ctx.MovingAverages.Add(newMovingAverage);
+            //    prevEma = newMovingAverage.MovingAverageClosingValue;
+            //}
+            //ctx.SaveChanges();
+            //ctx.Dispose();
+
+            // Begin calculating
+            List<MovingAverage> movingAveragesData = new List<MovingAverage>();
             for (int i = 0; i < dataPoints.Count; i++)
             {
-                if (i % 100 == 0)
-                {
-                    ctx.SaveChanges();
-                    ctx = new PoloniexContext();
-                    ctx.Configuration.AutoDetectChangesEnabled = false;
-                }
+
                 var newMovingAverage = new MovingAverage()
                 {
                     MovingAverageType = MovingAverageType.ExponentialMovingAverage,
                     CurrencyPair = currencyPair,
                     Interval = interval,
                     ClosingDateTime = dataPoints[i].ClosingDateTime,
-                    MovingAverageClosingValue = MovingAverageCalculations.CalculateEma(dataPoints[i].ClosingValue, prevEma, interval),
+                    MovingAverageValue = MovingAverageCalculations.CalculateEma(dataPoints[i].ClosingValue, prevEma, interval),
                     LastClosingValue = dataPoints[i].ClosingValue
                 };
-                ctx.MovingAverages.Add(newMovingAverage);
-                prevEma = newMovingAverage.MovingAverageClosingValue;
+                movingAveragesData.Add(newMovingAverage);
+                prevEma = newMovingAverage.MovingAverageValue;
             }
-            ctx.SaveChanges();
-            ctx.Dispose();
+            BulkInsertMovingAverages(movingAveragesData);
+        }
+
+        private static void BulkInsertMovingAverages(List<MovingAverage> movingAverages)
+        {
+            var dataTable = movingAverages.ToDataTable<MovingAverage>();
+
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["Poloniex.Data.Contexts.PoloniexContext"].ToString()))
+            {
+                SqlTransaction transaction = null;
+                connection.Open();
+                try
+                {
+                    transaction = connection.BeginTransaction();
+                    using (var sqlBulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.TableLock, transaction))
+                    {
+                        sqlBulkCopy.DestinationTableName = "MovingAverages";
+                        //sqlBulkCopy.ColumnMappings.Add("MovingAverageId", "MovingAverageId");
+                        sqlBulkCopy.ColumnMappings.Add("MovingAverageType", "MovingAverageType");
+                        sqlBulkCopy.ColumnMappings.Add("CurrencyPair", "CurrencyPair");
+                        sqlBulkCopy.ColumnMappings.Add("Interval", "Interval");
+                        sqlBulkCopy.ColumnMappings.Add("ClosingDateTime", "ClosingDateTime");
+                        sqlBulkCopy.ColumnMappings.Add("MovingAverageValue", "MovingAverageValue");
+                        sqlBulkCopy.ColumnMappings.Add("LastClosingValue", "LastClosingValue");
+
+                        sqlBulkCopy.WriteToServer(dataTable);
+                    }
+                    transaction.Commit();
+                }
+                catch (Exception exception)
+                {
+                    Logger.WriteException(exception);
+                    transaction.Rollback();
+                }
+
+            }
+        }
+
+        private static DataTable ToDataTable<T>(this IList<T> data)
+        {
+            PropertyDescriptorCollection properties =
+                TypeDescriptor.GetProperties(typeof(T));
+            DataTable table = new DataTable();
+            foreach (PropertyDescriptor prop in properties)
+                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+            foreach (T item in data)
+            {
+                DataRow row = table.NewRow();
+                foreach (PropertyDescriptor prop in properties)
+                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                table.Rows.Add(row);
+            }
+            return table;
         }
     }
 

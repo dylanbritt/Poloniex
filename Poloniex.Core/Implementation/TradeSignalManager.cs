@@ -32,7 +32,7 @@ namespace Poloniex.Core.Implementation
             _shouldSell = false;
         }
 
-        public static void ProcessTradeSignalEventAction(Guid eventActionId)
+        public static void ProcessEmaCrossOverSignal(Guid eventActionId)
         {
             using (var db = new PoloniexContext())
             {
@@ -53,7 +53,7 @@ namespace Poloniex.Core.Implementation
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
 
-                _isBullish = latestSignalMovingAverage.MovingAverageClosingValue > latestBaseMovingAverage.MovingAverageClosingValue;
+                _isBullish = latestSignalMovingAverage.MovingAverageValue > latestBaseMovingAverage.MovingAverageValue;
 
                 if (!_init)
                 {

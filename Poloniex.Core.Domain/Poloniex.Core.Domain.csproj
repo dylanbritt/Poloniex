@@ -48,6 +48,7 @@
     <Compile Include="Constants\MovingAverageType.cs" />
     <Compile Include="Constants\Poloniex\OpenOrderKeys.cs" />
     <Compile Include="Constants\LoopStatus.cs" />
+    <Compile Include="Constants\StopLossTailingType.cs" />
     <Compile Include="Constants\TaskType.cs" />
     <Compile Include="Constants\Poloniex\TickerResultKeys.cs" />
     <Compile Include="Constants\Poloniex\TradeOrderType.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Models\MovingAverage.cs" />
     <Compile Include="Models\GatherTask.cs" />
     <Compile Include="Models\Poloniex\ReturnTradeHistoryResult.cs" />
+    <Compile Include="Models\TradeSignalEventOptions.cs" />
     <Compile Include="Models\TradeSignalOrder.cs" />
     <Compile Include="Models\TradeSignalEventAction.cs" />
     <Compile Include="Models\Task.cs" />

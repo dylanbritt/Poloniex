@@ -57,7 +57,7 @@ namespace Poloniex.Core.Implementation
                         break;
                     case EventActionType.TradeSignal:
                         TradeSignalManager.InitProcessTradeSignalEventAction();
-                        ea.Action = TradeSignalManager.ProcessTradeSignalEventAction;
+                        ea.Action = TradeSignalManager.ProcessEmaCrossOverSignal;
                         break;
                     case EventActionType.ProcessTradeSignalOrders:
                         ea.Action = TradeSignalOrderManager.ProcessTradeSignalOrders;

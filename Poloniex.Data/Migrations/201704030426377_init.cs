@@ -3,7 +3,7 @@ namespace Poloniex.Data.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class Init : DbMigration
+    public partial class init : DbMigration
     {
         public override void Up()
         {
@@ -103,8 +103,8 @@ namespace Poloniex.Data.Migrations
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
                         Interval = c.Int(nullable: false),
                         ClosingDateTime = c.DateTime(nullable: false),
-                        MovingAverageClosingValue = c.Decimal(nullable: false, precision: 18, scale: 2),
-                        LastClosingValue = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        MovingAverageValue = c.Decimal(nullable: false, precision: 22, scale: 12),
+                        LastClosingValue = c.Decimal(nullable: false, precision: 22, scale: 12),
                     })
                 .PrimaryKey(t => t.MovingAverageId);
             
@@ -129,10 +129,10 @@ namespace Poloniex.Data.Migrations
                     {
                         TradeSignalOrderId = c.Guid(nullable: false, identity: true),
                         TradeSignalOrderType = c.String(nullable: false, maxLength: 32),
-                        LastValueAtRequest = c.Decimal(nullable: false, precision: 18, scale: 2),
-                        LastValueAtProcessing = c.Decimal(precision: 18, scale: 2),
-                        PlaceValueTradedAt = c.Decimal(precision: 18, scale: 2),
-                        MoveValueTradedAt = c.Decimal(precision: 18, scale: 2),
+                        LastValueAtRequest = c.Decimal(nullable: false, precision: 22, scale: 12),
+                        LastValueAtProcessing = c.Decimal(precision: 22, scale: 12),
+                        PlaceValueTradedAt = c.Decimal(precision: 22, scale: 12),
+                        MoveValueTradedAt = c.Decimal(precision: 22, scale: 12),
                         IsProcessed = c.Boolean(nullable: false),
                         InProgress = c.Boolean(nullable: false),
                         OrderRequestedDateTime = c.DateTime(nullable: false),

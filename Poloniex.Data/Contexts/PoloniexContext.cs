@@ -15,6 +15,14 @@ namespace Poloniex.Data.Contexts
         {
             modelBuilder.Entity<CryptoCurrencyDataPoint>().Property(x => x.ClosingValue).HasPrecision(22, 12);
 
+            modelBuilder.Entity<MovingAverage>().Property(x => x.MovingAverageValue).HasPrecision(22, 12);
+            modelBuilder.Entity<MovingAverage>().Property(x => x.LastClosingValue).HasPrecision(22, 12);
+
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.LastValueAtRequest).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.LastValueAtProcessing).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.PlaceValueTradedAt).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.MoveValueTradedAt).HasPrecision(22, 12);
+
             base.OnModelCreating(modelBuilder);
         }
 

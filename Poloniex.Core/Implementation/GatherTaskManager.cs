@@ -12,8 +12,10 @@ namespace Poloniex.Core.Implementation
 {
     public static class GatherTaskManager
     {
-        public static void BackFillGatherTaskData(int numberOfQuarterDays, string currencyPair, DateTime? inputDateTime = null)
+        public static void BackFillGatherTaskData(int numberOfQuarterDays, string currencyPair, DateTime? inputDateTime = null, DateTime? markerDate = null)
         {
+            markerDate = markerDate ?? DateTime.Parse("01/01/1970");
+
             var totalTimeToGoBack = numberOfQuarterDays * 21600;
 
             var curDateTime = inputDateTime ?? DateTime.UtcNow;
@@ -53,7 +55,7 @@ namespace Poloniex.Core.Implementation
                     {
                         CurrencyPair = currencyPair,
                         ClosingDateTime = intervalBeginningDateTime.AddSeconds((j + 1) * 60),
-                        CreatedDateTime = DateTime.UtcNow
+                        CreatedDateTime = markerDate.Value // notify was populated by backfill
                     };
 
                     bool isAnyData = false;
