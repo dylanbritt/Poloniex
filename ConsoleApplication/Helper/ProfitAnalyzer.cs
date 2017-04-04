@@ -1,16 +1,108 @@
 ﻿using Poloniex.Core.Implementation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleApplication.Helper
 {
     public class ProfitAnalyzer
     {
         /* Config */
-        public static decimal StopLossPercentage = 0.05M;
+        public static decimal StopLossPercentageUpper = 0.03M;
+        public static decimal StopLossPercentageLower = 0.03M;
         public static decimal DecayPercentage = 0.5M;
+        public static bool IsClimbing = true;
         public static int DecayingCount = 1;
-        public static bool IsDecayingClimb = false;
+        public static bool IsDecayingClimb = false; // Logic isn't fully implemented
+
+        /* data stats */
+        public static List<decimal> DataTracker = new List<decimal>();
+        public static decimal Data_GetMin()
+        {
+            return DataTracker.Min(x => x);
+        }
+        public static decimal Data_GetMax()
+        {
+            return DataTracker.Max(x => x);
+        }
+        public static decimal Data_GetMean()
+        {
+            return DataTracker.Sum() / (decimal)DataTracker.Count();
+        }
+        public static decimal Data_GetMedian()
+        {
+            DataTracker = DataTracker.OrderBy(x => x).ToList();
+            return DataTracker[DataTracker.Count / 2];
+        }
+        public static decimal Data_GetVariance()
+        {
+            DataTracker = DataTracker.OrderBy(x => x).ToList();
+
+            decimal sum = 0;
+            decimal mean = DataTracker.Sum() / (decimal)DataTracker.Count();
+
+            for (int i = 0; i < DataTracker.Count; i++)
+            {
+                sum += (decimal)Math.Pow((double)(DataTracker[i] - mean), 2);
+            }
+            return sum / (decimal)(DataTracker.Count - 1);
+        }
+        /* profit stats */
+        public static List<decimal> ProfitTracker = new List<decimal>();
+        public static decimal Profit_GetMin()
+        {
+            if (!ProfitTracker.Any())
+                return -1;
+            return ProfitTracker.Min(x => x);
+        }
+        public static decimal Profit_GetMax()
+        {
+            if (!ProfitTracker.Any())
+                return -1;
+            return ProfitTracker.Max(x => x);
+        }
+        public static decimal Profit_GetMean()
+        {
+            if (!ProfitTracker.Any())
+                return -1;
+            return ProfitTracker.Sum() / (decimal)ProfitTracker.Count();
+        }
+        public static decimal Profit_GetMedian()
+        {
+            if (!ProfitTracker.Any())
+                return -1;
+            ProfitTracker = ProfitTracker.OrderBy(x => x).ToList();
+            return ProfitTracker[ProfitTracker.Count / 2];
+        }
+        public static decimal Profit_GetVariance()
+        {
+            if (!ProfitTracker.Any())
+                return 1;
+            ProfitTracker = ProfitTracker.OrderBy(x => x).ToList();
+
+            decimal sum = 0;
+            decimal mean = ProfitTracker.Sum() / (decimal)ProfitTracker.Count();
+
+            for (int i = 0; i < ProfitTracker.Count; i++)
+            {
+                sum += (decimal)Math.Pow((double)(ProfitTracker[i] - mean), 2);
+            }
+            if (ProfitTracker.Count == 1)
+                return sum;
+            return sum / (decimal)(ProfitTracker.Count - 1);
+        }
+        public static decimal GetTotalProfit()
+        {
+            if (!ProfitTracker.Any())
+                return -1;
+            return ProfitTracker.Sum();
+        }
+        /* stats methods */
+        public static void ResetStats()
+        {
+            DataTracker = new List<decimal>();
+            ProfitTracker = new List<decimal>();
+        }
 
         /* macd signals */
         public static int MacdSignalInterval = 9;
@@ -49,7 +141,10 @@ namespace ConsoleApplication.Helper
                 ClosingDateTime = closingDateTime
             });
         }
-
+        public static void ResetMemory()
+        {
+            Objs = new List<MemObj>();
+        }
 
         public static void ProcessMacdMovingAverageSignals(
             decimal shorterMovingAverage,
@@ -57,9 +152,13 @@ namespace ConsoleApplication.Helper
             decimal lastClosingValue,
             DateTime closingDateTime)
         {
+            /* stats (begin) */
+            DataTracker.Add(lastClosingValue);
+            /* stats (end) */
+
             decimal curMacd = shorterMovingAverage - longerMovingAverage;
-            decimal macdEma = MovingAverageCalculations.CalculateEma(curMacd, MacdEma, MacdSignalInterval);
-            _isBullish = curMacd - macdEma >= 0;
+            MacdEma = MovingAverageCalculations.CalculateEma(curMacd, MacdEma, MacdSignalInterval);
+            _isBullish = curMacd - MacdEma >= 0;
 
             if (!_init)
             {
@@ -79,26 +178,37 @@ namespace ConsoleApplication.Helper
                         decimal high;
                         decimal low;
 
-                        high = _buyValue * (1M + StopLossPercentage);
-                        low = _buyValue * (1M - StopLossPercentage);
+                        high = _buyValue * (1M + StopLossPercentageUpper);
+                        low = _buyValue * (1M - StopLossPercentageLower);
 
-                        if (lastClosingValue >= high)
+                        if (IsClimbing)
                         {
-                            if (IsDecayingClimb)
+                            if (lastClosingValue >= high)
                             {
-                                _buyValue = high * (1M + StopLossPercentage * (decimal)Math.Pow((double)DecayPercentage, DecayingCount));
-                                DecayingCount++;
+                                if (IsDecayingClimb)
+                                {
+                                    _buyValue = high * (1M + StopLossPercentageUpper * (decimal)Math.Pow((double)DecayPercentage, DecayingCount));
+                                    DecayingCount++;
+                                }
+                                else
+                                {
+                                    _buyValue = high * (1M + StopLossPercentageUpper);
+                                }
                             }
-                            else
+
+                            if (lastClosingValue <= low)
                             {
-                                _buyValue = high * (1M + StopLossPercentage);
+                                _shouldSell = true;
+                                DecayingCount = 1;
                             }
                         }
-
-                        if (lastClosingValue <= low)
+                        else
                         {
-                            _shouldSell = true;
-                            DecayingCount = 1;
+                            if (lastClosingValue >= high || lastClosingValue <= low)
+                            {
+                                _shouldSell = true;
+                                DecayingCount = 1;
+                            }
                         }
                     }
 
@@ -136,10 +246,21 @@ namespace ConsoleApplication.Helper
 
             _wasBullish = _isBullish;
         }
+        public static void CloseOpenPosition()
+        {
+            if (Objs.Count % 2 == 1)
+            {
+                WriteToMemory("sell", DataTracker.Last(), DateTime.MinValue);
+            }
+        }
 
 
         public static void Process(decimal shorterMovingAverage, decimal longerMovingAverage, decimal lastClosingValue, DateTime closingDateTime)
         {
+            /* stats (begin) */
+            DataTracker.Add(lastClosingValue);
+            /* stats (end) */
+
             _isBullish = shorterMovingAverage - longerMovingAverage >= 0;
 
             if (!_init)
@@ -160,26 +281,37 @@ namespace ConsoleApplication.Helper
                         decimal high;
                         decimal low;
 
-                        high = _buyValue * (1M + StopLossPercentage);
-                        low = _buyValue * (1M - StopLossPercentage);
+                        high = _buyValue * (1M + StopLossPercentageUpper);
+                        low = _buyValue * (1M - StopLossPercentageLower);
 
-                        if (lastClosingValue >= high)
+                        if (IsClimbing)
                         {
-                            if (IsDecayingClimb)
+                            if (lastClosingValue >= high)
                             {
-                                _buyValue = high * (1M + StopLossPercentage * (decimal)Math.Pow((double)DecayPercentage, DecayingCount));
-                                DecayingCount++;
+                                if (IsDecayingClimb)
+                                {
+                                    _buyValue = high * (1M + StopLossPercentageUpper * (decimal)Math.Pow((double)DecayPercentage, DecayingCount));
+                                    DecayingCount++;
+                                }
+                                else
+                                {
+                                    _buyValue = high * (1M + StopLossPercentageUpper);
+                                }
                             }
-                            else
+
+                            if (lastClosingValue <= low)
                             {
-                                _buyValue = high * (1M + StopLossPercentage);
+                                _shouldSell = true;
+                                DecayingCount = 1;
                             }
                         }
-
-                        if (lastClosingValue <= low)
+                        else
                         {
-                            _shouldSell = true;
-                            DecayingCount = 1;
+                            if (lastClosingValue >= high || lastClosingValue <= low)
+                            {
+                                _shouldSell = true;
+                                DecayingCount = 1;
+                            }
                         }
                     }
 
@@ -257,6 +389,11 @@ namespace ConsoleApplication.Helper
 
                     percentChange = (sellAmount - sellAmount * 0.0015M) / (buyAmount + buyAmount * 0.0025M);
 
+                    if (!isBuy)
+                    {
+                        var profit = (balance * percentChange) - balance;
+                        ProfitTracker.Add(profit);
+                    }
                     balance = balance * percentChange;
 
                     Console.WriteLine($"New balance: {balance}");

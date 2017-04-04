@@ -18,6 +18,9 @@ namespace Poloniex.Core.Domain.Models
         [Required]
         public int Interval { get; set; }
 
+        [Required]
+        public int MinutesPerInterval { get; set; }
+
         // Foreign Keys
         [Key, ForeignKey("EventAction")]
         public Guid EventActionId { get; set; }

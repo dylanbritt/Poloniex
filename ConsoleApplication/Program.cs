@@ -1,7 +1,6 @@
 ﻿using ConsoleApplication.Helper;
 using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Models;
-using Poloniex.Core.Implementation;
 using Poloniex.Data.Contexts;
 using System;
 using System.Collections.Generic;
@@ -18,14 +17,21 @@ namespace ConsoleApplication
             Console.WriteLine($"Started: {DateTime.Now}");
             var dt = DateTime.UtcNow;
             // trim to start of month (begin)
-            //dt = dt.AddDays(-dt.Day).AddHours(dt.Hour);
+            dt = dt.AddMilliseconds(-dt.Millisecond);
+            dt = dt.AddSeconds(-dt.Second);
+            dt = dt.AddMinutes(-dt.Minute);
+            dt = dt.AddHours(-dt.Hour);
+            dt = dt.AddDays(-dt.Day + 1);
             // trim to start of month (end)
-            dt = dt.AddSeconds(-dt.Second).AddMilliseconds(-dt.Millisecond);
 
-            var quarterDaysToGoBack = 4 * 30;
+            var numberOfDays = 365;
 
-            var shorterInterval = 12 * 60;
-            var longerInterval = 26 * 60;
+            var quarterDaysToGoBack = 4 * numberOfDays;
+
+            var shorterInterval = 12;
+            var longerInterval = 26;
+
+            var minutesPerInterval = 60;
 
             // reverseSignal
             //var reverseTmp = shorterInterval;
@@ -41,23 +47,22 @@ namespace ConsoleApplication
 
             // ################################################################
 
-            var window = 30d;
-            var shifter = 365d / (30 / 2d);
-            var numberOfTimesToShift = 365d / shifter;
+            var window = numberOfDays;
+            var numberOfTimesToShift = numberOfDays / window;
 
             DateTime startDateTime = dt.AddSeconds(1);
             DateTime endDateTime = dt.AddSeconds(-secondsBack).AddSeconds(1);
 
             bool backFill = false;
 
-            backFill = true;
+            //backFill = true;
 
             if (backFill)
             {
-                GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
+                //GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
 
-                MovingAverageManager.BackFillEma(currencyPair, shorterInterval, dt, dt.AddSeconds(-secondsBack), null);
-                MovingAverageManager.BackFillEma(currencyPair, longerInterval, dt, dt.AddSeconds(-secondsBack), null);
+                //MovingAverageManager.BackFillEma(currencyPair, shorterInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
+                //MovingAverageManager.BackFillEma(currencyPair, longerInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
             }
 
             // ################################################################
@@ -69,36 +74,99 @@ namespace ConsoleApplication
             endDateTime = endDateTime.AddSeconds(1);
             startDateTime = startDateTime.AddSeconds(-1);
 
-            List<MovingAverage> shorterMovingAverages;
-            List<MovingAverage> longerMovingAverages;
-            using (var db = new PoloniexContext())
-            {
-                shorterMovingAverages = db.MovingAverages
-                    .Where(x =>
-                        x.Interval == shorterInterval &&
-                        x.CurrencyPair == currencyPair &&
-                        x.ClosingDateTime >= endDateTime &&
-                        x.ClosingDateTime <= startDateTime)
-                    .OrderBy(x => x.ClosingDateTime)
-                .ToList();
+            // start manipulations
+            startDateTime = endDateTime.AddDays(window);
+            List<RegressionResults> results = new List<RegressionResults>();
 
-                longerMovingAverages = db.MovingAverages
-                    .Where(x =>
-                        x.Interval == longerInterval &&
-                        x.CurrencyPair == currencyPair &&
-                        x.ClosingDateTime >= endDateTime &&
-                        x.ClosingDateTime <= startDateTime)
-                    .OrderBy(x => x.ClosingDateTime)
-                .ToList();
+            for (int looper = 0; looper < numberOfTimesToShift; looper++)
+            {
+                ProfitAnalyzer.ResetMemory();
+                ProfitAnalyzer.ResetStats();
+
+                List<MovingAverage> shorterMovingAverages;
+                List<MovingAverage> longerMovingAverages;
+                using (var db = new PoloniexContext())
+                {
+                    shorterMovingAverages = db.MovingAverages
+                        .Where(x =>
+                            x.Interval == shorterInterval &&
+                            x.CurrencyPair == currencyPair &&
+                            x.ClosingDateTime >= endDateTime &&
+                            x.ClosingDateTime <= startDateTime)
+                        .OrderBy(x => x.ClosingDateTime)
+                    .ToList();
+
+                    longerMovingAverages = db.MovingAverages
+                        .Where(x =>
+                            x.Interval == longerInterval &&
+                            x.CurrencyPair == currencyPair &&
+                            x.ClosingDateTime >= endDateTime &&
+                            x.ClosingDateTime <= startDateTime)
+                        .OrderBy(x => x.ClosingDateTime)
+                    .ToList();
+                }
+
+                //ProfitAnalyzer.MacdEma = shorterMovingAverages[0].MovingAverageValue - longerMovingAverages[0].MovingAverageValue;
+                for (int i = 0; i < shorterMovingAverages.Count; i++)
+                {
+                    //ProfitAnalyzer.ProcessMacdMovingAverageSignals(shorterMovingAverages[i].MovingAverageValue, longerMovingAverages[i].MovingAverageValue, shorterMovingAverages[i].LastClosingValue, shorterMovingAverages[i].ClosingDateTime);
+                    ProfitAnalyzer.Process(shorterMovingAverages[i].MovingAverageValue, longerMovingAverages[i].MovingAverageValue, shorterMovingAverages[i].LastClosingValue, shorterMovingAverages[i].ClosingDateTime);
+                }
+                ProfitAnalyzer.CloseOpenPosition();
+
+                ProfitAnalyzer.CalculateProfit(500);
+
+                var dataMin = ProfitAnalyzer.Data_GetMin();
+                var dataMax = ProfitAnalyzer.Data_GetMax();
+                var dataMean = ProfitAnalyzer.Data_GetMean();
+                var dataMedian = ProfitAnalyzer.Data_GetMedian();
+                var dataStd = (decimal)Math.Sqrt((double)ProfitAnalyzer.Data_GetVariance());
+
+                var profitMin = ProfitAnalyzer.Profit_GetMin();
+                var profitMax = ProfitAnalyzer.Profit_GetMax();
+                var profitMean = ProfitAnalyzer.Profit_GetMean();
+                var profitMedian = ProfitAnalyzer.Profit_GetMedian();
+                var profitStd = (decimal)Math.Sqrt((double)ProfitAnalyzer.Profit_GetVariance());
+                var totalProfit = ProfitAnalyzer.GetTotalProfit();
+
+                Console.WriteLine($"Data-Min: {dataMin}");
+                Console.WriteLine($"Data-Max: {dataMax}");
+                Console.WriteLine($"Data-Mean: {dataMean}");
+                Console.WriteLine($"Data-Median: {dataMedian}");
+                Console.WriteLine($"Data-Std: {dataStd}");
+                Console.WriteLine($"Profit-Min: {profitMin}");
+                Console.WriteLine($"Profit-Max: {profitMax}");
+                Console.WriteLine($"Profit-Mean: {profitMean}");
+                Console.WriteLine($"Profit-Median: {profitMedian}");
+                Console.WriteLine($"Profit-Std: {profitStd}");
+                Console.WriteLine($"TotalProfit: {totalProfit}");
+
+                results.Add(new RegressionResults
+                {
+                    StartDateTime = startDateTime,
+                    EndDateTime = endDateTime,
+                    DataMin = dataMin,
+                    DataMax = dataMax,
+                    DataMean = dataMean,
+                    DataMedian = dataMedian,
+                    DataStd = dataStd,
+                    ProfitMin = profitMin,
+                    ProfitMax = profitMax,
+                    ProfitMean = profitMean,
+                    ProfitMedian = profitMedian,
+                    ProfitStd = profitStd,
+                    TotalProfit = totalProfit
+                });
+
+                startDateTime = startDateTime.AddDays(window);
+                endDateTime = endDateTime.AddDays(window);
             }
 
-            ProfitAnalyzer.MacdEma = shorterMovingAverages[0].MovingAverageValue - longerMovingAverages[0].MovingAverageValue;
-            for (int i = 0; i < shorterMovingAverages.Count; i++)
+            foreach (var item in results)
             {
-                ProfitAnalyzer.ProcessMacdMovingAverageSignals(shorterMovingAverages[i].MovingAverageValue, longerMovingAverages[i].MovingAverageValue, shorterMovingAverages[i].LastClosingValue, shorterMovingAverages[i].ClosingDateTime);
+                Console.WriteLine(item.ToString());
+                Console.WriteLine("################################################################");
             }
-
-            ProfitAnalyzer.CalculateProfit(500);
 
             Console.WriteLine($"Complete: {DateTime.Now}");
             Console.ReadLine();

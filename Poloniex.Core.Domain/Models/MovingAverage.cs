@@ -19,11 +19,14 @@ namespace Poloniex.Core.Domain.Models
         public int Interval { get; set; }
 
         [Required]
+        public int MinutesPerInterval { get; set; }
+
+        [Required]
         public DateTime ClosingDateTime { get; set; }
 
         [Required]
         public decimal MovingAverageValue { get; set; }
-        
+
         [Required]
         public decimal LastClosingValue { get; set; }
     }

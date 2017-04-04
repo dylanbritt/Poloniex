@@ -33,6 +33,7 @@ namespace Poloniex.Core.Implementation
                     MovingAverageType = MovingAverageType.ExponentialMovingAverage,
                     CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
                     Interval = eventAction.MovingAverageEventAction.Interval,
+                    MinutesPerInterval = eventAction.MovingAverageEventAction.MinutesPerInterval,
                     ClosingDateTime = DateTime.UtcNow,
                     MovingAverageValue = MovingAverageCalculations.CalculateSma(smaInputClosingValues),
                     LastClosingValue = smaInputClosingValues.First()
@@ -58,26 +59,32 @@ namespace Poloniex.Core.Implementation
                     .Where(x =>
                         x.MovingAverageType == eventAction.MovingAverageEventAction.MovingAverageType &&
                         x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair &&
-                        x.Interval == eventAction.MovingAverageEventAction.Interval)
+                        x.Interval == eventAction.MovingAverageEventAction.Interval &&
+                        x.MinutesPerInterval == eventAction.MovingAverageEventAction.MinutesPerInterval)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
 
-                var curEma = new MovingAverage()
+                // -15 seconds to account for timer skew
+                if (closingValue.ClosingDateTime >= prevEma.ClosingDateTime.AddSeconds(-15).AddMinutes(prevEma.Interval))
                 {
-                    MovingAverageType = MovingAverageType.ExponentialMovingAverage,
-                    CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
-                    Interval = eventAction.MovingAverageEventAction.Interval,
-                    ClosingDateTime = DateTime.UtcNow,
-                    MovingAverageValue = MovingAverageCalculations.CalculateEma(closingValue.ClosingValue, prevEma.MovingAverageValue, eventAction.MovingAverageEventAction.Interval),
-                    LastClosingValue = closingValue.ClosingValue
-                };
+                    var curEma = new MovingAverage()
+                    {
+                        MovingAverageType = MovingAverageType.ExponentialMovingAverage,
+                        CurrencyPair = eventAction.MovingAverageEventAction.CurrencyPair,
+                        Interval = eventAction.MovingAverageEventAction.Interval,
+                        MinutesPerInterval = eventAction.MovingAverageEventAction.MinutesPerInterval,
+                        ClosingDateTime = DateTime.UtcNow,
+                        MovingAverageValue = MovingAverageCalculations.CalculateEma(closingValue.ClosingValue, prevEma.MovingAverageValue, eventAction.MovingAverageEventAction.Interval),
+                        LastClosingValue = closingValue.ClosingValue
+                    };
 
-                db.MovingAverages.Add(curEma);
-                db.SaveChanges();
+                    db.MovingAverages.Add(curEma);
+                    db.SaveChanges();
+                }
             }
         }
 
-        public static void BackFillEma(string currencyPair, int interval, DateTime beginDateTime, DateTime endDateTime, decimal? prevEmaSeed)
+        public static void BackFillEma(string currencyPair, int interval, int minutesPerInterval, DateTime beginDateTime, DateTime endDateTime, decimal? prevEmaSeed)
         {
             // add time buffer to guarantee beginDate inclusive / endDate exclusive
             endDateTime = endDateTime.AddSeconds(1);
@@ -92,6 +99,7 @@ namespace Poloniex.Core.Implementation
                     .Where(x =>
                         x.CurrencyPair == currencyPair &&
                         x.Interval == interval &&
+                        x.MinutesPerInterval == minutesPerInterval &&
                         x.ClosingDateTime <= beginDateTime &&
                         x.ClosingDateTime >= endDateTime);
                 db.MovingAverages.RemoveRange(delMovingAverages);
@@ -155,18 +163,21 @@ namespace Poloniex.Core.Implementation
             List<MovingAverage> movingAveragesData = new List<MovingAverage>();
             for (int i = 0; i < dataPoints.Count; i++)
             {
-
-                var newMovingAverage = new MovingAverage()
+                if (i % minutesPerInterval == 0)
                 {
-                    MovingAverageType = MovingAverageType.ExponentialMovingAverage,
-                    CurrencyPair = currencyPair,
-                    Interval = interval,
-                    ClosingDateTime = dataPoints[i].ClosingDateTime,
-                    MovingAverageValue = MovingAverageCalculations.CalculateEma(dataPoints[i].ClosingValue, prevEma, interval),
-                    LastClosingValue = dataPoints[i].ClosingValue
-                };
-                movingAveragesData.Add(newMovingAverage);
-                prevEma = newMovingAverage.MovingAverageValue;
+                    var newMovingAverage = new MovingAverage()
+                    {
+                        MovingAverageType = MovingAverageType.ExponentialMovingAverage,
+                        CurrencyPair = currencyPair,
+                        Interval = interval,
+                        MinutesPerInterval = minutesPerInterval,
+                        ClosingDateTime = dataPoints[i].ClosingDateTime,
+                        MovingAverageValue = MovingAverageCalculations.CalculateEma(dataPoints[i].ClosingValue, prevEma, interval),
+                        LastClosingValue = dataPoints[i].ClosingValue
+                    };
+                    movingAveragesData.Add(newMovingAverage);
+                    prevEma = newMovingAverage.MovingAverageValue;
+                }
             }
             BulkInsertMovingAverages(movingAveragesData);
         }
@@ -189,6 +200,7 @@ namespace Poloniex.Core.Implementation
                         sqlBulkCopy.ColumnMappings.Add("MovingAverageType", "MovingAverageType");
                         sqlBulkCopy.ColumnMappings.Add("CurrencyPair", "CurrencyPair");
                         sqlBulkCopy.ColumnMappings.Add("Interval", "Interval");
+                        sqlBulkCopy.ColumnMappings.Add("MinutesPerInterval", "MinutesPerInterval");
                         sqlBulkCopy.ColumnMappings.Add("ClosingDateTime", "ClosingDateTime");
                         sqlBulkCopy.ColumnMappings.Add("MovingAverageValue", "MovingAverageValue");
                         sqlBulkCopy.ColumnMappings.Add("LastClosingValue", "LastClosingValue");

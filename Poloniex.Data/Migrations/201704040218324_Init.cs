@@ -3,7 +3,7 @@ namespace Poloniex.Data.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class init : DbMigration
+    public partial class Init : DbMigration
     {
         public override void Up()
         {
@@ -42,6 +42,7 @@ namespace Poloniex.Data.Migrations
                         MovingAverageType = c.String(nullable: false, maxLength: 32),
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
                         Interval = c.Int(nullable: false),
+                        MinutesPerInterval = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.EventActionId)
                 .ForeignKey("dbo.EventActions", t => t.EventActionId)
@@ -102,6 +103,7 @@ namespace Poloniex.Data.Migrations
                         MovingAverageType = c.String(nullable: false, maxLength: 32),
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
                         Interval = c.Int(nullable: false),
+                        MinutesPerInterval = c.Int(nullable: false),
                         ClosingDateTime = c.DateTime(nullable: false),
                         MovingAverageValue = c.Decimal(nullable: false, precision: 22, scale: 12),
                         LastClosingValue = c.Decimal(nullable: false, precision: 22, scale: 12),
