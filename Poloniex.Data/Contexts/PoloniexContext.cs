@@ -13,7 +13,7 @@ namespace Poloniex.Data.Contexts
 
         protected override void OnModelCreating(System.Data.Entity.DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CryptoCurrencyDataPoint>().Property(x => x.ClosingValue).HasPrecision(22, 12);
+            modelBuilder.Entity<CurrencyDataPoint>().Property(x => x.ClosingValue).HasPrecision(22, 12);
 
             modelBuilder.Entity<MovingAverage>().Property(x => x.MovingAverageValue).HasPrecision(22, 12);
             modelBuilder.Entity<MovingAverage>().Property(x => x.LastClosingValue).HasPrecision(22, 12);
@@ -26,7 +26,7 @@ namespace Poloniex.Data.Contexts
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<CryptoCurrencyDataPoint> CryptoCurrencyDataPoints { get; set; }
+        public DbSet<CurrencyDataPoint> CryptoCurrencyDataPoints { get; set; }
         public DbSet<EventAction> EventActions { get; set; }
         public DbSet<GatherTask> GatherTasks { get; set; }
         public DbSet<MovingAverage> MovingAverages { get; set; }

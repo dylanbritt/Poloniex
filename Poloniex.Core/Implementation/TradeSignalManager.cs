@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace Poloniex.Core.Implementation
 {
+    // TODO: Refactor for multiple currencies
     public static class TradeSignalManager
     {
         private static bool _init = true;
@@ -39,21 +40,21 @@ namespace Poloniex.Core.Implementation
                 var tradeSignalEventAction = db.TradeSignalEventActions
                     .Single(x => x.EventActionId == eventActionId);
 
-                var latestSignalMovingAverage = db.MovingAverages
+                var latestShorterMovingAverage = db.MovingAverages
                     .Where(x =>
                         x.CurrencyPair == tradeSignalEventAction.CurrencyPair &&
-                        x.Interval == tradeSignalEventAction.SignalMovingAverageInterval)
+                        x.Interval == tradeSignalEventAction.ShorterMovingAverageInterval)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
 
-                var latestBaseMovingAverage = db.MovingAverages
+                var latestLongerMovingAverage = db.MovingAverages
                     .Where(x =>
                         x.CurrencyPair == tradeSignalEventAction.CurrencyPair &&
-                        x.Interval == tradeSignalEventAction.BaseMovingAverageInterval)
+                        x.Interval == tradeSignalEventAction.LongerMovingAverageInterval)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
 
-                _isBullish = latestSignalMovingAverage.MovingAverageValue > latestBaseMovingAverage.MovingAverageValue;
+                _isBullish = latestShorterMovingAverage.MovingAverageValue > latestLongerMovingAverage.MovingAverageValue;
 
                 if (!_init)
                 {
@@ -74,7 +75,7 @@ namespace Poloniex.Core.Implementation
                         var buyTradeSignalOrder = new TradeSignalOrder()
                         {
                             TradeSignalOrderType = TradeSignalOrderType.Buy,
-                            LastValueAtRequest = latestSignalMovingAverage.LastClosingValue,
+                            LastValueAtRequest = latestShorterMovingAverage.LastClosingValue,
                             IsProcessed = false,
                             InProgress = false,
                             OrderRequestedDateTime = DateTime.UtcNow
@@ -89,7 +90,7 @@ namespace Poloniex.Core.Implementation
                         var sellTradeSignalOrder = new TradeSignalOrder()
                         {
                             TradeSignalOrderType = TradeSignalOrderType.Sell,
-                            LastValueAtRequest = latestSignalMovingAverage.LastClosingValue,
+                            LastValueAtRequest = latestShorterMovingAverage.LastClosingValue,
                             IsProcessed = false,
                             InProgress = false,
                             OrderRequestedDateTime = DateTime.UtcNow

@@ -9,7 +9,7 @@ namespace Poloniex.Core.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid GatherTaskId { get; set; }
 
-        [Required, MaxLength(32)]
+        [Required, MaxLength(16)]
         public string CurrencyPair { get; set; }
 
         // Foreign key

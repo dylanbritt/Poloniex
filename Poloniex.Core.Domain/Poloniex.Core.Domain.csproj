@@ -59,7 +59,7 @@
     <Compile Include="Models\Poloniex\BuySellResultingTrade.cs" />
     <Compile Include="Models\Poloniex\MoveOrderTradeResult.cs" />
     <Compile Include="Models\Poloniex\BuySellTradeResult.cs" />
-    <Compile Include="Models\CryptoCurrencyDataPoint.cs" />
+    <Compile Include="Models\CurrencyDataPoint.cs" />
     <Compile Include="Models\MovingAverage.cs" />
     <Compile Include="Models\GatherTask.cs" />
     <Compile Include="Models\Poloniex\ReturnTradeHistoryResult.cs" />

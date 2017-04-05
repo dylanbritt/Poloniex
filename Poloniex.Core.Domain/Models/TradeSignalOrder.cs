@@ -13,6 +13,9 @@ namespace Poloniex.Core.Domain.Models
         [Required, MaxLength(32)]
         public string TradeSignalOrderType { get; set; }
 
+        [Required, MaxLength(16)]
+        public string CurrencyPair { get; set; }
+
         [Required]
         public decimal LastValueAtRequest { get; set; }
 

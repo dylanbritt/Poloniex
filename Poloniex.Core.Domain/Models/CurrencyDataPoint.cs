@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Poloniex.Core.Domain.Models
 {
-    public class CryptoCurrencyDataPoint
+    public class CurrencyDataPoint
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CryptoCurrencyDataPointId { get; set; }
+        public Guid CurrencyDataPointId { get; set; }
 
         [Required, MaxLength(16)]
         public string CurrencyPair { get; set; }

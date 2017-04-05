@@ -1,6 +1,7 @@
 ﻿using ConsoleApplication.Helper;
 using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Models;
+using Poloniex.Core.Implementation;
 using Poloniex.Data.Contexts;
 using System;
 using System.Collections.Generic;
@@ -24,21 +25,21 @@ namespace ConsoleApplication
             dt = dt.AddDays(-dt.Day + 1);
             // trim to start of month (end)
 
-            var numberOfDays = 365;
+            var numberOfDays = 30;
 
             var quarterDaysToGoBack = 4 * numberOfDays;
 
             var shorterInterval = 12;
             var longerInterval = 26;
 
-            var minutesPerInterval = 60;
+            var minutesPerInterval = 15;
 
             // reverseSignal
             //var reverseTmp = shorterInterval;
             //shorterInterval = longerInterval;
             //longerInterval = reverseTmp;
 
-            var currencyPair = CurrencyPairConstants.USDT_BTC;
+            var currencyPair = CurrencyPairConstants.USDT_ETH;
 
             // ################################################################
 
@@ -48,6 +49,9 @@ namespace ConsoleApplication
             // ################################################################
 
             var window = numberOfDays;
+            //var window = 30;
+            //var window = 60;
+            //var window = 120;
             var numberOfTimesToShift = numberOfDays / window;
 
             DateTime startDateTime = dt.AddSeconds(1);
@@ -61,8 +65,8 @@ namespace ConsoleApplication
             {
                 //GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
 
-                //MovingAverageManager.BackFillEma(currencyPair, shorterInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
-                //MovingAverageManager.BackFillEma(currencyPair, longerInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
+                MovingAverageManager.BackFillEma(currencyPair, shorterInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
+                MovingAverageManager.BackFillEma(currencyPair, longerInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
             }
 
             // ################################################################
@@ -90,6 +94,7 @@ namespace ConsoleApplication
                     shorterMovingAverages = db.MovingAverages
                         .Where(x =>
                             x.Interval == shorterInterval &&
+                            x.MinutesPerInterval == minutesPerInterval &&
                             x.CurrencyPair == currencyPair &&
                             x.ClosingDateTime >= endDateTime &&
                             x.ClosingDateTime <= startDateTime)
@@ -99,6 +104,7 @@ namespace ConsoleApplication
                     longerMovingAverages = db.MovingAverages
                         .Where(x =>
                             x.Interval == longerInterval &&
+                            x.MinutesPerInterval == minutesPerInterval &&
                             x.CurrencyPair == currencyPair &&
                             x.ClosingDateTime >= endDateTime &&
                             x.ClosingDateTime <= startDateTime)

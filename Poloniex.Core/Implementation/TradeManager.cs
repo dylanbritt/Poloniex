@@ -9,6 +9,8 @@ using System.Threading;
 
 namespace Poloniex.Core.Implementation
 {
+
+    // TODO: Refactor for multiple currencies
     public static class TradeManager
     {
         private static readonly object _syncRoot = new object();

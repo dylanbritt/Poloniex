@@ -64,6 +64,8 @@
     <Compile Include="Implementation\TradeSignalOrderManager.cs" />
     <Compile Include="Interfaces\IGlobalStateManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\DataTableUtility.cs" />
+    <Compile Include="Utility\TimerUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Poloniex.Api\Poloniex.Api.csproj">

@@ -8,6 +8,11 @@ using System.Timers;
 
 namespace Poloniex.Core.Implementation
 {
+    public static class GlobalStateManagerHelper
+    {
+        public static List<Tuple<TaskLoop, Timer, List<EventAction>>> TaskLoops = new List<Tuple<TaskLoop, Timer, List<EventAction>>>();
+    }
+
     public class GlobalStateManager : IGlobalStateManager
     {
         public void AddTaskLoop(TaskLoop taskLoop, Timer timer, List<EventAction> eventActions)
@@ -84,10 +89,5 @@ namespace Poloniex.Core.Implementation
             }
             return sb.ToString();
         }
-    }
-
-    public static class GlobalStateManagerHelper
-    {
-        public static List<Tuple<TaskLoop, Timer, List<EventAction>>> TaskLoops = new List<Tuple<TaskLoop, Timer, List<EventAction>>>();
     }
 }

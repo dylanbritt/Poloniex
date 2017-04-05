@@ -1,10 +1,10 @@
 ﻿using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Models;
+using Poloniex.Core.Utility;
 using Poloniex.Data.Contexts;
 using Poloniex.Log;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.Entity;
@@ -13,6 +13,21 @@ using System.Linq;
 
 namespace Poloniex.Core.Implementation
 {
+    public static class MovingAverageCalculations
+    {
+        public static decimal CalculateSma(List<decimal> closingValues)
+        {
+            return closingValues.Sum() / closingValues.Count;
+        }
+
+        public static decimal CalculateEma(decimal closingValue, decimal previousEma, int intervalCount)
+        {
+            var multipler = 2M / ((decimal)intervalCount + 1M);
+
+            return ((closingValue - previousEma) * multipler) + previousEma;
+        }
+    }
+
     public static class MovingAverageManager
     {
         public static void InitEmaBySma(Guid eventActionId)
@@ -84,13 +99,15 @@ namespace Poloniex.Core.Implementation
             }
         }
 
+        /* additional helpers */
+
         public static void BackFillEma(string currencyPair, int interval, int minutesPerInterval, DateTime beginDateTime, DateTime endDateTime, decimal? prevEmaSeed)
         {
             // add time buffer to guarantee beginDate inclusive / endDate exclusive
             endDateTime = endDateTime.AddSeconds(1);
             beginDateTime = beginDateTime.AddSeconds(1);
 
-            List<CryptoCurrencyDataPoint> dataPoints;
+            List<CurrencyDataPoint> dataPoints;
             List<decimal> smaInput;
             decimal prevEma;
             using (var db = new PoloniexContext())
@@ -131,33 +148,6 @@ namespace Poloniex.Core.Implementation
                 }
 
             }
-
-            //var ctx = new PoloniexContext();
-            //ctx.Configuration.AutoDetectChangesEnabled = false;
-
-            //// Begin calculating
-            //for (int i = 0; i < dataPoints.Count; i++)
-            //{
-            //    if (i % 100 == 0)
-            //    {
-            //        ctx.SaveChanges();
-            //        ctx = new PoloniexContext();
-            //        ctx.Configuration.AutoDetectChangesEnabled = false;
-            //    }
-            //    var newMovingAverage = new MovingAverage()
-            //    {
-            //        MovingAverageType = MovingAverageType.ExponentialMovingAverage,
-            //        CurrencyPair = currencyPair,
-            //        Interval = interval,
-            //        ClosingDateTime = dataPoints[i].ClosingDateTime,
-            //        MovingAverageClosingValue = MovingAverageCalculations.CalculateEma(dataPoints[i].ClosingValue, prevEma, interval),
-            //        LastClosingValue = dataPoints[i].ClosingValue
-            //    };
-            //    ctx.MovingAverages.Add(newMovingAverage);
-            //    prevEma = newMovingAverage.MovingAverageClosingValue;
-            //}
-            //ctx.SaveChanges();
-            //ctx.Dispose();
 
             // Begin calculating
             List<MovingAverage> movingAveragesData = new List<MovingAverage>();
@@ -216,38 +206,6 @@ namespace Poloniex.Core.Implementation
                 }
 
             }
-        }
-
-        private static DataTable ToDataTable<T>(this IList<T> data)
-        {
-            PropertyDescriptorCollection properties =
-                TypeDescriptor.GetProperties(typeof(T));
-            DataTable table = new DataTable();
-            foreach (PropertyDescriptor prop in properties)
-                table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-            foreach (T item in data)
-            {
-                DataRow row = table.NewRow();
-                foreach (PropertyDescriptor prop in properties)
-                    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                table.Rows.Add(row);
-            }
-            return table;
-        }
-    }
-
-    public static class MovingAverageCalculations
-    {
-        public static decimal CalculateSma(List<decimal> closingValues)
-        {
-            return closingValues.Sum() / closingValues.Count;
-        }
-
-        public static decimal CalculateEma(decimal closingValue, decimal previousEma, int intervalCount)
-        {
-            var multipler = 2M / ((decimal)intervalCount + 1M);
-
-            return ((closingValue - previousEma) * multipler) + previousEma;
         }
     }
 }

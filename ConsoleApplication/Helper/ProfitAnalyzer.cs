@@ -144,6 +144,15 @@ namespace ConsoleApplication.Helper
         public static void ResetMemory()
         {
             Objs = new List<MemObj>();
+
+            _init = true;
+            _wasBullish = false;
+            _isBullish = false;
+            _hasHoldings = false;
+            _shouldBuy = false;
+            _shouldSell = false;
+            _buyValue = 0;
+            _isDelay = false;
         }
 
         public static void ProcessMacdMovingAverageSignals(

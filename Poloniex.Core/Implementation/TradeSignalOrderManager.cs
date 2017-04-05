@@ -9,6 +9,7 @@ namespace Poloniex.Core.Implementation
 {
     public class TradeSignalOrderManager
     {
+        // TODO: Refactor for each processor to only handle its currency
         public static void ProcessTradeSignalOrders(Guid eventActionId)
         {
             using (var db = new PoloniexContext())

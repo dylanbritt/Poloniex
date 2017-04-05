@@ -15,7 +15,7 @@ namespace Poloniex.Core.Domain.Models
         public DateTime? LoopStartedDateTime { get; set; }
 
         [Required]
-        public int Interval { get; set; }
+        public int SecondsPerTick { get; set; }
 
         // Foreign key
         [Key, ForeignKey("Task")]

@@ -17,10 +17,10 @@ namespace Poloniex.Core.Domain.Models
         public string CurrencyPair { get; set; }
 
         [Required]
-        public int SignalMovingAverageInterval { get; set; }
+        public int ShorterMovingAverageInterval { get; set; }
 
         [Required]
-        public int BaseMovingAverageInterval { get; set; }
+        public int LongerMovingAverageInterval { get; set; }
 
         // Foriegn Keys
         [Key, ForeignKey("EventAction")]

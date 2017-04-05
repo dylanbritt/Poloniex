@@ -2,7 +2,7 @@
 {
     public static class StopLossTailingType
     {
-        public const string StaticClimbing = "StaticClimbing";
-        public const string DecayClimbing = "DecayClimbing";
+        //public const string StaticClimbing = "StaticClimbing";
+        //public const string DecayClimbing = "DecayClimbing";
     }
 }

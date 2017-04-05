@@ -54,7 +54,7 @@ namespace Poloniex.Core.Implementation
                         {
                             try
                             {
-                                GatherTaskManager.BackFillGatherTaskData(4, taskLoop.Task.GatherTask.CurrencyPair);
+                                GatherTaskManager.BackFillGatherTaskData(4, taskLoop.Task.GatherTask.CurrencyPair, null, DateTime.Parse("01/01/1970"));
                             }
                             catch (Exception exception)
                             {
@@ -84,7 +84,7 @@ namespace Poloniex.Core.Implementation
                 {
                     case "GatherTask":
                         var tuple = _globalStateManager.RemoveTaskLoop(taskLoop.TaskId);
-                        tuple.Item2.Stop();
+                        tuple.Item2.Stop(); // stop timer (Item2 is timer)
                         using (var db = new PoloniexContext())
                         {
                             taskLoop.LoopStatus = LoopStatus.Stopped;

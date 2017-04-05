@@ -4,6 +4,6 @@
     {
         public const string MovingAverage = "MovingAverage";
         public const string TradeSignal = "TradeSignal";
-        public const string ProcessTradeSignalOrders = "ProcessTradeSignalOrders";
+        public const string ProcessTradeSignalOrder = "ProcessTradeSignalOrder";
     }
 }

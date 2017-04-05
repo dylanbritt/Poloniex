@@ -2,6 +2,7 @@
 
 namespace Poloniex.Core.Domain.Models
 {
+    // TODO: Refactor decay
     public class TradeSignalEventOptions
     {
         public Guid TradeSignalEventOptionsId { get; set; }

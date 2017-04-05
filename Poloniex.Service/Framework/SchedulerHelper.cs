@@ -1,4 +1,5 @@
 ﻿using Poloniex.Core.Implementation;
+using Poloniex.Core.Utility;
 using Poloniex.Log;
 using System;
 using System.Timers;
@@ -93,7 +94,7 @@ namespace Poloniex.Service.Framework
 
             Logger.Write("Exiting TimerTick.", Logger.LogType.ServiceLog);
 
-            TimerHelper.Timer.Interval = GetInterval(TimerHelper.TimerTickInterval);
+            TimerHelper.Timer.Interval = TimerUtility.GetAdjustedInterval(TimerHelper.TimerTickInterval);
             TimerHelper.Timer.Start();
         }
 
@@ -113,26 +114,6 @@ namespace Poloniex.Service.Framework
 
             TimerHelper.Timer.Stop();
             Logger.Write("Service stopped.", Logger.LogType.ServiceLog);
-        }
-
-        private static int GetInterval(int interval)
-        {
-            DateTime now = DateTime.UtcNow;
-            DateTime next = now.AddSeconds(interval);
-            next = next.AddMilliseconds(-next.Millisecond);
-            if (interval % 5 == 0)
-            {
-                if (next.Second == 9 || next.Second == 4)
-                {
-                    next = next.AddSeconds(1);
-                }
-                if (next.Second == 1 || next.Second == 6)
-                {
-                    next = next.AddSeconds(-1);
-                }
-            }
-            next = next.AddMilliseconds(5);
-            return (int)(next - now).TotalMilliseconds;
         }
     }
 }

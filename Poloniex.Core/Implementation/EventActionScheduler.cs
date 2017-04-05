@@ -32,7 +32,7 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                var tmpDateTime = DateTime.UtcNow.AddMinutes(-3);
+                var tmpDateTime = DateTime.UtcNow.AddMinutes(-3); // parent task must be running for more than 3 mintues before starting event actions
                 _EventActionsToStart = db.EventActions.Where(x => x.EventActionStatus == EventActionStatus.RequestToStart && x.Task.TaskLoop.LoopStartedDateTime < tmpDateTime).ToList();
             }
         }
@@ -45,6 +45,7 @@ namespace Poloniex.Core.Implementation
             }
         }
 
+        // TODO: Refactor TradeSignal logic
         public void StartEventActions()
         {
             foreach (var ea in _EventActionsToStart)
@@ -59,7 +60,7 @@ namespace Poloniex.Core.Implementation
                         TradeSignalManager.InitProcessTradeSignalEventAction();
                         ea.Action = TradeSignalManager.ProcessEmaCrossOverSignal;
                         break;
-                    case EventActionType.ProcessTradeSignalOrders:
+                    case EventActionType.ProcessTradeSignalOrder:
                         ea.Action = TradeSignalOrderManager.ProcessTradeSignalOrders;
                         break;
                 }
