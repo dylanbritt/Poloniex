@@ -25,7 +25,7 @@ namespace ConsoleApplication
             dt = dt.AddDays(-dt.Day + 1);
             // trim to start of month (end)
 
-            var numberOfDays = 30;
+            var numberOfDays = 365;
 
             var quarterDaysToGoBack = 4 * numberOfDays;
 

@@ -125,6 +125,7 @@ namespace Poloniex.Core.Implementation
                 db.SaveChanges();
             }
 
+            var currencyDataPoints = new List<CurrencyDataPoint>();
             // 2678400 seconds = 31 days
             // 21600 seconds = 6 hours
             //for (int i = 2678400; i > 0; i = i - 21600)
@@ -137,7 +138,6 @@ namespace Poloniex.Core.Implementation
 
                 poloniexData = poloniexData.OrderBy(x => x.date).ToList();
 
-                var currencyDataPoints = new List<CurrencyDataPoint>();
                 decimal rate = poloniexData.First().rate;
 
                 // how many minute intervals in 21600 seconds ... 360
@@ -172,9 +172,13 @@ namespace Poloniex.Core.Implementation
 
                     currencyDataPoints.Add(currencyDataPoint);
                 }
-
-                BulkInsertCurrencyDataPoints(currencyDataPoints);
+                if (currencyDataPoints.Count > 25000)
+                {
+                    BulkInsertCurrencyDataPoints(currencyDataPoints);
+                    currencyDataPoints = new List<CurrencyDataPoint>();
+                }
             }
+            BulkInsertCurrencyDataPoints(currencyDataPoints);
 
             return;
         }
