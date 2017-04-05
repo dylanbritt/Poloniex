@@ -26,7 +26,7 @@ namespace Poloniex.Data.Contexts
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<CurrencyDataPoint> CryptoCurrencyDataPoints { get; set; }
+        public DbSet<CurrencyDataPoint> CurrencyDataPoints { get; set; }
         public DbSet<EventAction> EventActions { get; set; }
         public DbSet<GatherTask> GatherTasks { get; set; }
         public DbSet<MovingAverage> MovingAverages { get; set; }

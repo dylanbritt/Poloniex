@@ -32,14 +32,9 @@ namespace ConsoleApplication
             var shorterInterval = 12;
             var longerInterval = 26;
 
-            var minutesPerInterval = 15;
+            var minutesPerInterval = 60;
 
-            // reverseSignal
-            //var reverseTmp = shorterInterval;
-            //shorterInterval = longerInterval;
-            //longerInterval = reverseTmp;
-
-            var currencyPair = CurrencyPairConstants.USDT_ETH;
+            var currencyPair = CurrencyPairConstants.USDT_BTC;
 
             // ################################################################
 
@@ -57,14 +52,19 @@ namespace ConsoleApplication
             DateTime startDateTime = dt.AddSeconds(1);
             DateTime endDateTime = dt.AddSeconds(-secondsBack).AddSeconds(1);
 
-            bool backFill = false;
+            bool backFillCurrencyDataPoints = false;
 
-            //backFill = true;
-
-            if (backFill)
+            backFillCurrencyDataPoints = true;
+            if (backFillCurrencyDataPoints)
             {
-                //GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
+                GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
+            }
 
+            bool backFillMovingAverages = false;
+
+            backFillMovingAverages = true;
+            if (backFillMovingAverages)
+            {
                 MovingAverageManager.BackFillEma(currencyPair, shorterInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
                 MovingAverageManager.BackFillEma(currencyPair, longerInterval, minutesPerInterval, dt, dt.AddSeconds(-secondsBack), null);
             }

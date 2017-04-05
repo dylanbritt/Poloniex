@@ -8,16 +8,16 @@ namespace Poloniex.Data.Migrations
         public override void Up()
         {
             CreateTable(
-                "dbo.CryptoCurrencyDataPoints",
+                "dbo.CurrencyDataPoints",
                 c => new
                     {
-                        CryptoCurrencyDataPointId = c.Guid(nullable: false, identity: true),
+                        CurrencyDataPointId = c.Guid(nullable: false, identity: true),
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
                         ClosingDateTime = c.DateTime(nullable: false),
                         ClosingValue = c.Decimal(nullable: false, precision: 22, scale: 12),
                         CreatedDateTime = c.DateTime(nullable: false),
                     })
-                .PrimaryKey(t => t.CryptoCurrencyDataPointId);
+                .PrimaryKey(t => t.CurrencyDataPointId);
             
             CreateTable(
                 "dbo.EventActions",
@@ -63,7 +63,7 @@ namespace Poloniex.Data.Migrations
                     {
                         TaskId = c.Guid(nullable: false),
                         GatherTaskId = c.Guid(nullable: false, identity: true),
-                        CurrencyPair = c.String(nullable: false, maxLength: 32),
+                        CurrencyPair = c.String(nullable: false, maxLength: 16),
                     })
                 .PrimaryKey(t => t.TaskId)
                 .ForeignKey("dbo.Tasks", t => t.TaskId)
@@ -77,7 +77,7 @@ namespace Poloniex.Data.Migrations
                         TaskLoopId = c.Guid(nullable: false, identity: true),
                         LoopStatus = c.String(nullable: false, maxLength: 32),
                         LoopStartedDateTime = c.DateTime(),
-                        Interval = c.Int(nullable: false),
+                        SecondsPerTick = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.TaskId)
                 .ForeignKey("dbo.Tasks", t => t.TaskId)
@@ -89,7 +89,7 @@ namespace Poloniex.Data.Migrations
                     {
                         TaskId = c.Guid(nullable: false),
                         TradeTaskId = c.Guid(nullable: false, identity: true),
-                        CurrencyPair = c.String(nullable: false, maxLength: 32),
+                        CurrencyPair = c.String(nullable: false, maxLength: 16),
                     })
                 .PrimaryKey(t => t.TaskId)
                 .ForeignKey("dbo.Tasks", t => t.TaskId)
@@ -118,8 +118,8 @@ namespace Poloniex.Data.Migrations
                         TradeSignalEventActionId = c.Guid(nullable: false, identity: true),
                         TradeSignalEventActionType = c.String(nullable: false, maxLength: 32),
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
-                        SignalMovingAverageInterval = c.Int(nullable: false),
-                        BaseMovingAverageInterval = c.Int(nullable: false),
+                        ShorterMovingAverageInterval = c.Int(nullable: false),
+                        LongerMovingAverageInterval = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.EventActionId)
                 .ForeignKey("dbo.EventActions", t => t.EventActionId)
@@ -131,6 +131,7 @@ namespace Poloniex.Data.Migrations
                     {
                         TradeSignalOrderId = c.Guid(nullable: false, identity: true),
                         TradeSignalOrderType = c.String(nullable: false, maxLength: 32),
+                        CurrencyPair = c.String(nullable: false, maxLength: 16),
                         LastValueAtRequest = c.Decimal(nullable: false, precision: 22, scale: 12),
                         LastValueAtProcessing = c.Decimal(precision: 22, scale: 12),
                         PlaceValueTradedAt = c.Decimal(precision: 22, scale: 12),
@@ -180,7 +181,7 @@ namespace Poloniex.Data.Migrations
             DropTable("dbo.Tasks");
             DropTable("dbo.MovingAverageEventActions");
             DropTable("dbo.EventActions");
-            DropTable("dbo.CryptoCurrencyDataPoints");
+            DropTable("dbo.CurrencyDataPoints");
         }
     }
 }

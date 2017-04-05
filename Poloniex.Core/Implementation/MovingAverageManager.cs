@@ -36,7 +36,7 @@ namespace Poloniex.Core.Implementation
             {
                 var eventAction = db.EventActions.Include(x => x.MovingAverageEventAction).Single(x => x.EventActionId == eventActionId);
 
-                var smaInputClosingValues = db.CryptoCurrencyDataPoints
+                var smaInputClosingValues = db.CurrencyDataPoints
                     .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .Take(eventAction.MovingAverageEventAction.Interval)
@@ -65,7 +65,7 @@ namespace Poloniex.Core.Implementation
             {
                 var eventAction = db.EventActions.Include(x => x.MovingAverageEventAction).Single(x => x.EventActionId == eventActionId);
 
-                var closingValue = db.CryptoCurrencyDataPoints
+                var closingValue = db.CurrencyDataPoints
                     .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
@@ -122,7 +122,7 @@ namespace Poloniex.Core.Implementation
                 db.MovingAverages.RemoveRange(delMovingAverages);
                 db.SaveChanges();
 
-                dataPoints = db.CryptoCurrencyDataPoints
+                dataPoints = db.CurrencyDataPoints
                     .Where(x =>
                         x.CurrencyPair == currencyPair &&
                         x.ClosingDateTime <= beginDateTime &&
@@ -131,7 +131,7 @@ namespace Poloniex.Core.Implementation
 
                 if (prevEmaSeed == null)
                 {
-                    smaInput = db.CryptoCurrencyDataPoints
+                    smaInput = db.CurrencyDataPoints
                         .Where(x =>
                             x.CurrencyPair == currencyPair &&
                             x.ClosingDateTime < endDateTime)

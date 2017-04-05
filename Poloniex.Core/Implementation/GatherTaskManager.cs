@@ -5,7 +5,9 @@ using Poloniex.Data.Contexts;
 using Poloniex.Log;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Timers;
 
@@ -70,7 +72,7 @@ namespace Poloniex.Core.Implementation
                     {
                         using (var db = new PoloniexContext())
                         {
-                            dataPoint.ClosingValue = db.CryptoCurrencyDataPoints
+                            dataPoint.ClosingValue = db.CurrencyDataPoints
                                 .Where(x => x.CurrencyPair == dataPoint.CurrencyPair)
                                 .OrderByDescending(x => x.ClosingDateTime)
                                 .First().ClosingValue;
@@ -80,7 +82,7 @@ namespace Poloniex.Core.Implementation
                     using (var db = new PoloniexContext())
                     {
                         dataPoint.CreatedDateTime = DateTime.UtcNow;
-                        db.CryptoCurrencyDataPoints.Add(dataPoint);
+                        db.CurrencyDataPoints.Add(dataPoint);
                         db.SaveChanges();
                     }
 
@@ -117,9 +119,9 @@ namespace Poloniex.Core.Implementation
             using (var db = new PoloniexContext())
             {
                 var del =
-                    db.CryptoCurrencyDataPoints
+                    db.CurrencyDataPoints
                         .Where(x => x.ClosingDateTime <= curDateTime && x.ClosingDateTime >= tmpDelDateTime && x.CurrencyPair == currencyPair).ToList();
-                db.CryptoCurrencyDataPoints.RemoveRange(del);
+                db.CurrencyDataPoints.RemoveRange(del);
                 db.SaveChanges();
             }
 
@@ -135,7 +137,7 @@ namespace Poloniex.Core.Implementation
 
                 poloniexData = poloniexData.OrderBy(x => x.date).ToList();
 
-                var dataPoints = new List<CurrencyDataPoint>();
+                var currencyDataPoints = new List<CurrencyDataPoint>();
                 decimal rate = poloniexData.First().rate;
 
                 // how many minute intervals in 21600 seconds ... 360
@@ -143,7 +145,7 @@ namespace Poloniex.Core.Implementation
                 {
                     int pos = 0;
 
-                    var dataPoint = new CurrencyDataPoint
+                    var currencyDataPoint = new CurrencyDataPoint
                     {
                         CurrencyPair = currencyPair,
                         ClosingDateTime = intervalBeginningDateTime.AddSeconds((j + 1) * 60),
@@ -151,7 +153,7 @@ namespace Poloniex.Core.Implementation
                     };
 
                     bool isAnyData = false;
-                    while (pos < poloniexData.Count && poloniexData[pos].date < dataPoint.ClosingDateTime)
+                    while (pos < poloniexData.Count && poloniexData[pos].date < currencyDataPoint.ClosingDateTime)
                     {
                         isAnyData = true;
                         pos++;
@@ -166,19 +168,47 @@ namespace Poloniex.Core.Implementation
                         rate = poloniexData[pos].rate;
                     }
 
-                    dataPoint.ClosingValue = rate;
+                    currencyDataPoint.ClosingValue = rate;
 
-                    dataPoints.Add(dataPoint);
+                    currencyDataPoints.Add(currencyDataPoint);
                 }
 
-                using (var db = new PoloniexContext())
-                {
-                    db.CryptoCurrencyDataPoints.AddRange(dataPoints);
-                    db.SaveChanges();
-                }
+                BulkInsertCurrencyDataPoints(currencyDataPoints);
             }
 
             return;
+        }
+
+        private static void BulkInsertCurrencyDataPoints(List<CurrencyDataPoint> currencyDataPoints)
+        {
+            var dataTable = currencyDataPoints.ToDataTable<CurrencyDataPoint>();
+
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["Poloniex.Data.Contexts.PoloniexContext"].ToString()))
+            {
+                SqlTransaction transaction = null;
+                connection.Open();
+                try
+                {
+                    transaction = connection.BeginTransaction();
+                    using (var sqlBulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.TableLock, transaction))
+                    {
+                        sqlBulkCopy.DestinationTableName = "CurrencyDataPoints";
+                        //sqlBulkCopy.ColumnMappings.Add("CurrencyDataPointId", "CurrencyDataPointId");
+                        sqlBulkCopy.ColumnMappings.Add("CurrencyPair", "CurrencyPair");
+                        sqlBulkCopy.ColumnMappings.Add("ClosingDateTime", "ClosingDateTime");
+                        sqlBulkCopy.ColumnMappings.Add("ClosingValue", "ClosingValue");
+                        sqlBulkCopy.ColumnMappings.Add("CreatedDateTime", "CreatedDateTime");
+
+                        sqlBulkCopy.WriteToServer(dataTable);
+                    }
+                    transaction.Commit();
+                }
+                catch (Exception exception)
+                {
+                    Logger.WriteException(exception);
+                    transaction.Rollback();
+                }
+            }
         }
     }
 }
