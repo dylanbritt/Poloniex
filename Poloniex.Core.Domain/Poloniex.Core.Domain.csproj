@@ -48,7 +48,6 @@
     <Compile Include="Constants\MovingAverageType.cs" />
     <Compile Include="Constants\Poloniex\OpenOrderKeys.cs" />
     <Compile Include="Constants\LoopStatus.cs" />
-    <Compile Include="Constants\StopLossTailingType.cs" />
     <Compile Include="Constants\TaskType.cs" />
     <Compile Include="Constants\Poloniex\TickerResultKeys.cs" />
     <Compile Include="Constants\Poloniex\TradeOrderType.cs" />

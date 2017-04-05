@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Poloniex.Core.Domain.Models;
 using Poloniex.Core.Domain.Models.Poloniex;
 using Poloniex.Log;
 using RestSharp;

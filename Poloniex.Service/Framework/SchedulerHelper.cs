@@ -8,8 +8,6 @@ namespace Poloniex.Service.Framework
 {
     public static class SchedulerHelper
     {
-
-
         private static class TimerHelper
         {
             private static int? _timerTickInterval { get; set; }
@@ -54,7 +52,6 @@ namespace Poloniex.Service.Framework
             {
                 try
                 {
-                    //TimerHelper.Timer.Stop();
                     SchedulerId = (SchedulerId + 1) % 4;
                     Logger.Write($"SchedulerId: {SchedulerId}", Logger.LogType.ServiceLog);
 
@@ -86,10 +83,6 @@ namespace Poloniex.Service.Framework
                 {
                     Logger.WriteException(exception);
                 }
-                finally
-                {
-                    //TimerHelper.Timer.Start();
-                }
             });
 
             Logger.Write("Exiting TimerTick.", Logger.LogType.ServiceLog);
@@ -111,7 +104,6 @@ namespace Poloniex.Service.Framework
         {
             new GlobalStateManager().ClearTaskLoops();
             TaskLoopScheduler.Terminate();
-
             TimerHelper.Timer.Stop();
             Logger.Write("Service stopped.", Logger.LogType.ServiceLog);
         }
