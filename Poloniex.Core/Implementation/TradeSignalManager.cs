@@ -3,34 +3,22 @@ using Poloniex.Core.Domain.Models;
 using Poloniex.Data.Contexts;
 using Poloniex.Log;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Poloniex.Core.Implementation
 {
-    // TODO: Refactor for multiple currencies
+    // TODO: Refactor for multiple currencies. Continue with implementing static dicitonary for configurations and signals
     public static class TradeSignalManager
     {
-        private static bool _init = true;
+        private static Dictionary<string, TradeSignalConfiguration> Configurations = new Dictionary<string, TradeSignalConfiguration>();
 
-        private static bool _wasBullish = false;
-        private static bool _isBullish = false;
+        private static Dictionary<string, TradeSignalRegistry> Signals = new Dictionary<string, TradeSignalRegistry>();
 
-        public static bool _hasHoldings = false;
-
-        private static bool _shouldBuy = false;
-        private static bool _shouldSell = false;
-
-        public static void InitProcessTradeSignalEventAction()
+        public static void InitProcessEmaCrossOverSignal(string currencyPair, TradeSignalConfiguration tradeSignalConfiguration)
         {
-            _init = true;
-
-            _wasBullish = false;
-            _isBullish = false;
-
-            _hasHoldings = false;
-
-            _shouldBuy = false;
-            _shouldSell = false;
+            Configurations[currencyPair] = tradeSignalConfiguration;
+            Signals[currencyPair] = new TradeSignalRegistry();
         }
 
         public static void ProcessEmaCrossOverSignal(Guid eventActionId)
@@ -39,6 +27,8 @@ namespace Poloniex.Core.Implementation
             {
                 var tradeSignalEventAction = db.TradeSignalEventActions
                     .Single(x => x.EventActionId == eventActionId);
+
+                var currencyPair = tradeSignalEventAction.CurrencyPair;
 
                 var latestShorterMovingAverage = db.MovingAverages
                     .Where(x =>
@@ -54,63 +44,92 @@ namespace Poloniex.Core.Implementation
                     .OrderByDescending(x => x.ClosingDateTime)
                     .First();
 
-                _isBullish = latestShorterMovingAverage.MovingAverageValue > latestLongerMovingAverage.MovingAverageValue;
+                var lastClosingValue = db.CurrencyDataPoints
+                    .Where(x => x.CurrencyPair == tradeSignalEventAction.CurrencyPair)
+                    .OrderByDescending(x => x.ClosingDateTime)
+                    .First().ClosingValue;
 
-                if (!_init)
+                Signals[currencyPair].IsBullish = latestShorterMovingAverage.MovingAverageValue - latestLongerMovingAverage.MovingAverageValue >= 0;
+
+                if (!Signals[currencyPair].Init)
                 {
 
-                    if (!_wasBullish && _isBullish && !_hasHoldings)
+                    if (!Signals[currencyPair].WasBullish && Signals[currencyPair].IsBullish && !Signals[currencyPair].HasHoldings)
                     {
                         // BUY
-                        _shouldBuy = true;
-                    }
-                    if (_wasBullish && !_isBullish && _hasHoldings)
-                    {
-                        // SELL
-                        _shouldSell = true;
+                        Signals[currencyPair].ShouldBuy = true;
+                        Signals[currencyPair].BuyValue = lastClosingValue;
                     }
 
-                    if (_shouldBuy)
+                    if (Signals[currencyPair].HasHoldings)
                     {
-                        var buyTradeSignalOrder = new TradeSignalOrder()
+                        decimal high;
+                        decimal low;
+
+                        high = Signals[currencyPair].BuyValue * (1M + Configurations[currencyPair].StopLossPercentageUpper);
+                        low = Signals[currencyPair].BuyValue * (1M - Configurations[currencyPair].StopLossPercentageLower);
+
+                        if (Configurations[currencyPair].IsStopLossTailing)
                         {
-                            TradeSignalOrderType = TradeSignalOrderType.Buy,
+                            if (lastClosingValue >= high)
+                            {
+                                Signals[currencyPair].BuyValue = high * (1M + Configurations[currencyPair].StopLossPercentageUpper);
+                            }
+                            if (lastClosingValue <= low)
+                            {
+                                Signals[currencyPair].ShouldSell = true;
+                            }
+                        }
+                        else
+                        {
+                            if (lastClosingValue >= high || lastClosingValue <= low)
+                            {
+                                Signals[currencyPair].ShouldSell = true;
+                            }
+                        }
+                    }
+
+                    if (Signals[currencyPair].ShouldBuy)
+                    {
+                        var buyTradeOrder = new TradeOrderEventAction()
+                        {
+                            TradeOrderType = TradeOrderType.Buy,
                             LastValueAtRequest = latestShorterMovingAverage.LastClosingValue,
                             IsProcessed = false,
                             InProgress = false,
                             OrderRequestedDateTime = DateTime.UtcNow
                         };
-                        db.TradeSignalOrders.Add(buyTradeSignalOrder);
+                        db.TradeOrderEventActions.Add(buyTradeOrder);
                         db.SaveChanges();
-                        _hasHoldings = true;
+                        Signals[currencyPair].HasHoldings = true;
                     }
 
-                    if (_shouldSell)
+                    if (Signals[currencyPair].ShouldSell)
                     {
-                        var sellTradeSignalOrder = new TradeSignalOrder()
+                        var sellTradeOrder = new TradeOrderEventAction()
                         {
-                            TradeSignalOrderType = TradeSignalOrderType.Sell,
+                            TradeOrderType = TradeOrderType.Sell,
                             LastValueAtRequest = latestShorterMovingAverage.LastClosingValue,
                             IsProcessed = false,
                             InProgress = false,
                             OrderRequestedDateTime = DateTime.UtcNow
                         };
-                        db.TradeSignalOrders.Add(sellTradeSignalOrder);
+                        db.TradeOrderEventActions.Add(sellTradeOrder);
                         db.SaveChanges();
-                        _hasHoldings = false;
+                        Signals[currencyPair].HasHoldings = false;
                     }
 
-                    Logger.Write($"wasBullish: {_wasBullish}, isBullish: {_isBullish}, hasHolding: {_hasHoldings}, shouldBuy {_shouldBuy}, shouldSell {_shouldSell}", Logger.LogType.TransactionLog);
-                    _shouldBuy = false;
-                    _shouldSell = false;
+                    Logger.Write($"wasBullish: {Signals[currencyPair].WasBullish}, isBullish: {Signals[currencyPair].IsBullish}, hasHolding: {Signals[currencyPair].HasHoldings}, shouldBuy {Signals[currencyPair].ShouldBuy}, shouldSell {Signals[currencyPair].ShouldSell}", Logger.LogType.TransactionLog);
+                    Signals[currencyPair].ShouldBuy = false;
+                    Signals[currencyPair].ShouldSell = false;
                 }
                 else
                 {
                     Logger.Write($"TradeTask init, evenActionId: {eventActionId} (see TransactionLog)", Logger.LogType.ServiceLog);
-                    _init = false;
+                    Signals[currencyPair].Init = false;
                 }
 
-                _wasBullish = _isBullish;
+                Signals[currencyPair].WasBullish = Signals[currencyPair].IsBullish;
             }
         }
     }

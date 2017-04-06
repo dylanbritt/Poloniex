@@ -50,7 +50,14 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Poloniex.Core\Implementation\TradeManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Poloniex.Core\Poloniex.Core.csproj">
+      <Project>{E2A3643E-A2F5-4B9F-AB53-5ABF9150B7B0}</Project>
+      <Name>Poloniex.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

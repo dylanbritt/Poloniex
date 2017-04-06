@@ -54,7 +54,7 @@ namespace ConsoleApplication
 
             bool backFillCurrencyDataPoints = false;
 
-            backFillCurrencyDataPoints = true;
+            //backFillCurrencyDataPoints = true;
             if (backFillCurrencyDataPoints)
             {
                 GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));

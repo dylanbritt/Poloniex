@@ -31,7 +31,7 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                _tasksToStart = db.TaskLoops.Where(x => x.LoopStatus == LoopStatus.RequestToStart).Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
+                _tasksToStart = db.TaskLoops.Where(x => x.LoopStatus == LoopStatus.RequestToStart).Include(x => x.Task.GatherTask).ToList();
             }
         }
 
@@ -39,7 +39,7 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                _tasksToStop = db.TaskLoops.Where(x => x.LoopStatus == LoopStatus.RequestToStop).Include(x => x.Task.GatherTask).Include(x => x.Task.TradeTask).ToList();
+                _tasksToStop = db.TaskLoops.Where(x => x.LoopStatus == LoopStatus.RequestToStop).Include(x => x.Task.GatherTask).ToList();
             }
         }
 

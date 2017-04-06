@@ -7,35 +7,39 @@ using System.Linq;
 
 namespace Poloniex.Core.Implementation
 {
-    public class TradeSignalOrderManager
+    public class TradeOrderManager
     {
         // TODO: Refactor for each processor to only handle its currency
         public static void ProcessTradeSignalOrders(Guid eventActionId)
         {
             using (var db = new PoloniexContext())
             {
+                var currencyPair = db.EventActions.Single(x => x.EventActionId == eventActionId).TradeOrderEventAction.CurrencyPair;
+
                 // get oldest uncompleted order
-                var oldest = db.TradeSignalOrders
-                    .Where(x => !x.IsProcessed)
+                var oldest = db.TradeOrderEventActions
+                    .Where(x =>
+                        x.CurrencyPair == currencyPair &&
+                        !x.IsProcessed)
                     .OrderBy(x => x.OrderRequestedDateTime)
                     .FirstOrDefault();
 
                 if (oldest != null)
                 {
-                    Logger.Write($"Processing TradeSignalOrderId: {oldest.TradeSignalOrderId} for eventActionId: {eventActionId}", Logger.LogType.TransactionLog);
+                    Logger.Write($"Processing TradeOrderEventActionId: {oldest.TradeOrderEventActionId} for eventActionId: {eventActionId}", Logger.LogType.TransactionLog);
 
                     oldest.IsProcessed = true;
                     oldest.InProgress = true;
                     db.Entry(oldest).State = EntityState.Modified;
                     db.SaveChanges();
 
-                    if (oldest.TradeSignalOrderType == TradeSignalOrderType.Buy)
+                    if (oldest.TradeOrderType == TradeOrderType.Buy)
                     {
-                        TradeManager.BuyBtcFromUsdt(ref oldest);
+                        TradeManager.BuyCurrencyFromUsdt(currencyPair, ref oldest);
                     }
                     else
                     {
-                        TradeManager.SellBtcToUsdt(ref oldest);
+                        TradeManager.SellCurrencyToUsdt(currencyPair, ref oldest);
                     }
 
                     oldest.OrderCompletedDateTime = DateTime.UtcNow;

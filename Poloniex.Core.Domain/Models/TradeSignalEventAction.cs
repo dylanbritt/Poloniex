@@ -11,7 +11,7 @@ namespace Poloniex.Core.Domain.Models
         public Guid TradeSignalEventActionId { get; set; }
 
         [Required, MaxLength(32)]
-        public string TradeSignalEventActionType { get; set; }
+        public string TradeSignalType { get; set; }
 
         [Required, MaxLength(16)]
         public string CurrencyPair { get; set; }
@@ -28,5 +28,7 @@ namespace Poloniex.Core.Domain.Models
 
         // Navigation Properties
         public virtual EventAction EventAction { get; set; }
+
+        public virtual TradeSignalConfiguration TradeSignalConfiguration { get; set; }
     }
 }

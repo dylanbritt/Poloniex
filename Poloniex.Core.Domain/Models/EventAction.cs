@@ -29,5 +29,9 @@ namespace Poloniex.Core.Domain.Models
         public virtual Task Task { get; set; }
 
         public virtual MovingAverageEventAction MovingAverageEventAction { get; set; }
+
+        public virtual TradeSignalEventAction TradeSignalEventAction { get; set; }
+
+        public virtual TradeOrderEventAction TradeOrderEventAction { get; set; }
     }
 }

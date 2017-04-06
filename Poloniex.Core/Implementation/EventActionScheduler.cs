@@ -33,7 +33,13 @@ namespace Poloniex.Core.Implementation
             using (var db = new PoloniexContext())
             {
                 var tmpDateTime = DateTime.UtcNow.AddMinutes(-3); // parent task must be running for more than 3 mintues before starting event actions
-                _EventActionsToStart = db.EventActions.Where(x => x.EventActionStatus == EventActionStatus.RequestToStart && x.Task.TaskLoop.LoopStartedDateTime < tmpDateTime).ToList();
+                _EventActionsToStart =
+                    db.EventActions
+                    .Where(x => x.EventActionStatus == EventActionStatus.RequestToStart && x.Task.TaskLoop.LoopStartedDateTime < tmpDateTime)
+                    .Include(x => x.MovingAverageEventAction)
+                    .Include(x => x.TradeSignalEventAction.TradeSignalConfiguration)
+                    .Include(x => x.TradeOrderEventAction)
+                    .ToList();
             }
         }
 
@@ -45,7 +51,6 @@ namespace Poloniex.Core.Implementation
             }
         }
 
-        // TODO: Refactor TradeSignal logic
         public void StartEventActions()
         {
             foreach (var ea in _EventActionsToStart)
@@ -57,11 +62,13 @@ namespace Poloniex.Core.Implementation
                         ea.Action = MovingAverageManager.UpdateEma;
                         break;
                     case EventActionType.TradeSignal:
-                        TradeSignalManager.InitProcessTradeSignalEventAction();
+                        var currencyPair = ea.TradeSignalEventAction.CurrencyPair;
+                        var tradeSignalConfiguration = ea.TradeSignalEventAction.TradeSignalConfiguration;
+                        TradeSignalManager.InitProcessEmaCrossOverSignal(currencyPair, tradeSignalConfiguration);
                         ea.Action = TradeSignalManager.ProcessEmaCrossOverSignal;
                         break;
                     case EventActionType.ProcessTradeSignalOrder:
-                        ea.Action = TradeSignalOrderManager.ProcessTradeSignalOrders;
+                        ea.Action = TradeOrderManager.ProcessTradeSignalOrders;
                         break;
                 }
                 var globalStateEvent = _globalStateManager.GetTaskLoop(ea.TaskId);

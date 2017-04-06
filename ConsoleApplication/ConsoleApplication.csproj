@@ -59,7 +59,6 @@
   <ItemGroup>
     <Compile Include="Helper\ProfitAnalyzer.cs" />
     <Compile Include="Helper\RegressionResults.cs" />
-    <Compile Include="Program_bak.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -7,7 +7,7 @@ namespace Poloniex.Core.Domain.Models
     public class MovingAverageEventAction
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CalculateMovingAverageEventActionId { get; set; }
+        public Guid MovingAverageEventActionId { get; set; }
 
         [Required, MaxLength(32)]
         public string MovingAverageType { get; set; }

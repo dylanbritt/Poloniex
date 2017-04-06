@@ -18,8 +18,6 @@ namespace Poloniex.Core.Domain.Models
 
         public virtual GatherTask GatherTask { get; set; }
 
-        public virtual TradeTask TradeTask { get; set; }
-
         public virtual ICollection<EventAction> EventActions { get; set; }
     }
 }

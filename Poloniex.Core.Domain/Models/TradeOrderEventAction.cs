@@ -4,14 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Poloniex.Core.Domain.Models
 {
-    public class TradeSignalOrder
+    public class TradeOrderEventAction
     {
-
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid TradeSignalOrderId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid TradeOrderEventActionId { get; set; }
 
         [Required, MaxLength(32)]
-        public string TradeSignalOrderType { get; set; }
+        public string TradeOrderType { get; set; }
 
         [Required, MaxLength(16)]
         public string CurrencyPair { get; set; }
@@ -35,5 +34,12 @@ namespace Poloniex.Core.Domain.Models
         public DateTime OrderRequestedDateTime { get; set; }
 
         public DateTime? OrderCompletedDateTime { get; set; }
+
+        // Foriegn Keys
+        [Key, ForeignKey("EventAction")]
+        public Guid EventActionId { get; set; }
+
+        // Navigation Properties
+        public virtual EventAction EventAction { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Constants.Poloniex;
 using Poloniex.Core.Domain.Models;
+using Poloniex.Core.Utility;
 using Poloniex.Log;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,21 +16,27 @@ namespace Poloniex.Core.Implementation
     {
         private static readonly object _syncRoot = new object();
 
-        public static void BuyBtcFromUsdt(ref TradeSignalOrder tradeSignalOrder, decimal percent = 1.00M)
+        private static int _numberOfHoldings = 0;
+        private static int _numberOfTraders = 2;
+        private static decimal _percentageOfUsdtBalance = 0.97M;
+
+        public static void BuyCurrencyFromUsdt(string currencyPair, ref TradeOrderEventAction tradeSignalOrder)
         {
             lock (_syncRoot)
             {
+                decimal percentToTrade = GetPercentToTrade(); // TODO: Refactor to dynamic
+
                 bool isMoving = false;
                 int attemptCount = 0;
                 Dictionary<string, decimal> balances = PoloniexExchangeService.Instance.ReturnBalances();
-                decimal usdtBalance = balances[CurrencyConstants.USDT] * percent;
+                decimal usdtBalance = balances[CurrencyConstants.USDT] * percentToTrade;
                 long orderNumber = 0;
 
                 while (true)
                 {
                     attemptCount++;
                     Dictionary<string, Dictionary<string, decimal>> res = PoloniexExchangeService.Instance.ReturnTicker();
-                    var latestUsdtBtcTicker = res[CurrencyPairConstants.USDT_BTC];
+                    var latestUsdtBtcTicker = res[currencyPair];
 
                     // last
                     decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.last];
@@ -52,7 +59,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.PlaceValueTradedAt = buyRate;
                         // BUY
-                        var buyResult = PoloniexExchangeService.Instance.Buy(CurrencyPairConstants.USDT_BTC, buyRate, buyAmount);
+                        var buyResult = PoloniexExchangeService.Instance.Buy(currencyPair, buyRate, buyAmount);
                         orderNumber = buyResult.orderNumber;
                         Logger.Write($"Order: Purchasing BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}", Logger.LogType.TransactionLog);
                         isMoving = true;
@@ -69,34 +76,37 @@ namespace Poloniex.Core.Implementation
                     Thread.Sleep(10 * 1000); // allow exchange to resolve order
 
                     // Get open orders
-                    var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(CurrencyPairConstants.USDT_BTC);
+                    var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(currencyPair);
                     var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.orderNumber] == orderNumber.ToString());
 
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
                     {
                         tradeSignalOrder.LastValueAtProcessing = buyRate;
+                        _numberOfHoldings++;
                         break;
                     }
                 }
             }
         }
 
-        public static void SellBtcToUsdt(ref TradeSignalOrder tradeSignalOrder, decimal percent = 1.00M)
+        public static void SellCurrencyToUsdt(string currencyPair, ref TradeOrderEventAction tradeSignalOrder)
         {
             lock (_syncRoot)
             {
+                decimal percentToTrade = 1.00M; // always sell 100%
+
                 bool isMoving = false;
                 int attemptCount = 0;
                 Dictionary<string, decimal> balances = PoloniexExchangeService.Instance.ReturnBalances();
-                decimal btcBalance = balances[CurrencyConstants.BTC] * percent;
+                decimal currencyBalance = balances[CurrencyUtility.GetCurrencyFromUsdtCurrencyPair(currencyPair)] * percentToTrade;
                 long orderNumber = 0;
 
                 while (true)
                 {
                     attemptCount++;
                     Dictionary<string, Dictionary<string, decimal>> res = PoloniexExchangeService.Instance.ReturnTicker();
-                    var latestUsdtBtcTicker = res[CurrencyPairConstants.USDT_BTC];
+                    var latestUsdtBtcTicker = res[currencyPair];
 
                     // last
                     decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.last];
@@ -113,13 +123,13 @@ namespace Poloniex.Core.Implementation
                     decimal sellRate = usdtBtcLastPrice;
                     /* PRODUCTION CODE : END */
 
-                    decimal sellAmount = btcBalance;
+                    decimal sellAmount = currencyBalance;
 
                     if (!isMoving)
                     {
                         tradeSignalOrder.PlaceValueTradedAt = sellRate;
                         // SELL
-                        var sellResult = PoloniexExchangeService.Instance.Sell(CurrencyPairConstants.USDT_BTC, sellRate, sellAmount);
+                        var sellResult = PoloniexExchangeService.Instance.Sell(currencyPair, sellRate, sellAmount);
                         orderNumber = sellResult.orderNumber;
                         Logger.Write($"Order: Selling BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}", Logger.LogType.TransactionLog);
                         isMoving = true;
@@ -136,17 +146,41 @@ namespace Poloniex.Core.Implementation
                     Thread.Sleep(10 * 1000); // allow exchange to resolve order
 
                     // Get open orders
-                    var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(CurrencyPairConstants.USDT_BTC);
+                    var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(currencyPair);
                     var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.orderNumber] == orderNumber.ToString());
 
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
                     {
                         tradeSignalOrder.LastValueAtProcessing = sellRate;
+                        _numberOfHoldings--;
                         break;
                     }
                 }
             }
+        }
+
+        private static decimal GetPercentToTrade()
+        {
+            decimal percentToTrade;
+            if (_numberOfHoldings == 0)
+            {
+                percentToTrade = (_percentageOfUsdtBalance / (decimal)_numberOfTraders);
+            }
+            else
+            {
+                decimal originalPercentage = _percentageOfUsdtBalance / (decimal)_numberOfTraders;
+                percentToTrade = (_percentageOfUsdtBalance * originalPercentage) / (_percentageOfUsdtBalance - ((_percentageOfUsdtBalance * originalPercentage) * (decimal)_numberOfHoldings));
+            }
+            return percentToTrade;
+        }
+
+        public static decimal GetPercentToTradeTest(decimal percentOfUsdtBalance, int numberOfTraders, int numberOfHoldings)
+        {
+            _percentageOfUsdtBalance = percentOfUsdtBalance;
+            _numberOfTraders = numberOfTraders;
+            _numberOfHoldings = numberOfHoldings;
+            return GetPercentToTrade();
         }
     }
 }
