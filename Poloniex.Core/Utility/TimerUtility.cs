@@ -11,13 +11,24 @@ namespace Poloniex.Core.Utility
             next = next.AddMilliseconds(-next.Millisecond);
             if (interval % 5 == 0)
             {
-                if (next.Second == 9 || next.Second == 4)
+                if (next.Second % 5 == 9 || next.Second % 5 == 4)
                 {
                     next = next.AddSeconds(1);
                 }
-                if (next.Second == 1 || next.Second == 6)
+                else
+                if (next.Second % 5 == 8 || next.Second % 5 == 3)
+                {
+                    next = next.AddSeconds(2);
+                }
+                else
+                if (next.Second % 5 == 1 || next.Second % 5 == 6)
                 {
                     next = next.AddSeconds(-1);
+                }
+                else
+                if (next.Second % 5 == 2 || next.Second % 5 == 7)
+                {
+                    next = next.AddSeconds(-2);
                 }
             }
             next = next.AddMilliseconds(5);
