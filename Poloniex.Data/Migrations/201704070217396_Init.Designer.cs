@@ -13,7 +13,7 @@ namespace Poloniex.Data.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201704060427059_Init"; }
+            get { return "201704070217396_Init"; }
         }
         
         string IMigrationMetadata.Source

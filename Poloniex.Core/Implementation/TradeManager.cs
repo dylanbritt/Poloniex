@@ -18,7 +18,7 @@ namespace Poloniex.Core.Implementation
         private static int _numberOfTraders = 2;
         private static decimal _percentageOfUsdtBalance = 0.97M;
 
-        public static void BuyCurrencyFromUsdt(string currencyPair, ref TradeOrderEventAction tradeSignalOrder)
+        public static void BuyCurrencyFromUsdt(string currencyPair, ref TradeSignalOrder tradeSignalOrder)
         {
             lock (_syncRoot)
             {
@@ -88,7 +88,7 @@ namespace Poloniex.Core.Implementation
             }
         }
 
-        public static void SellCurrencyToUsdt(string currencyPair, ref TradeOrderEventAction tradeSignalOrder)
+        public static void SellCurrencyToUsdt(string currencyPair, ref TradeSignalOrder tradeSignalOrder)
         {
             lock (_syncRoot)
             {

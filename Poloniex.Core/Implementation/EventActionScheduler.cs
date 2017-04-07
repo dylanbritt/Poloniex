@@ -67,8 +67,8 @@ namespace Poloniex.Core.Implementation
                         TradeSignalManager.InitProcessEmaCrossOverSignal(currencyPair, tradeSignalConfiguration);
                         ea.Action = TradeSignalManager.ProcessEmaCrossOverSignal;
                         break;
-                    case EventActionType.ProcessTradeSignalOrder:
-                        ea.Action = TradeOrderManager.ProcessTradeSignalOrders;
+                    case EventActionType.ProcessTradeOrder:
+                        ea.Action = TradeOrderManager.ProcessTradeOrders;
                         break;
                 }
                 var globalStateEvent = _globalStateManager.GetTaskLoop(ea.TaskId);

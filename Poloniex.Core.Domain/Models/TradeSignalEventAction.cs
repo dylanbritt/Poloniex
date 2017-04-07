@@ -22,6 +22,9 @@ namespace Poloniex.Core.Domain.Models
         [Required]
         public int LongerMovingAverageInterval { get; set; }
 
+        [Required]
+        public int MinutesPerInterval { get; set; }
+
         // Foriegn Keys
         [Key, ForeignKey("EventAction")]
         public Guid EventActionId { get; set; }

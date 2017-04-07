@@ -18,10 +18,13 @@ namespace Poloniex.Data.Contexts
             modelBuilder.Entity<MovingAverage>().Property(x => x.MovingAverageValue).HasPrecision(22, 12);
             modelBuilder.Entity<MovingAverage>().Property(x => x.LastClosingValue).HasPrecision(22, 12);
 
-            modelBuilder.Entity<TradeOrderEventAction>().Property(x => x.LastValueAtRequest).HasPrecision(22, 12);
-            modelBuilder.Entity<TradeOrderEventAction>().Property(x => x.LastValueAtProcessing).HasPrecision(22, 12);
-            modelBuilder.Entity<TradeOrderEventAction>().Property(x => x.PlaceValueTradedAt).HasPrecision(22, 12);
-            modelBuilder.Entity<TradeOrderEventAction>().Property(x => x.MoveValueTradedAt).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalConfiguration>().Property(x => x.StopLossPercentageUpper).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalConfiguration>().Property(x => x.StopLossPercentageLower).HasPrecision(22, 12);
+
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.LastValueAtRequest).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.LastValueAtProcessing).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.PlaceValueTradedAt).HasPrecision(22, 12);
+            modelBuilder.Entity<TradeSignalOrder>().Property(x => x.MoveValueTradedAt).HasPrecision(22, 12);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -34,6 +37,7 @@ namespace Poloniex.Data.Contexts
         public DbSet<Task> Tasks { get; set; }
         public DbSet<TradeSignalEventAction> TradeSignalEventActions { get; set; }
         public DbSet<TradeSignalConfiguration> TradeSignalConfigurations { get; set; }
+        public DbSet<TradeSignalOrder> TradeSignalOrders { get; set; }
         public DbSet<TradeOrderEventAction> TradeOrderEventActions { get; set; }
         public DbSet<User> Users { get; set; }
     }

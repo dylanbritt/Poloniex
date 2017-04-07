@@ -9,14 +9,14 @@ namespace Poloniex.Core.Implementation
 {
     public class TradeOrderManager
     {
-        public static void ProcessTradeSignalOrders(Guid eventActionId)
+        public static void ProcessTradeOrders(Guid eventActionId)
         {
             using (var db = new PoloniexContext())
             {
                 var currencyPair = db.EventActions.Single(x => x.EventActionId == eventActionId).TradeOrderEventAction.CurrencyPair;
 
                 // get oldest uncompleted order
-                var oldest = db.TradeOrderEventActions
+                var oldest = db.TradeSignalOrders
                     .Where(x =>
                         x.CurrencyPair == currencyPair &&
                         !x.IsProcessed)
@@ -25,7 +25,7 @@ namespace Poloniex.Core.Implementation
 
                 if (oldest != null)
                 {
-                    Logger.Write($"Processing TradeOrderEventActionId: {oldest.TradeOrderEventActionId} for eventActionId: {eventActionId}", Logger.LogType.TransactionLog);
+                    Logger.Write($"Processing TradeSignalOrderId: {oldest.TradeSignalOrderId} for eventActionId: {eventActionId}", Logger.LogType.TransactionLog);
 
                     oldest.IsProcessed = true;
                     oldest.InProgress = true;
@@ -43,6 +43,7 @@ namespace Poloniex.Core.Implementation
 
                     oldest.OrderCompletedDateTime = DateTime.UtcNow;
                     oldest.InProgress = false;
+                    oldest.ProcessedByEventActionId = eventActionId;
                     db.Entry(oldest).State = EntityState.Modified;
                     db.SaveChanges();
                 }

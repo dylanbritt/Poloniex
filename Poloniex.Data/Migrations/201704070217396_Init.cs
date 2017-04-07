@@ -89,16 +89,7 @@ namespace Poloniex.Data.Migrations
                     {
                         EventActionId = c.Guid(nullable: false),
                         TradeOrderEventActionId = c.Guid(nullable: false, identity: true),
-                        TradeOrderType = c.String(nullable: false, maxLength: 32),
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
-                        LastValueAtRequest = c.Decimal(nullable: false, precision: 22, scale: 12),
-                        LastValueAtProcessing = c.Decimal(precision: 22, scale: 12),
-                        PlaceValueTradedAt = c.Decimal(precision: 22, scale: 12),
-                        MoveValueTradedAt = c.Decimal(precision: 22, scale: 12),
-                        IsProcessed = c.Boolean(nullable: false),
-                        InProgress = c.Boolean(nullable: false),
-                        OrderRequestedDateTime = c.DateTime(nullable: false),
-                        OrderCompletedDateTime = c.DateTime(),
                     })
                 .PrimaryKey(t => t.EventActionId)
                 .ForeignKey("dbo.EventActions", t => t.EventActionId)
@@ -114,6 +105,7 @@ namespace Poloniex.Data.Migrations
                         CurrencyPair = c.String(nullable: false, maxLength: 16),
                         ShorterMovingAverageInterval = c.Int(nullable: false),
                         LongerMovingAverageInterval = c.Int(nullable: false),
+                        MinutesPerInterval = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.EventActionId)
                 .ForeignKey("dbo.EventActions", t => t.EventActionId)
@@ -125,8 +117,8 @@ namespace Poloniex.Data.Migrations
                     {
                         EventActionId = c.Guid(nullable: false),
                         TradeSignalConfigurationId = c.Guid(nullable: false, identity: true),
-                        StopLossPercentageUpper = c.Decimal(nullable: false, precision: 18, scale: 2),
-                        StopLossPercentageLower = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        StopLossPercentageUpper = c.Decimal(nullable: false, precision: 22, scale: 12),
+                        StopLossPercentageLower = c.Decimal(nullable: false, precision: 22, scale: 12),
                         IsStopLossTailing = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.EventActionId)
@@ -147,6 +139,26 @@ namespace Poloniex.Data.Migrations
                         LastClosingValue = c.Decimal(nullable: false, precision: 22, scale: 12),
                     })
                 .PrimaryKey(t => t.MovingAverageId);
+            
+            CreateTable(
+                "dbo.TradeSignalOrders",
+                c => new
+                    {
+                        TradeSignalOrderId = c.Guid(nullable: false, identity: true),
+                        CurrencyPair = c.String(nullable: false, maxLength: 16),
+                        TradeOrderType = c.String(nullable: false, maxLength: 32),
+                        LastValueAtRequest = c.Decimal(nullable: false, precision: 22, scale: 12),
+                        LastValueAtProcessing = c.Decimal(precision: 22, scale: 12),
+                        PlaceValueTradedAt = c.Decimal(precision: 22, scale: 12),
+                        MoveValueTradedAt = c.Decimal(precision: 22, scale: 12),
+                        IsProcessed = c.Boolean(nullable: false),
+                        InProgress = c.Boolean(nullable: false),
+                        OrderRequestedDateTime = c.DateTime(nullable: false),
+                        OrderCompletedDateTime = c.DateTime(),
+                        CreatedByEventActionId = c.Guid(nullable: false),
+                        ProcessedByEventActionId = c.Guid(),
+                    })
+                .PrimaryKey(t => t.TradeSignalOrderId);
             
             CreateTable(
                 "dbo.Users",
@@ -179,6 +191,7 @@ namespace Poloniex.Data.Migrations
             DropIndex("dbo.MovingAverageEventActions", new[] { "EventActionId" });
             DropIndex("dbo.EventActions", new[] { "TaskId" });
             DropTable("dbo.Users");
+            DropTable("dbo.TradeSignalOrders");
             DropTable("dbo.MovingAverages");
             DropTable("dbo.TradeSignalConfigurations");
             DropTable("dbo.TradeSignalEventActions");

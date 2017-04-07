@@ -50,9 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contexts\PoloniexContext.cs" />
-    <Compile Include="Migrations\201704060427059_Init.cs" />
-    <Compile Include="Migrations\201704060427059_Init.Designer.cs">
-      <DependentUpon>201704060427059_Init.cs</DependentUpon>
+    <Compile Include="Migrations\201704070217396_Init.cs" />
+    <Compile Include="Migrations\201704070217396_Init.Designer.cs">
+      <DependentUpon>201704070217396_Init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,8 +74,8 @@
     <Content Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201704060427059_Init.resx">
-      <DependentUpon>201704060427059_Init.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201704070217396_Init.resx">
+      <DependentUpon>201704070217396_Init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,6 @@
 ﻿using ConsoleApplication.Helper;
+using Poloniex.Log;
+using System;
 
 namespace ConsoleApplication
 {
@@ -6,8 +8,21 @@ namespace ConsoleApplication
     {
         static void Main(string[] args)
         {
-            //RegressionTester.Test();
-            AutoLoader.GetData();
+            Console.WriteLine($"Started: {DateTime.Now}");
+
+            try
+            {
+                //RegressionTester.Test();
+                AutoLoader.GetData();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("Exception occurred!");
+                Logger.WriteException(exception);
+            }
+
+            Console.WriteLine($"Complete: {DateTime.Now}");
+            Console.ReadLine();
         }
     }
 }

@@ -13,8 +13,6 @@ namespace ConsoleApplication.Helper
         public static void Test()
         {
             /* inclusive latest date */
-
-            Console.WriteLine($"Started: {DateTime.Now}");
             var dt = DateTime.UtcNow;
             // trim to start of month (begin)
             dt = dt.AddMilliseconds(-dt.Millisecond);
@@ -24,14 +22,14 @@ namespace ConsoleApplication.Helper
             dt = dt.AddDays(-dt.Day + 1);
             // trim to start of month (end)
 
-            var numberOfDays = 365;
+            var numberOfDays = 60;
 
             var quarterDaysToGoBack = 4 * numberOfDays;
 
             var shorterInterval = 12;
             var longerInterval = 26;
 
-            var minutesPerInterval = 60;
+            var minutesPerInterval = 15;
 
             var currencyPair = CurrencyPairConstants.USDT_BTC;
 
@@ -172,9 +170,6 @@ namespace ConsoleApplication.Helper
                 Console.WriteLine(item.ToString());
                 Console.WriteLine("################################################################");
             }
-
-            Console.WriteLine($"Complete: {DateTime.Now}");
-            Console.ReadLine();
         }
     }
 }

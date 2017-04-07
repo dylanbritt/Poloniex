@@ -90,30 +90,34 @@ namespace Poloniex.Core.Implementation
 
                     if (Signals[currencyPair].ShouldBuy)
                     {
-                        var buyTradeOrder = new TradeOrderEventAction()
+                        var buyTradeSignalOrder = new TradeSignalOrder()
                         {
+                            CurrencyPair = currencyPair,
                             TradeOrderType = TradeOrderType.Buy,
                             LastValueAtRequest = latestShorterMovingAverage.LastClosingValue,
                             IsProcessed = false,
                             InProgress = false,
-                            OrderRequestedDateTime = DateTime.UtcNow
+                            OrderRequestedDateTime = DateTime.UtcNow,
+                            CreatedByEventActionId = eventActionId
                         };
-                        db.TradeOrderEventActions.Add(buyTradeOrder);
+                        db.TradeSignalOrders.Add(buyTradeSignalOrder);
                         db.SaveChanges();
                         Signals[currencyPair].HasHoldings = true;
                     }
 
                     if (Signals[currencyPair].ShouldSell)
                     {
-                        var sellTradeOrder = new TradeOrderEventAction()
+                        var sellTradeSignalOrder = new TradeSignalOrder()
                         {
+                            CurrencyPair = currencyPair,
                             TradeOrderType = TradeOrderType.Sell,
                             LastValueAtRequest = latestShorterMovingAverage.LastClosingValue,
                             IsProcessed = false,
                             InProgress = false,
-                            OrderRequestedDateTime = DateTime.UtcNow
+                            OrderRequestedDateTime = DateTime.UtcNow,
+                            CreatedByEventActionId = eventActionId
                         };
-                        db.TradeOrderEventActions.Add(sellTradeOrder);
+                        db.TradeSignalOrders.Add(sellTradeSignalOrder);
                         db.SaveChanges();
                         Signals[currencyPair].HasHoldings = false;
                     }
