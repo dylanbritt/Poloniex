@@ -187,7 +187,7 @@ namespace Poloniex.Core.Implementation
         {
             var dataTable = currencyDataPoints.ToDataTable<CurrencyDataPoint>();
 
-            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["Poloniex.Data.Contexts.PoloniexContext"].ToString()))
+            using (var connection = new SqlConnection(ConfigurationManager.ConnectionStrings["PoloniexContext"].ToString()))
             {
                 SqlTransaction transaction = null;
                 connection.Open();

@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace Poloniex.Core.Implementation
 {
-    // TODO: Refactor for multiple currencies. Continue with implementing static dicitonary for configurations and signals
     public static class TradeSignalManager
     {
         private static Dictionary<string, TradeSignalConfiguration> Configurations = new Dictionary<string, TradeSignalConfiguration>();

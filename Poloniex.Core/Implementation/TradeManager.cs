@@ -10,8 +10,6 @@ using System.Threading;
 
 namespace Poloniex.Core.Implementation
 {
-
-    // TODO: Refactor for multiple currencies
     public static class TradeManager
     {
         private static readonly object _syncRoot = new object();
@@ -24,7 +22,7 @@ namespace Poloniex.Core.Implementation
         {
             lock (_syncRoot)
             {
-                decimal percentToTrade = GetPercentToTrade(); // TODO: Refactor to dynamic
+                decimal percentToTrade = GetPercentToTrade();
 
                 bool isMoving = false;
                 int attemptCount = 0;

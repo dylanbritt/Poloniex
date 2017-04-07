@@ -57,8 +57,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helper\AutoLoader.cs" />
     <Compile Include="Helper\ProfitAnalyzer.cs" />
     <Compile Include="Helper\RegressionResults.cs" />
+    <Compile Include="Helper\RegressionTester.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
