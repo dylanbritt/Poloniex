@@ -54,7 +54,7 @@ namespace Poloniex.Core.Implementation
                         {
                             try
                             {
-                                GatherTaskManager.BackFillGatherTaskData(4, taskLoop.Task.GatherTask.CurrencyPair, null, DateTime.Parse("01/01/1970"));
+                                GatherTaskManager.BackFillGatherTaskData(4 * 33, taskLoop.Task.GatherTask.CurrencyPair, null, DateTime.Parse("01/01/1970"));
                             }
                             catch (Exception exception)
                             {
