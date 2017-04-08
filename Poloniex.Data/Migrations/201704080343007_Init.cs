@@ -54,6 +54,7 @@ namespace Poloniex.Data.Migrations
                     {
                         TaskId = c.Guid(nullable: false, identity: true),
                         TaskType = c.String(nullable: false, maxLength: 32),
+                        CreatedDateTime = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.TaskId);
             

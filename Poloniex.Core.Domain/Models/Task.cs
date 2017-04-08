@@ -13,6 +13,9 @@ namespace Poloniex.Core.Domain.Models
         [Required, MaxLength(32)]
         public string TaskType { get; set; }
 
+        [Required]
+        public DateTime CreatedDateTime { get; set; }
+
         // Navigation properties
         public virtual TaskLoop TaskLoop { get; set; }
 

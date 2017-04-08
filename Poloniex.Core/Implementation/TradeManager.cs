@@ -81,7 +81,7 @@ namespace Poloniex.Core.Implementation
                         // BUY
                         var buyResult = PoloniexExchangeService.Instance.Buy(currencyPair, buyRate, buyAmount, false, false, true);
                         orderNumber = buyResult.orderNumber;
-                        Logger.Write($"Order: Purchasing BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}", Logger.LogType.TransactionLog);
+                        Logger.Write($"Order: Purchasing BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                         isMoving = true;
                     }
                     else
@@ -90,7 +90,7 @@ namespace Poloniex.Core.Implementation
                         // MOVE
                         var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, buyRate, buyAmount, false, false, true);
                         orderNumber = moveResult.orderNumber;
-                        Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}", Logger.LogType.TransactionLog);
+                        Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                     }
 
                     Thread.Sleep(10 * 1000); // allow exchange to resolve order
@@ -151,7 +151,7 @@ namespace Poloniex.Core.Implementation
                         // SELL
                         var sellResult = PoloniexExchangeService.Instance.Sell(currencyPair, sellRate, sellAmount, false, false, true);
                         orderNumber = sellResult.orderNumber;
-                        Logger.Write($"Order: Selling BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}", Logger.LogType.TransactionLog);
+                        Logger.Write($"Order: Selling BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                         isMoving = true;
                     }
                     else
@@ -160,7 +160,7 @@ namespace Poloniex.Core.Implementation
                         // MOVE
                         var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, sellRate, sellAmount, false, false, true);
                         orderNumber = moveResult.orderNumber;
-                        Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}", Logger.LogType.TransactionLog);
+                        Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                     }
 
                     Thread.Sleep(10 * 1000); // allow exchange to resolve order
