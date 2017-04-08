@@ -114,13 +114,14 @@ namespace Poloniex.Core.Implementation
 
             var curDateTime = inputDateTime ?? DateTime.UtcNow;
 
-            //var tmpDelDateTime = curDateTime.AddSeconds(-2678400).AddMilliseconds(500);
-            var tmpDelDateTime = curDateTime.AddSeconds(-totalTimeToGoBack).AddMilliseconds(500);
+            // add 30 seconds for possible processing delay from gatherers (maintains begin inclusive and end exclusive)
+            var delBeginDateTime = curDateTime.AddSeconds(30);
+            var delEndDateTime = curDateTime.AddSeconds(-totalTimeToGoBack).AddSeconds(30);
             using (var db = new PoloniexContext())
             {
                 var del =
                     db.CurrencyDataPoints
-                        .Where(x => x.ClosingDateTime <= curDateTime && x.ClosingDateTime >= tmpDelDateTime && x.CurrencyPair == currencyPair).ToList();
+                        .Where(x => x.ClosingDateTime <= delBeginDateTime && x.ClosingDateTime >= delEndDateTime && x.CurrencyPair == currencyPair).ToList();
                 db.CurrencyDataPoints.RemoveRange(del);
                 db.SaveChanges();
             }

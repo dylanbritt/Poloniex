@@ -19,7 +19,7 @@ namespace ConsoleApplication.Helper
             // trim to start of day (end)
 
             var numberOfDays = int.Parse(ConfigurationManager.AppSettings["numberOfDaysToBackfill"]);
-            var currencyPairsStr = ConfigurationManager.AppSettings["currencyPair"];
+            var currencyPairsStr = ConfigurationManager.AppSettings["currencyPairs"];
 
             var quarterDaysToGoBack = 4 * numberOfDays;
 
@@ -36,7 +36,6 @@ namespace ConsoleApplication.Helper
             {
                 GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
             });
-
 
             // ################################################################
         }

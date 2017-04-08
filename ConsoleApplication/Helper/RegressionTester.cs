@@ -50,8 +50,8 @@ namespace ConsoleApplication.Helper
             //var window = 120;
             var numberOfTimesToShift = numberOfDays / window;
 
-            DateTime startDateTime = dt.AddSeconds(1);
-            DateTime endDateTime = dt.AddSeconds(-secondsBack).AddSeconds(1);
+            DateTime startDateTime = dt;
+            DateTime endDateTime = dt.AddSeconds(-secondsBack);
 
             bool backFillCurrencyDataPoints = false;
 
@@ -74,13 +74,6 @@ namespace ConsoleApplication.Helper
             }
 
             // ################################################################
-
-            /* time adjustment for bounds 
-             upper bound is inclusive,
-             lower bound is exclusive
-             */
-            endDateTime = endDateTime.AddSeconds(1);
-            startDateTime = startDateTime.AddSeconds(-1);
 
             // start manipulations
             startDateTime = endDateTime.AddDays(window);

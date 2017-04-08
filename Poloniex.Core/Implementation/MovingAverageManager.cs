@@ -99,8 +99,8 @@ namespace Poloniex.Core.Implementation
         public static void BackFillEma(string currencyPair, int interval, int minutesPerInterval, DateTime beginDateTime, DateTime endDateTime, decimal? prevEmaSeed = null)
         {
             // add time buffer to guarantee beginDate inclusive / endDate exclusive
-            endDateTime = endDateTime.AddSeconds(1);
-            beginDateTime = beginDateTime.AddSeconds(1);
+            var delEndDateTime = endDateTime.AddSeconds(30);
+            var delBeginDateTime = beginDateTime.AddSeconds(30);
 
             List<CurrencyDataPoint> dataPoints;
             List<decimal> smaInput;
@@ -112,8 +112,8 @@ namespace Poloniex.Core.Implementation
                         x.CurrencyPair == currencyPair &&
                         x.Interval == interval &&
                         x.MinutesPerInterval == minutesPerInterval &&
-                        x.ClosingDateTime <= beginDateTime &&
-                        x.ClosingDateTime >= endDateTime);
+                        x.ClosingDateTime <= delBeginDateTime &&
+                        x.ClosingDateTime >= delEndDateTime);
                 db.MovingAverages.RemoveRange(delMovingAverages);
                 db.SaveChanges();
 
