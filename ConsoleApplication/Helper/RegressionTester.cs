@@ -31,6 +31,8 @@ namespace ConsoleApplication.Helper
 
             var minutesPerInterval = 15;
 
+            dt = dt.AddMinutes(-(2 * minutesPerInterval));
+
             var currencyPair = CurrencyPairConstants.USDT_BTC;
             //var currencyPair = CurrencyPairConstants.USDT_DASH;
             //var currencyPair = CurrencyPairConstants.USDT_ETH;
@@ -61,7 +63,7 @@ namespace ConsoleApplication.Helper
                 //GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
 
                 // only need to backfill 6 quarter days if AutoLoader is used.
-                GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
+                GatherTaskManager.BackFillGatherTaskData(6, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
             }
 
             bool backFillMovingAverages = false;
