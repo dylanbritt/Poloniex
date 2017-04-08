@@ -1,7 +1,7 @@
-﻿using Poloniex.Core.Domain.Constants;
-using Poloniex.Core.Implementation;
+﻿using Poloniex.Core.Implementation;
 using System;
 using System.Configuration;
+using System.Linq;
 
 namespace ConsoleApplication.Helper
 {
@@ -19,7 +19,7 @@ namespace ConsoleApplication.Helper
             // trim to start of day (end)
 
             var numberOfDays = int.Parse(ConfigurationManager.AppSettings["numberOfDaysToBackfill"]);
-            var currencyPair = ConfigurationManager.AppSettings["currencyPair"];
+            var currencyPairsStr = ConfigurationManager.AppSettings["currencyPair"];
 
             var quarterDaysToGoBack = 4 * numberOfDays;
 
@@ -30,7 +30,13 @@ namespace ConsoleApplication.Helper
 
             // ################################################################
 
-            GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
+            var currencyPairs = currencyPairsStr.Split(',').ToList();
+
+            currencyPairs.ForEach(currencyPair =>
+            {
+                GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
+            });
+
 
             // ################################################################
         }

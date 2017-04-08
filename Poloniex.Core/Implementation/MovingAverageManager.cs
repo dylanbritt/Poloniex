@@ -84,7 +84,7 @@ namespace Poloniex.Core.Implementation
                     .First();
 
                 // -15 seconds to account for timer skew
-                if (closingValue.ClosingDateTime >= prevEma.ClosingDateTime.AddSeconds(-15).AddMinutes(prevEma.Interval * prevEma.MinutesPerInterval))
+                if (closingValue.ClosingDateTime >= prevEma.ClosingDateTime.AddSeconds(-15).AddMinutes(prevEma.MinutesPerInterval))
                 {
                     var curEma = new MovingAverage()
                     {

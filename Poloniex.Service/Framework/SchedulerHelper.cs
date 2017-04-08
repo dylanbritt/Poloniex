@@ -64,16 +64,16 @@ namespace Poloniex.Service.Framework
                             tls.StartTasks();
                             break;
                         case 1:
+                            eas.PollForEventActionsToStop();
+                            eas.StopEventActions();
+                            break;
+                        case 2:
                             eas.PollForEventActionsToStart();
                             eas.StartEventActions();
                             break;
-                        case 2:
+                        case 3:
                             tls.PollForTasksToStop();
                             tls.StopTasks();
-                            break;
-                        case 3:
-                            eas.PollForEventActionsToStop();
-                            eas.StopEventActions();
                             break;
                     }
 
