@@ -22,16 +22,20 @@ namespace ConsoleApplication.Helper
             //dt = dt.AddDays(-dt.Day + 1);
             // trim to start of month (end)
 
-            var numberOfDays = 60;
+            var numberOfDays = 45;
 
             int quarterDaysToGoBack = (int)(4 * (double)numberOfDays);
 
             var shorterInterval = 12;
             var longerInterval = 26;
 
-            var minutesPerInterval = 60;
+            var minutesPerInterval = 15;
 
             var currencyPair = CurrencyPairConstants.USDT_BTC;
+            //var currencyPair = CurrencyPairConstants.USDT_DASH;
+            //var currencyPair = CurrencyPairConstants.USDT_ETH;
+            //var currencyPair = CurrencyPairConstants.USDT_LTC;
+            //var currencyPair = CurrencyPairConstants.USDT_ZEC;
 
             // ################################################################
 
@@ -54,6 +58,9 @@ namespace ConsoleApplication.Helper
             backFillCurrencyDataPoints = true;
             if (backFillCurrencyDataPoints)
             {
+                //GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
+
+                // only need to backfill 6 quarter days if AutoLoader is used.
                 GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
             }
 

@@ -45,16 +45,7 @@ namespace Poloniex.Core.Implementation
                     var interval = eventAction.MovingAverageEventAction.Interval;
                     var minutesPerInterval = eventAction.MovingAverageEventAction.MinutesPerInterval;
 
-                    var smaInputClosingValues = db.CurrencyDataPoints
-                        .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
-                        .OrderByDescending(x => x.ClosingDateTime)
-                        .Take(eventAction.MovingAverageEventAction.Interval * eventAction.MovingAverageEventAction.MinutesPerInterval)
-                        .Select(x => x.ClosingValue)
-                        .ToList();
-
-                    var prevEma = MovingAverageCalculations.CalculateSma(smaInputClosingValues);
-
-                    BackFillEma(currencyPair, interval, minutesPerInterval, beginDateTime, endDateTime, prevEma);
+                    BackFillEma(currencyPair, interval, minutesPerInterval, beginDateTime, endDateTime);
                 }
                 catch (Exception exception)
                 {
@@ -105,7 +96,7 @@ namespace Poloniex.Core.Implementation
 
         /* additional helpers */
 
-        public static void BackFillEma(string currencyPair, int interval, int minutesPerInterval, DateTime beginDateTime, DateTime endDateTime, decimal? prevEmaSeed)
+        public static void BackFillEma(string currencyPair, int interval, int minutesPerInterval, DateTime beginDateTime, DateTime endDateTime, decimal? prevEmaSeed = null)
         {
             // add time buffer to guarantee beginDate inclusive / endDate exclusive
             endDateTime = endDateTime.AddSeconds(1);
