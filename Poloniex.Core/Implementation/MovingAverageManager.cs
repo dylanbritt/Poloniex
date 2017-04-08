@@ -39,28 +39,20 @@ namespace Poloniex.Core.Implementation
                 try
                 {
                     var beginDateTime = DateTime.UtcNow.AddMilliseconds(333);
-                    var endDateTime = beginDateTime.AddHours(-12);
+                    var endDateTime = beginDateTime.AddMinutes(-(eventAction.MovingAverageEventAction.Interval * eventAction.MovingAverageEventAction.MinutesPerInterval));
 
                     var currencyPair = eventAction.MovingAverageEventAction.CurrencyPair;
                     var interval = eventAction.MovingAverageEventAction.Interval;
                     var minutesPerInterval = eventAction.MovingAverageEventAction.MinutesPerInterval;
 
-                    decimal? prevEma = db.MovingAverages
-                        .Where(x => x.CurrencyPair == currencyPair && x.Interval == interval)
+                    var smaInputClosingValues = db.CurrencyDataPoints
+                        .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
                         .OrderByDescending(x => x.ClosingDateTime)
-                        .FirstOrDefault()?.MovingAverageValue;
+                        .Take(eventAction.MovingAverageEventAction.Interval * eventAction.MovingAverageEventAction.MinutesPerInterval)
+                        .Select(x => x.ClosingValue)
+                        .ToList();
 
-                    if (prevEma == null)
-                    {
-                        var smaInputClosingValues = db.CurrencyDataPoints
-                            .Where(x => x.CurrencyPair == eventAction.MovingAverageEventAction.CurrencyPair)
-                            .OrderByDescending(x => x.ClosingDateTime)
-                            .Take(eventAction.MovingAverageEventAction.Interval)
-                            .Select(x => x.ClosingValue)
-                            .ToList();
-
-                        prevEma = MovingAverageCalculations.CalculateSma(smaInputClosingValues);
-                    }
+                    var prevEma = MovingAverageCalculations.CalculateSma(smaInputClosingValues);
 
                     BackFillEma(currencyPair, interval, minutesPerInterval, beginDateTime, endDateTime, prevEma);
                 }
@@ -92,7 +84,7 @@ namespace Poloniex.Core.Implementation
                     .First();
 
                 // -15 seconds to account for timer skew
-                if (closingValue.ClosingDateTime >= prevEma.ClosingDateTime.AddSeconds(-15).AddMinutes(prevEma.Interval))
+                if (closingValue.ClosingDateTime >= prevEma.ClosingDateTime.AddSeconds(-15).AddMinutes(prevEma.Interval * prevEma.MinutesPerInterval))
                 {
                     var curEma = new MovingAverage()
                     {

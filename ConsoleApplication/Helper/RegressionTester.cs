@@ -24,14 +24,14 @@ namespace ConsoleApplication.Helper
 
             var numberOfDays = 60;
 
-            var quarterDaysToGoBack = 4 * numberOfDays;
+            int quarterDaysToGoBack = (int)(4 * (double)numberOfDays);
 
             var shorterInterval = 12;
             var longerInterval = 26;
 
-            var minutesPerInterval = 15;
+            var minutesPerInterval = 60;
 
-            var currencyPair = CurrencyPairConstants.USDT_ETH;
+            var currencyPair = CurrencyPairConstants.USDT_BTC;
 
             // ################################################################
 

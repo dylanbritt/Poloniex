@@ -50,12 +50,11 @@ namespace Poloniex.Core.Implementation
                 switch (taskLoop.Task.TaskType)
                 {
                     case "GatherTask":
-                        // backfill X times interval (or LCD of any intervals)
                         System.Threading.Tasks.Task.Run(() =>
                         {
                             try
                             {
-                                GatherTaskManager.BackFillGatherTaskData(4, taskLoop.Task.GatherTask.CurrencyPair, null, DateTime.Parse("01/01/1970"));
+                                GatherTaskManager.BackFillGatherTaskData(6, taskLoop.Task.GatherTask.CurrencyPair, null, DateTime.Parse("01/01/1970"));
                             }
                             catch (Exception exception)
                             {

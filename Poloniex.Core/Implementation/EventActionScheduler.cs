@@ -33,7 +33,7 @@ namespace Poloniex.Core.Implementation
             {
                 _EventActionsToStart =
                     db.EventActions
-                    .Where(x => 
+                    .Where(x =>
                         x.EventActionStatus == EventActionStatus.RequestToStart &&
                         x.Task.TaskLoop.LoopStatus == LoopStatus.Started)
                     .Include(x => x.MovingAverageEventAction)
