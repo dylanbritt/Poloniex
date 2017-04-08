@@ -1,5 +1,6 @@
 ﻿using Poloniex.Service.Framework;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 
 namespace Poloniex.Service
 {
@@ -12,7 +13,10 @@ namespace Poloniex.Service
 
         protected override void OnStart(string[] args)
         {
-            SchedulerHelper.Start();
+            Task.Run(() =>
+            {
+                SchedulerHelper.Start();
+            });
         }
 
         protected override void OnStop()

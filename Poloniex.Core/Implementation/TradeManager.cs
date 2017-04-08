@@ -3,6 +3,7 @@ using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Constants.Poloniex;
 using Poloniex.Core.Domain.Models;
 using Poloniex.Core.Utility;
+using Poloniex.Data.Contexts;
 using Poloniex.Log;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,18 @@ namespace Poloniex.Core.Implementation
         private static readonly object _syncRoot = new object();
 
         private static int _numberOfHoldings = 0;
-        private static int _numberOfTraders = 2;
+        private static int _numberOfTraders
+        {
+            get
+            {
+                int result;
+                using (var db = new PoloniexContext())
+                {
+                    result = db.EventActions.Where(x => x.EventActionType == EventActionType.ProcessTradeOrder && x.Task.TaskLoop.LoopStatus == LoopStatus.Started).Count();
+                }
+                return result;
+            }
+        }
         private static decimal _percentageOfUsdtBalance = 0.97M;
 
         public static void BuyCurrencyFromUsdt(string currencyPair, ref TradeSignalOrder tradeSignalOrder)
@@ -28,6 +40,16 @@ namespace Poloniex.Core.Implementation
                 int attemptCount = 0;
                 Dictionary<string, decimal> balances = PoloniexExchangeService.Instance.ReturnBalances();
                 decimal usdtBalance = balances[CurrencyConstants.USDT] * percentToTrade;
+
+                /* don't attempt to trade under $1 */
+                if (usdtBalance < 1M)
+                {
+                    tradeSignalOrder.PlaceValueTradedAt = -1;
+                    tradeSignalOrder.MoveValueTradedAt = -1;
+                    tradeSignalOrder.LastValueAtProcessing = -1;
+                    Logger.Write($"Order: Insufficient funds", Logger.LogType.TransactionLog);
+                }
+
                 long orderNumber = 0;
 
                 while (true)
@@ -57,7 +79,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.PlaceValueTradedAt = buyRate;
                         // BUY
-                        var buyResult = PoloniexExchangeService.Instance.Buy(currencyPair, buyRate, buyAmount);
+                        var buyResult = PoloniexExchangeService.Instance.Buy(currencyPair, buyRate, buyAmount, false, false, true);
                         orderNumber = buyResult.orderNumber;
                         Logger.Write($"Order: Purchasing BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}", Logger.LogType.TransactionLog);
                         isMoving = true;
@@ -66,7 +88,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.MoveValueTradedAt = buyRate;
                         // MOVE
-                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, buyRate, buyAmount);
+                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, buyRate, buyAmount, false, false, true);
                         orderNumber = moveResult.orderNumber;
                         Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}", Logger.LogType.TransactionLog);
                     }
@@ -127,7 +149,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.PlaceValueTradedAt = sellRate;
                         // SELL
-                        var sellResult = PoloniexExchangeService.Instance.Sell(currencyPair, sellRate, sellAmount);
+                        var sellResult = PoloniexExchangeService.Instance.Sell(currencyPair, sellRate, sellAmount, false, false, true);
                         orderNumber = sellResult.orderNumber;
                         Logger.Write($"Order: Selling BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}", Logger.LogType.TransactionLog);
                         isMoving = true;
@@ -136,7 +158,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.MoveValueTradedAt = sellRate;
                         // MOVE
-                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, sellRate, sellAmount);
+                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, sellRate, sellAmount, false, false, true);
                         orderNumber = moveResult.orderNumber;
                         Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}", Logger.LogType.TransactionLog);
                     }
@@ -158,16 +180,18 @@ namespace Poloniex.Core.Implementation
             }
         }
 
-        private static decimal GetPercentToTrade()
+        private static decimal GetPercentToTrade(int? numberOfTraders = null)
         {
+            numberOfTraders = numberOfTraders ?? _numberOfTraders;
+
             decimal percentToTrade;
             if (_numberOfHoldings == 0)
             {
-                percentToTrade = (_percentageOfUsdtBalance / (decimal)_numberOfTraders);
+                percentToTrade = (_percentageOfUsdtBalance / (decimal)numberOfTraders);
             }
             else
             {
-                decimal originalPercentage = _percentageOfUsdtBalance / (decimal)_numberOfTraders;
+                decimal originalPercentage = _percentageOfUsdtBalance / (decimal)numberOfTraders;
                 percentToTrade = (_percentageOfUsdtBalance * originalPercentage) / (_percentageOfUsdtBalance - ((_percentageOfUsdtBalance * originalPercentage) * (decimal)_numberOfHoldings));
             }
             return percentToTrade;
@@ -176,9 +200,8 @@ namespace Poloniex.Core.Implementation
         public static decimal GetPercentToTradeTest(decimal percentOfUsdtBalance, int numberOfTraders, int numberOfHoldings)
         {
             _percentageOfUsdtBalance = percentOfUsdtBalance;
-            _numberOfTraders = numberOfTraders;
             _numberOfHoldings = numberOfHoldings;
-            return GetPercentToTrade();
+            return GetPercentToTrade(numberOfTraders);
         }
     }
 }

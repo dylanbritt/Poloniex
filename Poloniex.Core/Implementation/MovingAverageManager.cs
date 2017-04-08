@@ -38,9 +38,8 @@ namespace Poloniex.Core.Implementation
 
                 try
                 {
-
                     var beginDateTime = DateTime.UtcNow.AddMilliseconds(333);
-                    var endDateTime = beginDateTime.AddDays(-33);
+                    var endDateTime = beginDateTime.AddHours(-12);
 
                     var currencyPair = eventAction.MovingAverageEventAction.CurrencyPair;
                     var interval = eventAction.MovingAverageEventAction.Interval;

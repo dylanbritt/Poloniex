@@ -18,8 +18,8 @@ namespace ConsoleApplication.Helper
             dt = dt.AddMilliseconds(-dt.Millisecond);
             dt = dt.AddSeconds(-dt.Second);
             dt = dt.AddMinutes(-dt.Minute);
-            dt = dt.AddHours(-dt.Hour);
-            dt = dt.AddDays(-dt.Day + 1);
+            //dt = dt.AddHours(-dt.Hour);
+            //dt = dt.AddDays(-dt.Day + 1);
             // trim to start of month (end)
 
             var numberOfDays = 60;
@@ -31,7 +31,7 @@ namespace ConsoleApplication.Helper
 
             var minutesPerInterval = 15;
 
-            var currencyPair = CurrencyPairConstants.USDT_BTC;
+            var currencyPair = CurrencyPairConstants.USDT_ETH;
 
             // ################################################################
 
@@ -51,7 +51,7 @@ namespace ConsoleApplication.Helper
 
             bool backFillCurrencyDataPoints = false;
 
-            //backFillCurrencyDataPoints = true;
+            backFillCurrencyDataPoints = true;
             if (backFillCurrencyDataPoints)
             {
                 GatherTaskManager.BackFillGatherTaskData(quarterDaysToGoBack, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));

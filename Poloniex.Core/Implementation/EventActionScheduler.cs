@@ -3,7 +3,6 @@ using Poloniex.Core.Domain.Models;
 using Poloniex.Core.Interfaces;
 using Poloniex.Data.Contexts;
 using Poloniex.Log;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -32,10 +31,11 @@ namespace Poloniex.Core.Implementation
         {
             using (var db = new PoloniexContext())
             {
-                var tmpDateTime = DateTime.UtcNow.AddMinutes(-3); // parent task must be running for more than 3 mintues before starting event actions
                 _EventActionsToStart =
                     db.EventActions
-                    .Where(x => x.EventActionStatus == EventActionStatus.RequestToStart && x.Task.TaskLoop.LoopStartedDateTime < tmpDateTime)
+                    .Where(x => 
+                        x.EventActionStatus == EventActionStatus.RequestToStart &&
+                        x.Task.TaskLoop.LoopStatus == LoopStatus.Started)
                     .Include(x => x.MovingAverageEventAction)
                     .Include(x => x.TradeSignalEventAction.TradeSignalConfiguration)
                     .Include(x => x.TradeOrderEventAction)

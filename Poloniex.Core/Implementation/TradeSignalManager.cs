@@ -122,13 +122,13 @@ namespace Poloniex.Core.Implementation
                         Signals[currencyPair].HasHoldings = false;
                     }
 
-                    Logger.Write($"wasBullish: {Signals[currencyPair].WasBullish}, isBullish: {Signals[currencyPair].IsBullish}, hasHolding: {Signals[currencyPair].HasHoldings}, shouldBuy {Signals[currencyPair].ShouldBuy}, shouldSell {Signals[currencyPair].ShouldSell}", Logger.LogType.TransactionLog);
+                    Logger.Write($"currencyPair: {currencyPair}, wasBullish: {Signals[currencyPair].WasBullish}, isBullish: {Signals[currencyPair].IsBullish}, hasHolding: {Signals[currencyPair].HasHoldings}, shouldBuy {Signals[currencyPair].ShouldBuy}, shouldSell {Signals[currencyPair].ShouldSell}", Logger.LogType.TransactionLog);
                     Signals[currencyPair].ShouldBuy = false;
                     Signals[currencyPair].ShouldSell = false;
                 }
                 else
                 {
-                    Logger.Write($"TradeTask init, evenActionId: {eventActionId} (see TransactionLog)", Logger.LogType.ServiceLog);
+                    Logger.Write($"TradeTask init for {currencyPair}, evenActionId: {eventActionId} (see TransactionLog)", Logger.LogType.ServiceLog);
                     Signals[currencyPair].Init = false;
                 }
 

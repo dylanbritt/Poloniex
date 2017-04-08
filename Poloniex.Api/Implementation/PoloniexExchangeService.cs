@@ -250,6 +250,7 @@ namespace Poloniex.Api.Implementation
                     }
                     catch (Exception exception)
                     {
+                        Logger.Write($"currencyPair: {currencyPair}, rate: {rate}, amount: {amount}");
                         Logger.WriteException(exception);
                         if (count == 2)
                             throw new InvalidOperationException($"PostCommand exceeded three attempts.");
@@ -298,6 +299,7 @@ namespace Poloniex.Api.Implementation
                     }
                     catch (Exception exception)
                     {
+                        Logger.Write($"currencyPair: {currencyPair}, rate: {rate}, amount: {amount}");
                         Logger.WriteException(exception);
                         if (count == 2)
                             throw new InvalidOperationException($"PostCommand exceeded three attempts.");
@@ -310,7 +312,7 @@ namespace Poloniex.Api.Implementation
             }
         }
 
-        public MoveOrderTradeResult MoveOrder(long orderNumber, decimal rate, decimal amount)
+        public MoveOrderTradeResult MoveOrder(long orderNumber, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
         {
             lock (_syncRoot)
             {
@@ -325,6 +327,18 @@ namespace Poloniex.Api.Implementation
                         parameters.Add("orderNumber", orderNumber);
                         parameters.Add("rate", rate);
                         parameters.Add("amount", amount);
+                        if (fillOrKill)
+                        {
+                            parameters.Add("fillOrKill", 1);
+                        }
+                        if (immediateOrCancel)
+                        {
+                            parameters.Add("immediateOrCancel", 1);
+                        }
+                        if (postOnly)
+                        {
+                            parameters.Add("postOnly", 1);
+                        }
 
                         Thread.Sleep(175); // throttle api calls to avoid ban
                         var res = PostCommand(Commands.MoveOrder, parameters);

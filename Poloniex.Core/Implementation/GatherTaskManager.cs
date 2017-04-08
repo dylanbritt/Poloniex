@@ -91,7 +91,7 @@ namespace Poloniex.Core.Implementation
                         var sortedActions = eventActions.OrderBy(x => x.Priority).ToList();
                         for (int i = 0; i < sortedActions.Count(); i++)
                         {
-                            Logger.Write($"Executing action {i + 1} of {sortedActions.Count()} - {sortedActions[i].EventActionType}", Logger.LogType.ServiceLog);
+                            Logger.Write($"Executing action {i + 1} of {sortedActions.Count()} - {sortedActions[i].EventActionType} for {sortedActions[i].EventActionId}", Logger.LogType.ServiceLog);
                             var threadEventAction = sortedActions[i];
                             threadEventAction.Action(threadEventAction.EventActionId);
                         }
