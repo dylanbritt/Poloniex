@@ -58,8 +58,10 @@ namespace Poloniex.Core.Implementation
                     Dictionary<string, Dictionary<string, decimal>> res = PoloniexExchangeService.Instance.ReturnTicker();
                     var latestUsdtBtcTicker = res[currencyPair];
 
-                    // last
-                    decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.last];
+                    // weighted average
+                    decimal usdtCurrencyLastPrice = latestUsdtBtcTicker[TickerResultKeys.last]; // 3
+                    decimal usdtCurrencyLowestAsk = latestUsdtBtcTicker[TickerResultKeys.lowestAsk]; // 2
+                    decimal usdtCurrencyHighestBid = latestUsdtBtcTicker[TickerResultKeys.highestBid]; // 1
 
                     /* TESTING CODE : BEGIN */
                     //decimal buyRate = (0.75M) * usdtBtcLastPrice; // TODO: FIX!!!
@@ -70,7 +72,7 @@ namespace Poloniex.Core.Implementation
                     /* TESTING CODE : END */
 
                     /* PRODUCTION CODE : BEGIN */
-                    decimal buyRate = usdtBtcLastPrice;
+                    decimal buyRate = ((3M * usdtCurrencyLastPrice) + (2M * usdtCurrencyLowestAsk) + (1M * usdtCurrencyHighestBid)) / 6M;
                     /* PRODUCTION CODE : END */
 
                     decimal buyAmount = usdtBalance / buyRate;
@@ -79,7 +81,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.PlaceValueTradedAt = buyRate;
                         // BUY
-                        var buyResult = PoloniexExchangeService.Instance.Buy(currencyPair, buyRate, buyAmount, false, false, true);
+                        var buyResult = PoloniexExchangeService.Instance.Buy(currencyPair, buyRate, buyAmount);
                         orderNumber = buyResult.orderNumber;
                         Logger.Write($"Order: Purchasing BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                         isMoving = true;
@@ -88,7 +90,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.MoveValueTradedAt = buyRate;
                         // MOVE
-                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, buyRate, buyAmount, false, false, true);
+                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, buyRate, buyAmount);
                         orderNumber = moveResult.orderNumber;
                         Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                     }
@@ -128,8 +130,10 @@ namespace Poloniex.Core.Implementation
                     Dictionary<string, Dictionary<string, decimal>> res = PoloniexExchangeService.Instance.ReturnTicker();
                     var latestUsdtBtcTicker = res[currencyPair];
 
-                    // last
-                    decimal usdtBtcLastPrice = latestUsdtBtcTicker[TickerResultKeys.last];
+                    // weighted average
+                    decimal usdtCurrencyLastPrice = latestUsdtBtcTicker[TickerResultKeys.last]; // 3
+                    decimal usdtCurrencyHighestBid = latestUsdtBtcTicker[TickerResultKeys.highestBid]; // 2
+                    decimal usdtCurrencyLowestAsk = latestUsdtBtcTicker[TickerResultKeys.lowestAsk]; // 1
 
                     /* TESTING CODE : BEGIN */
                     //decimal sellRate = (1.25M) * usdtBtcLastPrice; // TODO: FIX!!!
@@ -140,7 +144,7 @@ namespace Poloniex.Core.Implementation
                     /* TESTING CODE : END */
 
                     /* PRODUCTION CODE : BEGIN */
-                    decimal sellRate = usdtBtcLastPrice;
+                    decimal sellRate = ((3M * usdtCurrencyLastPrice) + (2M * usdtCurrencyHighestBid) + (1M * usdtCurrencyLowestAsk)) / 6M; ;
                     /* PRODUCTION CODE : END */
 
                     decimal sellAmount = currencyBalance;
@@ -149,7 +153,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.PlaceValueTradedAt = sellRate;
                         // SELL
-                        var sellResult = PoloniexExchangeService.Instance.Sell(currencyPair, sellRate, sellAmount, false, false, true);
+                        var sellResult = PoloniexExchangeService.Instance.Sell(currencyPair, sellRate, sellAmount);
                         orderNumber = sellResult.orderNumber;
                         Logger.Write($"Order: Selling BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                         isMoving = true;
@@ -158,7 +162,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.MoveValueTradedAt = sellRate;
                         // MOVE
-                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, sellRate, sellAmount, false, false, true);
+                        var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, sellRate, sellAmount);
                         orderNumber = moveResult.orderNumber;
                         Logger.Write($"Order: Moving (attemptCount:{attemptCount}) BTC to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
                     }

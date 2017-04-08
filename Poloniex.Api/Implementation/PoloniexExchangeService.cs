@@ -348,6 +348,7 @@ namespace Poloniex.Api.Implementation
                     }
                     catch (Exception exception)
                     {
+                        Logger.Write($"orderNumber: {orderNumber}, rate: {rate}, amount: {amount}");
                         Logger.WriteException(exception);
                         if (count == 2)
                             throw new InvalidOperationException($"PostCommand exceeded three attempts.");
