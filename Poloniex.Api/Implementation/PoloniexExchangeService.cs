@@ -218,6 +218,10 @@ namespace Poloniex.Api.Implementation
         {
             lock (_syncRoot)
             {
+                // set precision for api
+                rate = RoundDecimalForPoloniexApi(rate);
+                amount = RoundDecimalForPoloniexApi(amount);
+
                 short count = 0;
                 while (true)
                 {
@@ -267,6 +271,10 @@ namespace Poloniex.Api.Implementation
         {
             lock (_syncRoot)
             {
+                // set precision for api
+                rate = RoundDecimalForPoloniexApi(rate);
+                amount = RoundDecimalForPoloniexApi(amount);
+
                 short count = 0;
                 while (true)
                 {
@@ -316,6 +324,10 @@ namespace Poloniex.Api.Implementation
         {
             lock (_syncRoot)
             {
+                // set precision for api
+                rate = RoundDecimalForPoloniexApi(rate);
+                amount = RoundDecimalForPoloniexApi(amount);
+
                 short count = 0;
                 while (true)
                 {
@@ -359,6 +371,11 @@ namespace Poloniex.Api.Implementation
                     // ################################################################
                 }
             }
+        }
+
+        public static decimal RoundDecimalForPoloniexApi(decimal d)
+        {
+            return Math.Round(d, 8);
         }
     }
 }
