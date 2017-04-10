@@ -103,7 +103,9 @@ namespace Poloniex.Api.Implementation
             }
             catch (WebException webException)
             {
-                result = new StreamReader(webException.Response.GetResponseStream()).ReadToEnd();
+                var ex = new StreamReader(webException.Response.GetResponseStream()).ReadToEnd();
+                Logger.Write($"PostCommand exception: {ex}");
+                throw webException;
             }
 
             return result;
