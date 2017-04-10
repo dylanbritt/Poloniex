@@ -1,6 +1,4 @@
-﻿using Poloniex.Core.Domain.Constants;
-
-namespace Poloniex.Core.Utility
+﻿namespace Poloniex.Core.Utility
 {
     public class CurrencyUtility
     {
@@ -8,15 +6,7 @@ namespace Poloniex.Core.Utility
         {
             string result = null;
 
-            switch (currencyPair)
-            {
-                case CurrencyPairConstants.USDT_BTC:
-                    result = CurrencyConstants.BTC;
-                    break;
-                case CurrencyPairConstants.USDT_ETH:
-                    result = CurrencyConstants.ETH;
-                    break;
-            }
+            result = currencyPair.Substring(5);
 
             return result;
         }

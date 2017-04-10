@@ -5,6 +5,7 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
@@ -88,13 +89,22 @@ namespace Poloniex.Api.Implementation
                 stringHash = BitConverter.ToString(byteHash).Replace("-", "").ToLower();
             }
 
-            var webClient = new WebClient();
-            webClient.Headers.Add("Key", apiKey);
-            webClient.Headers.Add("Sign", stringHash);
+            string result;
 
-            webClient.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+            try
+            {
+                var webClient = new WebClient();
+                webClient.Headers.Add("Key", apiKey);
+                webClient.Headers.Add("Sign", stringHash);
 
-            var result = webClient.UploadString(uri, "POST", postData);
+                webClient.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+
+                result = webClient.UploadString(uri, "POST", postData);
+            }
+            catch (WebException webException)
+            {
+                result = new StreamReader(webException.Response.GetResponseStream()).ReadToEnd();
+            }
 
             return result;
         }

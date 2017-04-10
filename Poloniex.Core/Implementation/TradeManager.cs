@@ -1,4 +1,5 @@
-﻿using Poloniex.Api.Implementation;
+﻿using Newtonsoft.Json;
+using Poloniex.Api.Implementation;
 using Poloniex.Core.Domain.Constants;
 using Poloniex.Core.Domain.Constants.Poloniex;
 using Poloniex.Core.Domain.Models;
@@ -81,6 +82,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.PlaceValueTradedAt = buyRate;
                         // BUY
+                        Thread.Sleep(1000); // guarantee nonce (unix timestamp)
                         var buyResult = PoloniexExchangeService.Instance.Buy(currencyPair, buyRate, buyAmount);
                         orderNumber = buyResult.orderNumber;
                         Logger.Write($"Order: Purchasing {currencyPair} from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
@@ -90,6 +92,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.MoveValueTradedAt = buyRate;
                         // MOVE
+                        Thread.Sleep(1000); // guarantee nonce (unix timestamp)
                         var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, buyRate, buyAmount);
                         orderNumber = moveResult.orderNumber;
                         Logger.Write($"Order: Moving (attemptCount:{attemptCount}) {currencyPair} from USDT; buyRate: {buyRate}, buyAmount: {buyAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
@@ -100,6 +103,8 @@ namespace Poloniex.Core.Implementation
                     // Get open orders
                     var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(currencyPair);
                     var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.orderNumber] == orderNumber.ToString());
+
+                    Logger.Write($"openOrders: {JsonConvert.SerializeObject(openOrders)}", Logger.LogType.TransactionLog);
 
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
@@ -153,6 +158,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.PlaceValueTradedAt = sellRate;
                         // SELL
+                        Thread.Sleep(1000); // guarantee nonce (unix timestamp)
                         var sellResult = PoloniexExchangeService.Instance.Sell(currencyPair, sellRate, sellAmount);
                         orderNumber = sellResult.orderNumber;
                         Logger.Write($"Order: Selling {currencyPair} to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
@@ -162,6 +168,7 @@ namespace Poloniex.Core.Implementation
                     {
                         tradeSignalOrder.MoveValueTradedAt = sellRate;
                         // MOVE
+                        Thread.Sleep(1000); // guarantee nonce (unix timestamp)
                         var moveResult = PoloniexExchangeService.Instance.MoveOrder(orderNumber, sellRate, sellAmount);
                         orderNumber = moveResult.orderNumber;
                         Logger.Write($"Order: Moving (attemptCount:{attemptCount}) {currencyPair} to USDT; sellRate: {sellRate}, sellAmount: {sellAmount}, _numberOfTraders: {_numberOfTraders}, _numberOfHoldings: {_numberOfHoldings}", Logger.LogType.TransactionLog);
@@ -172,6 +179,8 @@ namespace Poloniex.Core.Implementation
                     // Get open orders
                     var openOrders = PoloniexExchangeService.Instance.ReturnOpenOrders(currencyPair);
                     var originalBuyOrder = openOrders.SingleOrDefault(x => x[OpenOrderKeys.orderNumber] == orderNumber.ToString());
+
+                    Logger.Write($"openOrders: {JsonConvert.SerializeObject(openOrders)}", Logger.LogType.TransactionLog);
 
                     bool isTradeComplete = originalBuyOrder == null;
                     if (isTradeComplete)
