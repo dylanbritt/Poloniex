@@ -21,7 +21,7 @@ namespace ConsoleApplication.Helper
                 foreach (var currencyPair in currencyPairs)
                 {
                     /* inclusive latest date */
-                    var dt = DateTime.UtcNow;
+                    var dt = DateTime.UtcNow.AddDays(0);
                     // trim to start of hour (begin)
                     dt = dt.AddMilliseconds(-dt.Millisecond);
                     dt = dt.AddSeconds(-dt.Second);
@@ -201,7 +201,8 @@ namespace ConsoleApplication.Helper
                     }
                 }
             }
-            foreach (var item in _regressionResults)
+
+            foreach (var item in _regressionResults.OrderByDescending(x => x.Value.TotalProfit))
             {
                 Console.WriteLine("XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx");
                 Console.WriteLine($"key: {item.Key}\nvalue: {item.Value.ToString()}");

@@ -36,7 +36,7 @@ namespace ConsoleApplication.Helper
             sb.Append($"\tStartDateTime: {StartDateTime}, EndDateTime: {EndDateTime}, \n");
             sb.Append($"\tDataMin: {DataMin}, DataMax: {DataMax}, DataMean: {DataMean}, DataMedian: {DataMedian}, DataStd: {DataStd}, \n");
             sb.Append($"\tProfitMin: {ProfitMin}, ProfitMax: {ProfitMax}, ProfitMean: {ProfitMean}, ProfitMedian: {ProfitMedian}, ProfitStd: {ProfitStd}, \n");
-            sb.Append($" --> PercentageChange: {Math.Round(PercentageChange, 4)} TotalProfit: {TotalProfit} \n");
+            sb.Append($" --> PercentageChange: {Math.Round(PercentageChange * 100, 4)}%, TotalProfit: {TotalProfit} \n");
 
             return sb.ToString();
         }
