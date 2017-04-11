@@ -10,10 +10,7 @@ namespace ConsoleApplication.Helper
         /* Config */
         public static decimal StopLossPercentageUpper = 0.03M;
         public static decimal StopLossPercentageLower = 0.03M;
-        public static decimal DecayPercentage = 0.5M;
         public static bool IsClimbing = true;
-        public static int DecayingCount = 1;
-        public static bool IsDecayingClimb = false; // Logic isn't fully implemented
 
         /* data stats */
         public static List<decimal> DataTracker = new List<decimal>();
@@ -194,21 +191,12 @@ namespace ConsoleApplication.Helper
                         {
                             if (lastClosingValue >= high)
                             {
-                                if (IsDecayingClimb)
-                                {
-                                    _buyValue = high * (1M + StopLossPercentageUpper * (decimal)Math.Pow((double)DecayPercentage, DecayingCount));
-                                    DecayingCount++;
-                                }
-                                else
-                                {
-                                    _buyValue = high * (1M + StopLossPercentageUpper);
-                                }
+                                _buyValue = high * (1M + StopLossPercentageUpper);
                             }
 
                             if (lastClosingValue <= low)
                             {
                                 _shouldSell = true;
-                                DecayingCount = 1;
                             }
                         }
                         else
@@ -216,7 +204,6 @@ namespace ConsoleApplication.Helper
                             if (lastClosingValue >= high || lastClosingValue <= low)
                             {
                                 _shouldSell = true;
-                                DecayingCount = 1;
                             }
                         }
                     }
@@ -297,21 +284,12 @@ namespace ConsoleApplication.Helper
                         {
                             if (lastClosingValue >= high)
                             {
-                                if (IsDecayingClimb)
-                                {
-                                    _buyValue = high * (1M + StopLossPercentageUpper * (decimal)Math.Pow((double)DecayPercentage, DecayingCount));
-                                    DecayingCount++;
-                                }
-                                else
-                                {
-                                    _buyValue = high * (1M + StopLossPercentageUpper);
-                                }
+                                _buyValue = high * (1M + StopLossPercentageUpper);
                             }
 
                             if (lastClosingValue <= low)
                             {
                                 _shouldSell = true;
-                                DecayingCount = 1;
                             }
                         }
                         else
@@ -319,7 +297,6 @@ namespace ConsoleApplication.Helper
                             if (lastClosingValue >= high || lastClosingValue <= low)
                             {
                                 _shouldSell = true;
-                                DecayingCount = 1;
                             }
                         }
                     }
