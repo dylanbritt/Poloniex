@@ -12,8 +12,8 @@ namespace ConsoleApplication
 
             try
             {
-                //RegressionTester.Test();
-                AutoLoader.GetData();
+                RegressionTester.Test();
+                //AutoLoader.GetData();
             }
             catch (Exception exception)
             {

@@ -174,7 +174,7 @@ namespace ConsoleApplication.Helper
                             ProfitMean = profitMean,
                             ProfitMedian = profitMedian,
                             ProfitStd = profitStd,
-                            PercentageChange = (totalProfit - inputBalance) / inputBalance,
+                            PercentageChange = (totalProfit) / inputBalance,
                             TotalProfit = totalProfit
                         });
 
