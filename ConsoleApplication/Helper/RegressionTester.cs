@@ -12,6 +12,22 @@ namespace ConsoleApplication.Helper
     {
         private static Dictionary<string, RegressionResults> _regressionResults = new Dictionary<string, Helper.RegressionResults>();
 
+        //private static Dictionary<string, int> ForceIntervalForRegression = new Dictionary<string, int>()
+        //{
+        //    {"USDT_DASH", 45 },
+        //    {"USDT_ETH", 30 },
+        //    {"USDT_BTC", 45 },
+        //    {"USDT_REP", 45 },
+        //    {"USDT_XMR", 60 },
+        //    {"USDT_ETC", 60 },
+        //    {"USDT_ZEC", 60 },
+        //    {"USDT_NXT", 60 },
+        //    {"USDT_LTC", 60 },
+        //    {"USDT_XRP", 60 },
+        //    {"USDT_STR", 60 }
+        //};
+        private static Dictionary<string, int> ForceIntervalForRegression = null;
+
         public static void Test()
         {
             var currencyPairsStr = ConfigurationManager.AppSettings["currencyPairs"];
@@ -73,6 +89,13 @@ namespace ConsoleApplication.Helper
                         // only need to backfill 6 quarter days if AutoLoader is used.
                         GatherTaskManager.BackFillGatherTaskData(6, currencyPair, dt, DateTime.Parse("1970-01-01 00:00:00.000"));
                     }
+
+                    // ################################################################
+                    if (ForceIntervalForRegression != null && ForceIntervalForRegression[currencyPair] != minutesPerInterval)
+                    {
+                        continue;
+                    }
+                    // ################################################################
 
                     bool backFillMovingAverages = false;
 
